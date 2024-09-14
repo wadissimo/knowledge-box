@@ -1,3 +1,11 @@
+# env file
+.env
+
+**/__pycache__
+
+.vs
+
+
 # Logs
 logs
 *.log
