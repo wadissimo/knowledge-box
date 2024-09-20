@@ -1,6 +1,6 @@
-// src/components/TrainingDetail.js
+import React, { useState } from "react";
+import styles from "./Training.module.css";
 
-import React, { useState } from 'react';
 import {
   Button,
   Table,
@@ -16,35 +16,47 @@ import {
   DialogTitle,
   TextField,
   Paper,
-} from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+} from "@mui/material";
+import { Add, Edit, Delete } from "@mui/icons-material";
 
+import { tableCellClasses } from "@mui/material/TableCell";
+import { Link, useParams } from "react-router-dom";
 
-import { styled } from '@mui/material/styles';
-import { tableCellClasses } from '@mui/material/TableCell';
-import { Link, useParams } from 'react-router-dom';
-
-
-const Training  = ({ collections }) => {
+const Training = ({ collections }) => {
   const [currentCard, setCurrentCard] = useState();
+  const [isFlipped, setIsFlipped] = useState(false);
   const { collectionId } = useParams();
-  const currentCollection = collections.find((collection) => collection.id === parseInt(collectionId));
-  
-  
-  
+  const currentCollection = collections.find(
+    (collection) => collection.id === parseInt(collectionId)
+  );
+
   console.log("currentCollection", currentCollection);
-  const curCard = currentCollection.cards[0] 
+  const curCard = currentCollection.cards[0];
+
+  function handleCardClick() {
+    console.log("card click", isFlipped);
+    setIsFlipped((val) => !val); // reverse
+  }
   //setCurrentCard(currentCollection.cards[0]);
   console.log("curCard", curCard);
   return (
-    <div style={{ padding: '20px' }}>
-      <div>{currentCollection.name}</div>
-      <div>{curCard.frontText}</div>
-      
+    <div className={styles.card} onClick={handleCardClick}>
+      <div className={isFlipped ? styles.flipped : ""}>
+        <div style={{ padding: "20px" }} className={styles.front}>
+          <div className={styles.top}>{currentCollection.name}</div>
+          <div className={styles.top}>Front</div>
+          <div className={styles.middle}>{curCard.frontText}</div>
+          <div className={styles.bottom}>Buttons</div>
+        </div>
+        <div style={{ padding: "20px" }} className={styles.back}>
+          <div className={styles.top}>{currentCollection.name}</div>
+          <div className={styles.top}>Back</div>
+          <div className={styles.middle}>{curCard.backText}</div>
+          <div className={styles.bottom}>Buttons</div>
+        </div>
+      </div>
     </div>
   );
 };
-
-
 
 export default Training;

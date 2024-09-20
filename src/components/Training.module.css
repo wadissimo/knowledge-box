@@ -1,0 +1,60 @@
+.card {
+  padding: 2rem 3rem;
+
+  max-height: 70%;
+  align-items: center;
+  display: flex;
+  width: 100%;
+}
+
+.card .front {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  background-color: lightblue;
+  height: 400px;
+  width: 200px;
+  border-radius: 7px;
+  transform: rotateY(90deg);
+  transition: all ease-in 0.2s;
+  position: absolute;
+}
+
+.flipped .front {
+  transform: rotateY(0deg);
+  transition-delay: 0.2s;
+}
+
+.card .back {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  height: 400px;
+  width: 200px;
+  background-color: lightblue;
+  border-radius: 7px;
+  transition: all ease-in 0.2s;
+  transition-delay: 0.2s;
+}
+
+.flipped .back {
+  transform: rotateY(90deg);
+  transition-delay: 0s;
+}
+
+.top {
+  align-self: center;
+}
+
+.middle {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bottom {
+  align-self: center;
+}
