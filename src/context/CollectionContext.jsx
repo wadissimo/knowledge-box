@@ -42,8 +42,15 @@ function CollectionProvider({ children }) {
     setCollections((collections) => [...collections, newCollection]);
   }
   // Update
-  function updateCollection(updatedCollection) {
-    console.log("updateCollection", updatedCollection);
+  async function updateCollection(updatedCollection) {
+    const res = await fetch(`${API_BASE_URL}/${updatedCollection.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedCollection),
+    });
+    console.log("updateCollection", updatedCollection, res);
     setCollections((collections) =>
       collections.map((collection) =>
         collection.id === updatedCollection.id ? updatedCollection : collection

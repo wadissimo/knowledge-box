@@ -1,7 +1,7 @@
 {
   "collections": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Capitals",
       "cards": [
         {
@@ -18,11 +18,99 @@
           "id": 3,
           "front": "Italy",
           "back": "Rome"
+        },
+        {
+          "id": "863f648b-e5bb-4188-9870-2e6623935cc1",
+          "front": "Switzerland",
+          "back": "Bern"
+        },
+        {
+          "id": "fc0f214a-4005-4330-9b32-1eef219b0902",
+          "front": "Russia",
+          "back": "Moscow"
         }
-      ]
+      ],
+      "updatedCollection": {
+        "id": "1",
+        "name": "Capitals",
+        "cards": [
+          {
+            "id": 1,
+            "front": "Germany",
+            "back": "Berlin"
+          },
+          {
+            "id": 2,
+            "front": "Spain",
+            "back": "Madrin"
+          },
+          {
+            "id": 3,
+            "front": "Italy",
+            "back": "Rome"
+          },
+          {
+            "id": "9a42fd87-870d-4216-b7dd-ac8dc46cafd0",
+            "front": "asdsa",
+            "back": "dsadsadsa"
+          }
+        ],
+        "updatedCollection": {
+          "id": "1",
+          "name": "Capitals",
+          "cards": [
+            {
+              "id": 1,
+              "front": "Germany",
+              "back": "Berlin"
+            },
+            {
+              "id": 2,
+              "front": "Spain",
+              "back": "Madrin"
+            },
+            {
+              "id": 3,
+              "front": "Italy",
+              "back": "Rome"
+            },
+            {
+              "id": "366ebb4c-32ee-494a-8776-27e9dc81aab9",
+              "front": "sadsadas",
+              "back": "dsadsadsa"
+            }
+          ],
+          "updatedCollection": {
+            "id": "1",
+            "name": "Capitals",
+            "cards": [
+              {
+                "id": 1,
+                "front": "Germany",
+                "back": "Berlin"
+              },
+              {
+                "id": 2,
+                "front": "Spain",
+                "back": "Madrin"
+              },
+              {
+                "id": 3,
+                "front": "Italy",
+                "back": "Rome"
+              },
+              {
+                "id": "3e7a8d79-7767-49c2-8174-4e5387e76fbf",
+                "front": "aaa",
+                "back": "bbb"
+              }
+            ]
+          }
+        }
+      }
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "English-German",
       "cards": [
         {

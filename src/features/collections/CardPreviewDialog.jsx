@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
+import Card from "../card/Card";
 
 export default function CardPreviewDialog({
   openPreview,
@@ -26,13 +27,14 @@ export default function CardPreviewDialog({
     <Dialog open={openPreview} onClose={onPreviewClose}>
       <DialogTitle>Card Preview</DialogTitle>
       <DialogContent>
-        <Typography
+        <Card card={previewCard} />
+        {/* <Typography
           variant="h6"
           style={{ textAlign: "center", cursor: "pointer" }}
           onClick={() => setShowFront(!showFront)}
         >
           {showFront ? previewCard?.front : previewCard?.back}
-        </Typography>
+        </Typography> */}
       </DialogContent>
       <DialogActions>
         <Button onClick={onPreviewClose} color="primary">
