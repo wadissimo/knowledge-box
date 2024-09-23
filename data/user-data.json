@@ -5,14 +5,17 @@
       "name": "Capitals",
       "cards": [
         {
+          "id": 1,
           "front": "Germany",
           "back": "Berlin"
         },
         {
+          "id": 2,
           "front": "Spain",
           "back": "Madrin"
         },
         {
+          "id": 3,
           "front": "Italy",
           "back": "Rome"
         }
@@ -23,14 +26,17 @@
       "name": "English-German",
       "cards": [
         {
+          "id": 1,
           "front": "city",
           "back": "Stadt"
         },
         {
+          "id": 2,
           "front": "street",
           "back": "Straße"
         },
         {
+          "id": 3,
           "front": "house",
           "back": "Haus"
         }

@@ -12,7 +12,9 @@ import Sidebar from "./features/ui/Sidebar";
 import TrainingOverview from "./features/training/TrainingOverview";
 import Training from "./features/training/Training";
 import CollectionsPage from "./features/collections/CollectionsPage";
-import ManageCollectionCards from "./features/collections/ManageCollectionCards";
+import ManageCollectionsPage, {
+  collectionLoader,
+} from "./features/collections/ManageCollectionsPage";
 import Card from "./data/Card";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -45,7 +47,8 @@ const router = createBrowserRouter([
   },
   {
     path: "/cards/:id",
-    element: <ManageCollectionCards />,
+    element: <ManageCollectionsPage />,
+    loader: collectionLoader,
   },
   {
     path: "/training",
