@@ -1,0 +1,40 @@
+{
+  "collections": [
+    {
+      "id": 1,
+      "name": "Capitals",
+      "cards": [
+        {
+          "front": "Germany",
+          "back": "Berlin"
+        },
+        {
+          "front": "Spain",
+          "back": "Madrin"
+        },
+        {
+          "front": "Italy",
+          "back": "Rome"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "English-German",
+      "cards": [
+        {
+          "front": "city",
+          "back": "Stadt"
+        },
+        {
+          "front": "street",
+          "back": "Straße"
+        },
+        {
+          "front": "house",
+          "back": "Haus"
+        }
+      ]
+    }
+  ]
+}

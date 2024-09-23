@@ -21,8 +21,10 @@ import { Add, Edit, Delete } from "@mui/icons-material";
 
 import { tableCellClasses } from "@mui/material/TableCell";
 import { Link, useParams } from "react-router-dom";
+import { useCollections } from "../../context/CollectionContext";
 
-const Training = ({ collections }) => {
+const Training = () => {
+  const { collections } = useCollections();
   const [currentCard, setCurrentCard] = useState();
   const [isFlipped, setIsFlipped] = useState(false);
   const { collectionId } = useParams();
@@ -38,7 +40,6 @@ const Training = ({ collections }) => {
     setIsFlipped((val) => !val); // reverse
   }
   //setCurrentCard(currentCollection.cards[0]);
-  console.log("curCard", curCard);
   return (
     <div className={styles.card} onClick={handleCardClick}>
       <div className={isFlipped ? styles.flipped : ""}>

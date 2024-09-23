@@ -21,8 +21,9 @@ import { Link, useParams } from "react-router-dom";
 
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
+import { useCollections } from "../../context/CollectionContext";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "http://localhost:8010/collections";
 
 const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -43,7 +44,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const ManageCollectionCards = ({ collections, setCollections }) => {
+const ManageCollectionCards = () => {
+  //const { collections, setCollections } = useCollections();
   const { id } = useParams();
   const [cards, setCards] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -57,9 +59,11 @@ const ManageCollectionCards = ({ collections, setCollections }) => {
   const [showFront, setShowFront] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/collections/${id}/cards`)
+    fetch(`${API_BASE_URL}/${id}`)
       .then((response) => response.json())
-      .then((data) => setCards(data));
+      .then((data) => {
+        setCards(data.cards);
+      });
   }, [id]);
 
   const handleDialogOpen = (
@@ -86,6 +90,7 @@ const ManageCollectionCards = ({ collections, setCollections }) => {
   const handlePreviewClose = () => {
     setOpenPreview(false);
   };
+
   const addCard = (frontText, backText) => {
     fetch(`${API_BASE_URL}/collections/${id}/cards`, {
       method: "POST",
@@ -165,8 +170,8 @@ const ManageCollectionCards = ({ collections, setCollections }) => {
             <TableBody>
               {cards.map((card) => (
                 <StyledTableRow key={card.id}>
-                  <TableCell>{card.frontText}</TableCell>
-                  <TableCell>{card.backText}</TableCell>
+                  <TableCell>{card.front}</TableCell>
+                  <TableCell>{card.back}</TableCell>
                   <TableCell>
                     <IconButton
                       onClick={() => handlePreview(card.id)}
