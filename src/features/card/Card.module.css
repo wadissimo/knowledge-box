@@ -1,6 +1,6 @@
 .card {
   padding: 2rem 3rem;
-
+  justify-content: center;
   max-height: 70%;
   align-items: center;
   display: flex;

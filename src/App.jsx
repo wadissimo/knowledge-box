@@ -23,6 +23,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import "./App.css";
 import { CollectionProvider } from "./context/CollectionContext";
+import AppLayout from "./AppLayout";
 
 // Define a custom theme
 const theme = createTheme({
@@ -39,24 +40,30 @@ const theme = createTheme({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <CollectionsPage />,
-  },
-  {
-    path: "/collections",
-    element: <CollectionsPage />,
-  },
-  {
-    path: "/cards/:id",
-    element: <ManageCollectionsPage />,
-    loader: collectionLoader,
-  },
-  {
-    path: "/training",
-    element: <TrainingOverview />,
-  },
-  {
-    path: "/training/:collectionId",
-    element: <Training />,
+    element: <AppLayout />,
+    children: [
+      {
+        path: "/",
+        element: <CollectionsPage />,
+      },
+      {
+        path: "/collections",
+        element: <CollectionsPage />,
+      },
+      {
+        path: "/cards/:id",
+        element: <ManageCollectionsPage />,
+        loader: collectionLoader,
+      },
+      {
+        path: "/training",
+        element: <TrainingOverview />,
+      },
+      {
+        path: "/training/:collectionId",
+        element: <Training />,
+      },
+    ],
   },
 ]);
 
@@ -64,12 +71,7 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CollectionProvider>
-        <div className="app-container">
-          <Sidebar />
-          <div className="content">
-            <RouterProvider router={router}></RouterProvider>
-          </div>
-        </div>
+        <RouterProvider router={router}></RouterProvider>
       </CollectionProvider>
     </ThemeProvider>
   );

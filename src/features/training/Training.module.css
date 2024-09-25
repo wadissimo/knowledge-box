@@ -1,9 +1,10 @@
 .card {
   padding: 2rem 3rem;
 
-  max-height: 70%;
-  align-items: center;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: orange;
   width: 100%;
 }
 
@@ -57,4 +58,12 @@
 
 .bottom {
   align-self: center;
+}
+
+.buttons {
+  align-self: center;
+}
+
+.button {
+  background-color: lightblue;
 }

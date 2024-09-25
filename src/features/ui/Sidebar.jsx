@@ -9,9 +9,13 @@ const Sidebar = () => {
       <h2>Flashcard App</h2>
       <nav>
         <ul>
-          <li>My Collections</li>
-          <li>Manage Cards</li>
-          <li>Training</li>
+          <li>
+            <NavLink to={"/collections"}>Collections</NavLink>
+          </li>
+
+          <li>
+            <NavLink to={"/training"}>Training</NavLink>
+          </li>
         </ul>
       </nav>
     </div>
