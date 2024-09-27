@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import { CollectionProvider } from "./context/CollectionContext";
 import AppLayout from "./AppLayout";
+import CardsDB from "./CardsDB";
 
 // Define a custom theme
 const theme = createTheme({
@@ -69,11 +70,12 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CollectionProvider>
-        <RouterProvider router={router}></RouterProvider>
-      </CollectionProvider>
-    </ThemeProvider>
+    <CardsDB />
+    // <ThemeProvider theme={theme}>
+    //   <CollectionProvider>
+    //     <RouterProvider router={router}></RouterProvider>
+    //   </CollectionProvider>
+    // </ThemeProvider>
   );
 };
 

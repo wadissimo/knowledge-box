@@ -22,23 +22,34 @@ const Training = () => {
 
   const [currentCard, setCurrentCard] = useState(null);
 
+  function getEarliestRepeatCard(cards) {
+    return cards.reduce((acc, card) => {
+      if (
+        card.repeatTime &&
+        (acc === null || card.repeatTime < acc.repeatTime)
+      ) {
+        return card;
+      }
+      return acc;
+    }, null);
+  }
+
+  function getNewCard(cards) {
+    return cards.find((card) => card.repeatTime == null);
+  }
   useEffect(
     function () {
       if (!currentCollection) return;
-      // Find the card with minimal repeatTime or a null repeatTime
+      // Find the card with minimal repeatTime
+      let curCard = getEarliestRepeatCard(currentCollection.cards);
 
-      const curCard = currentCollection.cards.reduce((acc, card) => {
-        if (
-          acc === null ||
-          !card.repeatTime ||
-          (acc.repeatTime &&
-            card.repeatTime &&
-            card.repeatTime < acc.repeatTime)
-        ) {
-          return card;
+      // if repeat time in the future, get a new card (if exists)
+      if (curCard.repeatTime >= Date.now()) {
+        const newCard = getNewCard(currentCollection.cards);
+        if (newCard) {
+          curCard = newCard;
         }
-        return acc;
-      }, null);
+      }
       console.log("curCard", curCard);
       setCurrentCard(curCard);
     },
