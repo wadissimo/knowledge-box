@@ -1,20 +1,31 @@
 // app/index.tsx
 import { Link, useRouter } from "expo-router";
 import { View, Text, Button, FlatList, StyleSheet } from "react-native";
+import * as SQLite from "expo-sqlite";
+import { useEffect, useState } from "react";
+import { useDatabase } from "@/context/DatabaseContext";
+
+type Collection = {
+  id: number;
+  name: string;
+  cardsNumber: number;
+  createdAt: string;
+};
 
 export default function CollectionsScreen() {
   const router = useRouter();
-  const collections = [
-    { id: "1", name: "Math", cardsNumber: 20 },
-    { id: "2", name: "History", cardsNumber: 30 },
-  ];
+  const { collections } = useDatabase();
 
+  const handleAddPress = () => {
+    router.push("/manage-collection/new");
+  };
   return (
     <View style={styles.container}>
       <View style={styles.table}>
         <View style={styles.header}>
           <Text style={styles.headerItem}>Collection Name</Text>
           <Text style={styles.headerItem}>Number of Cards</Text>
+          <Text style={styles.headerItem}> </Text>
         </View>
         {/* <FlatList
         data={collections}
@@ -36,7 +47,7 @@ export default function CollectionsScreen() {
 
         <FlatList
           data={collections}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: Collection) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.row}>
               <Link
@@ -47,10 +58,20 @@ export default function CollectionsScreen() {
                 <Text>{item.name}</Text>
               </Link>
               <Text style={styles.rowItem}>{item.cardsNumber}</Text>
+              <Link
+                href={`/manage-collection/${item.id}/train`}
+                style={[styles.rowItem, styles.link]}
+              >
+                <Text>Train</Text>
+              </Link>
             </View>
           )}
         />
-        <Button title="Add Collection"></Button>
+        <Button
+          title="Add Collection"
+          color="#4CAF50"
+          onPress={handleAddPress}
+        ></Button>
       </View>
     </View>
   );
