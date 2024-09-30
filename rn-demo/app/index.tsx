@@ -3,14 +3,7 @@ import { Link, useRouter } from "expo-router";
 import { View, Text, Button, FlatList, StyleSheet } from "react-native";
 import * as SQLite from "expo-sqlite";
 import { useEffect, useState } from "react";
-import { useDatabase } from "@/context/DatabaseContext";
-
-type Collection = {
-  id: number;
-  name: string;
-  cardsNumber: number;
-  createdAt: string;
-};
+import { Collection, useDatabase } from "@/context/DatabaseContext";
 
 export default function CollectionsScreen() {
   const router = useRouter();

@@ -12,7 +12,7 @@ type Collection = {
   id: number;
   name: string;
   cardsNumber: number;
-  createdAt: string;
+  createdAt: number;
 };
 
 type Card = {
@@ -20,11 +20,10 @@ type Card = {
   front: string;
   back: string;
   collectionId: number;
-  createdAt?: string | null;
-  repeatTime?: string | null;
+  createdAt?: number | null;
+  repeatTime?: number | null;
 };
 
-// Define the context's type (what values it will provide)
 interface CollectionContextProps {
   collections: Collection[] | undefined;
   newCollection: Function;
@@ -36,9 +35,11 @@ interface CollectionContextProps {
   updateCardFrontBack: Function;
   getCardById: Function;
   deleteCard: Function;
+  updateCardRepeatTime: Function;
+  selectNewTrainingCards: Function;
+  selectToRepeatTrainingCard: Function;
 }
 
-// Create the context with an empty initial value
 const CollectionContext = createContext<CollectionContextProps>({
   collections: undefined,
   newCollection: () => {},
@@ -50,9 +51,11 @@ const CollectionContext = createContext<CollectionContextProps>({
   updateCardFrontBack: () => {},
   getCardById: () => {},
   deleteCard: () => {},
+  updateCardRepeatTime: () => {},
+  selectNewTrainingCards: () => {},
+  selectToRepeatTrainingCard: () => {},
 });
 
-// Define the provider's props, including the children prop
 interface CollectionProviderProps {
   children: ReactNode;
 }
@@ -77,7 +80,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
     async function setup() {
       try {
         console.log("setup start");
-        const DATABASE_VERSION = 4;
+        const DATABASE_VERSION = 8;
         let res = await db.getFirstAsync<{
           user_version: number;
         }>("PRAGMA user_version");
@@ -91,7 +94,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
          id INTEGER PRIMARY KEY AUTOINCREMENT,
          name TEXT NOT NULL,
          cardsNumber INTEGER,
-         createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+         createdAt INTEGER DEFAULT CURRENT_TIMESTAMP
        );`);
         console.log("cards table created");
         await db.execAsync(`DROP TABLE IF EXISTS cards;`);
@@ -101,8 +104,8 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
                  collectionId INTEGER,
                  front TEXT NOT NULL,
                  back TEXT NOT NULL,
-                 createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
-                 repeatTime TEXT,
+                 createdAt INTEGER DEFAULT CURRENT_TIMESTAMP,
+                 repeatTime INTEGER,
                  FOREIGN KEY (collectionId) REFERENCES collections(id) ON DELETE CASCADE);`);
         console.log("tables created");
         //Insert Dummy records
@@ -117,8 +120,8 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
         await db.runAsync(
           "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
           1,
-          "Germany",
-          "Berlin"
+          "Russia",
+          "Moscow"
         );
         await db.runAsync(
           "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
@@ -131,6 +134,30 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
           1,
           "Italy",
           "Rome"
+        );
+        await db.runAsync(
+          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
+          1,
+          "Italy",
+          "Rome"
+        );
+        await db.runAsync(
+          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
+          1,
+          "Italy",
+          "Rome"
+        );
+        await db.runAsync(
+          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
+          1,
+          "Italy",
+          "Rome"
+        );
+        await db.runAsync(
+          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
+          1,
+          "Germany",
+          "Berlin"
         );
 
         await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
@@ -187,15 +214,13 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
   };
 
   const getCardById = async (cardId: number) => {
-    const result = await db.getAllAsync<Card>(
+    console.log("getCardById, cardId=", cardId);
+    const result = await db.getFirstAsync<Card>(
       "SELECT * FROM cards where id=? ",
       cardId
     );
-    if (result && result.length > 0) {
-      return result[0];
-    } else {
-      return null;
-    }
+    console.log("getCardById", result);
+    return result;
   };
 
   const newCard = async (collectionId: number, front: string, back: string) => {
@@ -223,9 +248,56 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
     await fetchCollections();
   };
 
+  const updateCardRepeatTime = async (cardId: number, repeatTime: string) => {
+    await db.runAsync(
+      "UPDATE cards SET repeatTime = ? where id=?",
+      repeatTime,
+      cardId
+    );
+  };
+
   const deleteCard = async (cardId: number) => {
     await db.runAsync("DELETE FROM cards where id=?", cardId);
     await fetchCollections();
+  };
+
+  const selectNewTrainingCards = async (
+    collectionId: number,
+    numberOfCards: number
+  ) => {
+    const result = await db.getAllAsync<Card>(
+      "SELECT * FROM cards where collectionId=? and repeatTime is null order by id asc limit ?",
+      collectionId,
+      numberOfCards
+    );
+    return result;
+  };
+
+  const selectNewTrainingCard = async (collectionId: number) => {
+    //const curTime: number = Date.now();
+    const result = await db.getFirstAsync<{ minId: number } | null>(
+      "SELECT min(id) as minId FROM cards where collectionId=? and  repeatTime is null",
+      collectionId
+    );
+    const minId = result !== null ? result.minId : null;
+    if (minId === null) {
+      return null;
+    }
+    return await getCardById(minId);
+  };
+
+  const selectToRepeatTrainingCard = async (collectionId: number) => {
+    const curTime: number = Date.now(); // TODO: add delta
+    const result = await db.getFirstAsync<{ minId: number } | null>(
+      "SELECT min(id) as minId FROM cards where collectionId=? and repeatTime < ?",
+      collectionId,
+      curTime
+    );
+    const minId = result !== null ? result.minId : null;
+    if (minId === null) {
+      return null;
+    }
+    return await getCardById(minId);
   };
 
   return (
@@ -241,6 +313,9 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
         updateCardFrontBack,
         getCardById,
         deleteCard,
+        updateCardRepeatTime,
+        selectNewTrainingCards,
+        selectToRepeatTrainingCard,
       }}
     >
       {children}

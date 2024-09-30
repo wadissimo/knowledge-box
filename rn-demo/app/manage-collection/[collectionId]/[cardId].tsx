@@ -24,6 +24,7 @@ const EditFlashcard = () => {
         });
       } else {
         const card = await getCardById(cardId);
+
         setFrontSide(card.front);
         setBackSide(card.back);
         navigation.setOptions({
