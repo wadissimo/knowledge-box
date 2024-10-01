@@ -20,8 +20,31 @@ type Card = {
   front: string;
   back: string;
   collectionId: number;
-  createdAt?: number | null;
+  hide: Boolean;
+  successfulRepeats: number;
   repeatTime?: number | null;
+  prevRepeatTime?: number | null;
+  createdAt?: number | null;
+};
+
+type Session = {
+  id: number;
+  collectionId: number;
+  trainingDate: string;
+  newCards: number;
+  repeatCards: number;
+  createdAt?: number | null;
+};
+
+type SessionCard = {
+  sessionId: number;
+  cardId: number;
+  type: string;
+  status: string;
+  sessionOrder: number | null;
+  successfulRepeats: number;
+  createdAt?: number | null;
+  card?: Card | null;
 };
 
 interface CollectionContextProps {
@@ -38,6 +61,11 @@ interface CollectionContextProps {
   updateCardRepeatTime: Function;
   selectNewTrainingCards: Function;
   selectToRepeatTrainingCard: Function;
+  getSession: Function;
+  getSessionCards: Function;
+  createSession: Function;
+  createSessionCard: Function;
+  removeSession: Function;
 }
 
 const CollectionContext = createContext<CollectionContextProps>({
@@ -54,6 +82,11 @@ const CollectionContext = createContext<CollectionContextProps>({
   updateCardRepeatTime: () => {},
   selectNewTrainingCards: () => {},
   selectToRepeatTrainingCard: () => {},
+  getSession: () => {},
+  getSessionCards: () => {},
+  createSession: () => {},
+  createSessionCard: () => {},
+  removeSession: () => {},
 });
 
 interface CollectionProviderProps {
@@ -79,8 +112,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
   useEffect(() => {
     async function setup() {
       try {
-        console.log("setup start");
-        const DATABASE_VERSION = 8;
+        const DATABASE_VERSION = 10;
         let res = await db.getFirstAsync<{
           user_version: number;
         }>("PRAGMA user_version");
@@ -88,7 +120,8 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
         if (res && res.user_version >= DATABASE_VERSION) {
           return;
         }
-
+        console.log("new database version detected: setup start");
+        // Collections
         await db.execAsync(`DROP TABLE IF EXISTS collections;`);
         await db.execAsync(`CREATE TABLE IF NOT EXISTS collections (
          id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,18 +129,46 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
          cardsNumber INTEGER,
          createdAt INTEGER DEFAULT CURRENT_TIMESTAMP
        );`);
-        console.log("cards table created");
+
+        // Cards
         await db.execAsync(`DROP TABLE IF EXISTS cards;`);
-        console.log("cards table dropped");
         await db.execAsync(`CREATE TABLE IF NOT EXISTS cards (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  collectionId INTEGER,
                  front TEXT NOT NULL,
                  back TEXT NOT NULL,
+                 hide INTEGER DEFAULT 0,
                  createdAt INTEGER DEFAULT CURRENT_TIMESTAMP,
                  repeatTime INTEGER,
+                 prevRepeatTime INTEGER,
+                 successfulRepeats INTEGER DEFAULT 0,
                  FOREIGN KEY (collectionId) REFERENCES collections(id) ON DELETE CASCADE);`);
+
+        // Sessions
+        await db.execAsync(`DROP TABLE IF EXISTS sessions;`);
+        await db.execAsync(`CREATE TABLE IF NOT EXISTS sessions (
+                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 collectionId INTEGER,
+                 trainingDate TEXT,
+                 newCards INTEGER,
+                 repeatCards INTEGER,
+                 createdAt INTEGER DEFAULT CURRENT_TIMESTAMP);`);
+
+        // Session Cards
+        await db.execAsync(`DROP TABLE IF EXISTS sessionCards;`);
+        await db.execAsync(`CREATE TABLE IF NOT EXISTS sessionCards (
+                sessionId INTEGER,
+                cardId INTEGER,
+                type TEXT,
+                status TEXT,
+                sessionOrder INTEGER,
+                createdAt INTEGER DEFAULT CURRENT_TIMESTAMP,
+                successfulRepeats INTEGER DEFAULT 0,
+                FOREIGN KEY (sessionId) REFERENCES sessions(id) ON DELETE CASCADE,
+                FOREIGN KEY (cardId) REFERENCES cards(id) ON DELETE CASCADE);`);
+
         console.log("tables created");
+
         //Insert Dummy records
         await db.runAsync(
           "INSERT INTO collections (name, cardsNumber) VALUES ( ?, ?)",
@@ -300,6 +361,60 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
     return await getCardById(minId);
   };
 
+  const getSession = async (collectionId: number, dateString: string) => {
+    const result = await db.getFirstAsync<Session | null>(
+      "SELECT * FROM sessions where collectionId=? and trainingDate = ?",
+      collectionId,
+      dateString
+    );
+    return result;
+  };
+
+  const getSessionCards = async (sessionId: number) => {
+    const cards = await db.getAllAsync<Card>(
+      "SELECT * FROM cards inner join sessionCards on cards.id = sessionCards.cardId where sessionCards.sessionId=?",
+      sessionId
+    );
+    const cardMap = new Map();
+    cards.forEach((card) => {
+      cardMap.set(card.id, card);
+    });
+
+    const sessionCards = await db.getAllAsync<SessionCard>(
+      "SELECT * FROM sessionCards where sessionId=? order by sessionOrder",
+      sessionId
+    );
+    sessionCards.forEach((sessionCard) => {
+      sessionCard.card = cardMap.get(sessionCard.cardId);
+    });
+    return sessionCards;
+  };
+
+  const createSession = async (session: Session) => {
+    await db.runAsync(
+      "INSERT INTO sessions (collectionId, trainingDate, newCards, repeatCards) VALUES (?, ?, ?, ?)",
+      session.collectionId,
+      session.trainingDate,
+      session.newCards,
+      session.repeatCards
+    );
+  };
+
+  const createSessionCard = async (sessionCard: SessionCard) => {
+    await db.runAsync(
+      "INSERT INTO sessionCards (sessionId, cardId, type, status, sessionOrder) VALUES (?, ?, ?, ?, ?)",
+      sessionCard.sessionId,
+      sessionCard.cardId,
+      sessionCard.type,
+      sessionCard.status,
+      sessionCard.sessionOrder
+    );
+  };
+
+  const removeSession = async (sessionId: number) => {
+    await db.runAsync("DELETE FROM sessions where id=?", sessionId);
+  };
+
   return (
     <CollectionContext.Provider
       value={{
@@ -316,6 +431,11 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
         updateCardRepeatTime,
         selectNewTrainingCards,
         selectToRepeatTrainingCard,
+        getSession,
+        getSessionCards,
+        createSession,
+        createSessionCard,
+        removeSession,
       }}
     >
       {children}
@@ -334,4 +454,6 @@ export {
   Collection,
   CollectionContextProps,
   Card,
+  Session,
+  SessionCard,
 };

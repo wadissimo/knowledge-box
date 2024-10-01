@@ -37,7 +37,9 @@ function generateRandomCards(count: number) {
       id: i, // Ensuring unique id
       front,
       back,
+      hide: false,
       collectionId: 1,
+      successfulRepeats: 0,
     });
   }
   return fakeCards;
