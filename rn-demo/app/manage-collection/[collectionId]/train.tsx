@@ -21,6 +21,9 @@ const stripTimeFromDate = (date: Date): string => {
 
 const NEW_CARDS_PER_DAY = 3;
 const REPEAT_CARDS_PER_DAY = 3;
+const NEW_FAIL_REPEAT_INC: number = 2;
+const REPEAT_FAIL_REPEAT_INC: number = 5;
+const FAILED_FAIL_REPEAT_INC: number = 5;
 
 const TrainCollection = () => {
   const { collectionId } = useLocalSearchParams();
@@ -35,6 +38,7 @@ const TrainCollection = () => {
     createSession,
     createSessionCard,
     removeSession,
+    updateSessionCard,
   } = useDatabase();
 
   const [currentCard, setCurrentCard] = useState<SessionCard | null>(null);
@@ -138,11 +142,43 @@ const TrainCollection = () => {
   }
 
   function handleLearnedButton() {
-    // mix into the session deck
+    // remove from the session and update card schedule
+    const curOrder = currentCard?.sessionOrder;
+  }
+  function handleOKButton() {
+    // check card performance and
+    // 1) mix back into the session deck according to the previous performance
+    // 2) remove from the session and update card schedule
     const curOrder = currentCard?.sessionOrder;
   }
 
-  function handleTryAgainButton() {}
+  async function handleTryAgainButton() {
+    // put back into the deck
+    if (!currentCard) return;
+
+    const curOrder: number = currentCard.sessionOrder ?? 0;
+
+    // reset successful repeats
+    currentCard.successfulRepeats = 0;
+
+    // update order
+    if (currentCard.type === "new") {
+      currentCard.sessionOrder = curOrder + NEW_FAIL_REPEAT_INC;
+    } else if (currentCard.type === "repeat") {
+      if (currentCard.status === "new" || currentCard.status === "repeat") {
+        currentCard.sessionOrder = curOrder + REPEAT_FAIL_REPEAT_INC;
+      } else if (currentCard.status === "failed") {
+        currentCard.sessionOrder = curOrder + FAILED_FAIL_REPEAT_INC;
+      }
+    } else {
+      throw Error("wrong SessionCard.type " + currentCard.type);
+    }
+
+    //update status
+    currentCard.status = "failed";
+    await updateSessionCard(currentCard);
+    selectNextCard();
+  }
 
   return (
     <View>
@@ -165,11 +201,24 @@ const TrainCollection = () => {
           </TouchableOpacity>
           {cardFlip && (
             <View style={styles.cardBtnsContainer}>
-              <TouchableOpacity style={[styles.cardBtn, styles.redCardBtn]}>
-                <Text style={[styles.cardBtnText]}>Try again</Text>
+              <TouchableOpacity
+                style={[styles.cardBtn, styles.redCardBtn]}
+                onPress={handleTryAgainButton}
+              >
+                <Text style={[styles.cardBtnText]}>Again!</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.cardBtn, styles.greenCardBtn]}>
+              <TouchableOpacity
+                style={[styles.cardBtn, styles.lightGreenCardBtn]}
+                onPress={handleOKButton}
+              >
+                <Text style={[styles.cardBtnText]}>OK</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.cardBtn, styles.greenCardBtn]}
+                onPress={handleLearnedButton}
+              >
                 <Text style={[styles.cardBtnText]}>I learned it!</Text>
               </TouchableOpacity>
             </View>
@@ -198,7 +247,13 @@ const TrainCollection = () => {
                   <Text>Back: {sessionCard.card?.back}</Text>
                 </View>
                 <View>
-                  <Text>Repeat: {sessionCard.sessionOrder}</Text>
+                  <Text>type: {sessionCard.type}</Text>
+                </View>
+                <View>
+                  <Text>status: {sessionCard.status}</Text>
+                </View>
+                <View>
+                  <Text>Order: {sessionCard.sessionOrder}</Text>
                 </View>
               </View>
             )
@@ -245,8 +300,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 10,
   },
-  greenCardBtn: {
+  lightGreenCardBtn: {
     backgroundColor: "green",
+    color: "white",
+  },
+  greenCardBtn: {
+    backgroundColor: "blue",
     color: "white",
   },
   redCardBtn: {

@@ -66,6 +66,7 @@ interface CollectionContextProps {
   createSession: Function;
   createSessionCard: Function;
   removeSession: Function;
+  updateSessionCard: Function;
 }
 
 const CollectionContext = createContext<CollectionContextProps>({
@@ -87,6 +88,7 @@ const CollectionContext = createContext<CollectionContextProps>({
   createSession: () => {},
   createSessionCard: () => {},
   removeSession: () => {},
+  updateSessionCard: () => {},
 });
 
 interface CollectionProviderProps {
@@ -415,6 +417,17 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
     await db.runAsync("DELETE FROM sessions where id=?", sessionId);
   };
 
+  const updateSessionCard = async (sessionCard: SessionCard) => {
+    await db.runAsync(
+      "UPDATE sessionCards SET type = ?, status = ?, sessionOrder = ?, successfulRepeats = ? where sessionId = ? and cardId = ?",
+      sessionCard.type,
+      sessionCard.status,
+      sessionCard.sessionOrder,
+      sessionCard.successfulRepeats,
+      sessionCard.sessionId,
+      sessionCard.cardId
+    );
+  };
   return (
     <CollectionContext.Provider
       value={{
@@ -436,6 +449,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
         createSession,
         createSessionCard,
         removeSession,
+        updateSessionCard,
       }}
     >
       {children}
