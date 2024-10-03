@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  Button,
-  StyleSheet,
-  Touchable,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -14,41 +7,70 @@ import {
   SessionCard,
 } from "@/context/DatabaseContext";
 import { useLocalSearchParams } from "expo-router";
+import CardComponent from "@/components/CardComponent";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
 };
+const getTomorrowAsNumber = (): number => {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  return tomorrow.getTime();
+};
 
-const NEW_CARDS_PER_DAY = 3;
-const REPEAT_CARDS_PER_DAY = 3;
-const NEW_FAIL_REPEAT_INC: number = 2;
-const REPEAT_FAIL_REPEAT_INC: number = 5;
-const FAILED_FAIL_REPEAT_INC: number = 5;
+const truncateTime = (date: Date): number => {
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate.getTime();
+};
+
+const NEW_CARDS_PER_DAY = 20;
+const REPEAT_CARDS_PER_DAY = 20;
+const ONE_DAY: number = 24 * 60 * 60 * 1000;
+const AGAIN_ORDER_INCREASE = 4;
+const HARD_ORDER_INCREASE = 6; // todo: % ?
+const GOOD_ORDER_INCREASE = 7;
+const INTERVAL_GROW_FACTOR = 1.2;
+const EASY_INTERVAL_GROW_FACTOR = 1.3;
+const INITIAL_INTERVAL = 1;
+const SESSION_MAX_SUCCESSFUL_REPEATS = 2;
+const INITIAL_EASE_FACTOR = 2.5;
+const MIN_EASE_FACTOR = 1.3;
+const AGAIN_DELTA_EASE_FACTOR = 0.2;
+const HARD_DELTA_EASE_FACTOR = 0.1;
 
 const TrainCollection = () => {
   const { collectionId } = useLocalSearchParams();
-  const [newCardsCount, setNewCardsCount] = useState(0);
 
   const {
     selectNewTrainingCards,
-    updateCardRepeatTime,
-    selectToRepeatTrainingCard,
+    selectToRepeatTrainingCards,
     getSession,
     getSessionCards,
     createSession,
     createSessionCard,
     removeSession,
     updateSessionCard,
+    updateCard,
+    removeSessionCard,
   } = useDatabase();
 
   const [currentCard, setCurrentCard] = useState<SessionCard | null>(null);
   const [sessionCards, setSessionCards] = useState<SessionCard[]>([]);
-  const [cardFlip, setCardFlip] = useState<Boolean>(false);
+
+  //   const sortedSessionCards = sessionCards
+  //     .slice()
+  //     .sort((a, b) => (a.sessionOrder ?? 0) - (b.sessionOrder ?? 0));
+  //   console.log("sortedSessionCards:", sortedSessionCards.length);
+  //   sortedSessionCards.forEach((s: SessionCard) => {
+  //     console.log("sortedSessionCards", s.sessionOrder, s.cardId);
+  //   });
 
   function selectNextCard() {
     if (sessionCards === null || sessionCards.length === 0) {
       setCurrentCard(null);
-      setCardFlip(false);
       return;
     }
     // get a card with earliest repeatTime:
@@ -65,13 +87,13 @@ const TrainCollection = () => {
       }
     });
     setCurrentCard(selectedSessionCard);
-    setCardFlip(false);
   }
 
   async function updateSession() {
     if (!collectionId) return;
 
     const curDateStripped = stripTimeFromDate(new Date());
+
     var session: Session = await getSession(collectionId, curDateStripped);
     // Check if there is a session for the current date (today)
     if (session === null) {
@@ -92,28 +114,80 @@ const TrainCollection = () => {
         collectionId,
         NEW_CARDS_PER_DAY
       );
-      for (let i = 0; i < newCards.length; i++) {
+      console.log("new cards");
+      console.log(newCards);
+
+      const curTime: number = Date.now();
+      console.log("curTime: ", curTime.toString());
+      let cardsToRepeat = await selectToRepeatTrainingCards(
+        collectionId,
+        curTime
+      );
+
+      console.log("cardsToRepeat");
+      console.log(cardsToRepeat);
+      if (cardsToRepeat.length < session.repeatCards) {
+        // get extra cards from tomorrow
+        let extraCardsToRepeat = await selectToRepeatTrainingCards(
+          collectionId,
+          getTomorrowAsNumber()
+        );
+        const cardsToRepeatIds = cardsToRepeat.map((card: Card) => card.id);
+        // remove repeating cards.
+        extraCardsToRepeat = extraCardsToRepeat.filter(
+          (card: Card) => !cardsToRepeatIds.includes(card.id)
+        );
+        console.log("extraCardsToRepeat");
+        console.log(extraCardsToRepeat);
+        if (
+          extraCardsToRepeat.length >
+          session.repeatCards - cardsToRepeat.length
+        ) {
+          // get only as many cards as we need
+          extraCardsToRepeat = extraCardsToRepeat.slice(
+            0,
+            session.repeatCards - cardsToRepeat.length
+          );
+        }
+        cardsToRepeat = cardsToRepeat.concat(extraCardsToRepeat);
+      }
+      // TODO: get max cards only
+      // Mix all cards
+      var combinedArray: Card[] = [];
+      if (newCards) combinedArray = combinedArray.concat(newCards);
+      if (cardsToRepeat) combinedArray = combinedArray.concat(cardsToRepeat);
+      console.log("combinedArray");
+      console.log(combinedArray);
+      // shuffle combined array
+      for (let i = combinedArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [combinedArray[i], combinedArray[j]] = [
+          combinedArray[j],
+          combinedArray[i],
+        ];
+      }
+      console.log("combinedArray, size", combinedArray.length);
+      for (let i = 0; i < combinedArray.length; i++) {
+        const card = combinedArray[i];
         const newSessionCard: SessionCard = {
           sessionId: session.id,
-          cardId: newCards[i].id,
-          type: "new",
-          status: "new",
+          cardId: card.id,
+          type: card.repeatTime ? "repeat" : "new",
+          status: "training",
           sessionOrder: i,
-          successfulRepeats: 0,
+          successfulRepeats: card.successfulRepeats,
         };
-        await createSessionCard(newSessionCard);
+
+        await createSessionCard(newSessionCard); // TODO: parallel
       }
     } else {
       console.log("training session already exists");
     }
     const sessionCards = await getSessionCards(session.id);
-    const cards = sessionCards.map(
-      (sessionCard: SessionCard) => sessionCard.card
-    );
-    setSessionCards(sessionCards);
 
-    setNewCardsCount(cards.length);
+    setSessionCards(sessionCards);
   }
+
   useEffect(() => {
     updateSession();
   }, [collectionId]);
@@ -131,108 +205,163 @@ const TrainCollection = () => {
     await updateSession();
   };
 
-  function handleUpdate() {
-    // if (currentCard !== null) {
-    //   updateCardRepeatTime(currentCard.id, Date.now() + 5000);
-    //   selectCurrentCard();
-    // }
-  }
-  function handleCardFlip() {
-    setCardFlip((flip) => !flip);
-  }
+  async function handleUserResponse(
+    userResponse: "again" | "hard" | "good" | "easy"
+  ) {
+    if (!currentCard || !currentCard.card) return;
+    const card = currentCard.card;
+    const today = truncateTime(new Date());
+    let easeFactor = card.easeFactor ?? INITIAL_EASE_FACTOR;
+    let interval = card.interval ?? INITIAL_INTERVAL;
 
-  function handleLearnedButton() {
-    // remove from the session and update card schedule
-    const curOrder = currentCard?.sessionOrder;
-  }
-  function handleOKButton() {
-    // check card performance and
-    // 1) mix back into the session deck according to the previous performance
-    // 2) remove from the session and update card schedule
-    const curOrder = currentCard?.sessionOrder;
-  }
+    let updatedSessionCards = sessionCards;
 
-  async function handleTryAgainButton() {
-    // put back into the deck
-    if (!currentCard) return;
+    switch (userResponse) {
+      case "again":
+        console.log("again");
+        // reset card
+        card.easeFactor = Math.max(
+          MIN_EASE_FACTOR,
+          easeFactor - AGAIN_DELTA_EASE_FACTOR
+        );
+        card.successfulRepeats = 0;
+        card.failedRepeats += 1;
+        card.interval = 1;
+        currentCard.successfulRepeats = 0;
+        // set a new order in the session
+        currentCard.sessionOrder =
+          (currentCard.sessionOrder ?? 0) + AGAIN_ORDER_INCREASE;
+        console.log("push sessionOrder: ", currentCard.sessionOrder);
+        // update database
+        await updateCard(card);
+        await updateSessionCard(currentCard);
 
-    const curOrder: number = currentCard.sessionOrder ?? 0;
+        console.log(currentCard);
 
-    // reset successful repeats
-    currentCard.successfulRepeats = 0;
+        break;
 
-    // update order
-    if (currentCard.type === "new") {
-      currentCard.sessionOrder = curOrder + NEW_FAIL_REPEAT_INC;
-    } else if (currentCard.type === "repeat") {
-      if (currentCard.status === "new" || currentCard.status === "repeat") {
-        currentCard.sessionOrder = curOrder + REPEAT_FAIL_REPEAT_INC;
-      } else if (currentCard.status === "failed") {
-        currentCard.sessionOrder = curOrder + FAILED_FAIL_REPEAT_INC;
-      }
-    } else {
-      throw Error("wrong SessionCard.type " + currentCard.type);
+      case "hard":
+        console.log("hard");
+        //currentCard.successfulRepeats += 1;
+        // TODO:
+        card.easeFactor = Math.max(
+          MIN_EASE_FACTOR,
+          easeFactor - HARD_DELTA_EASE_FACTOR
+        );
+        //card.failedRepeats = 0;
+
+        currentCard.sessionOrder =
+          (currentCard.sessionOrder ?? 0) + HARD_ORDER_INCREASE;
+        console.log("push sessionOrder: ", currentCard.sessionOrder);
+        // update database
+        await updateCard(card);
+        await updateSessionCard(currentCard);
+
+        console.log(currentCard);
+
+        break;
+
+      case "good":
+        console.log("good");
+        currentCard.successfulRepeats += 1;
+        console.log(
+          "currentCard successfulRepeats",
+          currentCard.successfulRepeats
+        );
+        if (currentCard.successfulRepeats > SESSION_MAX_SUCCESSFUL_REPEATS) {
+          // push into next days
+          card.successfulRepeats = currentCard.successfulRepeats;
+          console.log("card successfulRepeats", card.successfulRepeats);
+          card.failedRepeats = 0;
+          card.interval = Math.max(1, Math.round(interval * easeFactor));
+          card.prevRepeatTime = today;
+          card.repeatTime = today + card.interval * ONE_DAY;
+          console.log(
+            "push into the next day, successfulRepeats:",
+            card.successfulRepeats,
+            ", repeat ",
+            new Date(card.repeatTime)
+          );
+          await removeSessionCard(currentCard.sessionId, currentCard.cardId);
+          // remove card from the current session
+          updatedSessionCards = sessionCards.filter(
+            (sessionCard) => sessionCard.cardId !== currentCard.cardId
+          );
+          // update card
+          await updateCard(card);
+        } else {
+          // Shuffle back in
+          currentCard.sessionOrder =
+            (currentCard.sessionOrder ?? 0) + GOOD_ORDER_INCREASE;
+          console.log("push sessionOrder: ", currentCard.sessionOrder);
+          // update database
+          await updateSessionCard(currentCard);
+        }
+
+        console.log(currentCard);
+        break;
+
+      case "easy":
+        console.log("easy");
+        card.easeFactor = easeFactor + 0.15;
+        card.successfulRepeats += 1;
+        console.log("card successfulRepeats", card.successfulRepeats);
+        // push into next days
+        card.failedRepeats = 0;
+        card.interval = Math.round(
+          interval * easeFactor * EASY_INTERVAL_GROW_FACTOR
+        );
+        // update schedule
+        card.prevRepeatTime = today;
+        card.repeatTime = today + card.interval * ONE_DAY;
+
+        console.log(
+          "push into the next day, successfulRepeats:",
+          card.successfulRepeats,
+          ", repeat ",
+          new Date(card.repeatTime)
+        );
+        // remove the card from the session
+        await removeSessionCard(currentCard.sessionId, currentCard.cardId);
+
+        // update card
+        await updateCard(card);
+
+        console.log(currentCard);
+        // remove card from the current session
+        updatedSessionCards = sessionCards.filter(
+          (sessionCard) => sessionCard.cardId !== currentCard.cardId
+        );
+        break;
     }
+    //reorder updated list of cards
 
-    //update status
-    currentCard.status = "failed";
-    await updateSessionCard(currentCard);
-    selectNextCard();
+    updatedSessionCards = updatedSessionCards
+      .slice()
+      .sort((a, b) => (a.sessionOrder ?? 0) - (b.sessionOrder ?? 0));
+    updatedSessionCards.forEach((s, i) => {
+      s.sessionOrder = i; // reindex order
+    });
+    setSessionCards(updatedSessionCards);
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       {currentCard ? (
-        <View style={styles.cardContainer}>
-          <TouchableOpacity style={styles.card} onPress={handleCardFlip}>
-            {cardFlip ? (
-              <View>
-                <Text>Front: {currentCard.card?.front}</Text>
-              </View>
-            ) : (
-              <View>
-                <Text>Back: {currentCard.card?.back}</Text>
-              </View>
-            )}
-
-            <View>
-              <Text>Repeat: {currentCard.sessionOrder}</Text>
-            </View>
-          </TouchableOpacity>
-          {cardFlip && (
-            <View style={styles.cardBtnsContainer}>
-              <TouchableOpacity
-                style={[styles.cardBtn, styles.redCardBtn]}
-                onPress={handleTryAgainButton}
-              >
-                <Text style={[styles.cardBtnText]}>Again!</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.cardBtn, styles.lightGreenCardBtn]}
-                onPress={handleOKButton}
-              >
-                <Text style={[styles.cardBtnText]}>OK</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.cardBtn, styles.greenCardBtn]}
-                onPress={handleLearnedButton}
-              >
-                <Text style={[styles.cardBtnText]}>I learned it!</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          <View style={{ height: 20 }}></View>
-        </View>
+        <CardComponent
+          currentCard={currentCard}
+          onUserResponse={handleUserResponse}
+        />
       ) : (
-        <View>
-          <Text>No Cards</Text>
+        <View style={styles.noMoreCardsTextView}>
+          <Text style={styles.noMoreCardsText}>No More Cards Available</Text>
+          <View>
+            <Button title="New Training" onPress={resetTraining} />
+          </View>
         </View>
       )}
 
-      <View>
+      <ScrollView style={styles.scrollView}>
         {sessionCards.map((sessionCard: SessionCard) => {
           return (
             sessionCard.card && (
@@ -240,30 +369,22 @@ const TrainCollection = () => {
                 style={{ flexDirection: "row", gap: 2 }}
                 key={`card-${sessionCard.card.id}`}
               >
-                <View>
-                  <Text>Front: {sessionCard.card?.front}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text>{sessionCard.card?.front}</Text>
                 </View>
-                <View>
-                  <Text>Back: {sessionCard.card?.back}</Text>
+                <View style={{ flex: 1 }}>
+                  {/* <Text>Back: {sessionCard.card?.back}</Text> */}
                 </View>
-                <View>
-                  <Text>type: {sessionCard.type}</Text>
-                </View>
-                <View>
-                  <Text>status: {sessionCard.status}</Text>
-                </View>
-                <View>
-                  <Text>Order: {sessionCard.sessionOrder}</Text>
+
+                <View style={{ flex: 1 }}>
+                  <Text>{sessionCard.sessionOrder}</Text>
                 </View>
               </View>
             )
           );
         })}
-      </View>
+      </ScrollView>
 
-      <View>
-        <Button title="Update" onPress={handleUpdate} />
-      </View>
       <View>
         <Button title="Reset Training" onPress={resetTraining} />
       </View>
@@ -272,49 +393,23 @@ const TrainCollection = () => {
 };
 
 const styles = StyleSheet.create({
-  cardContainer: {
-    alignItems: "center",
-    margin: 20,
-  },
-  card: {
-    height: 300,
-    width: 200,
-    backgroundColor: "lightgreen",
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cardBtnsContainer: {
-    margin: 10,
-    //backgroundColor: "grey",
-    flexDirection: "row",
-    gap: 10,
-    //width: "100%",
-    //height: 50,
-  },
-  cardBtn: {
+  container: {
     flex: 1,
-    padding: 10,
+  },
+  scrollView: {
+    backgroundColor: "lightgrey",
+    marginHorizontal: 20,
+  },
 
-    alignItems: "center",
+  noMoreCardsTextView: {
+    flex: 2,
     justifyContent: "center",
-    borderRadius: 10,
+    alignItems: "center",
   },
-  lightGreenCardBtn: {
-    backgroundColor: "green",
-    color: "white",
-  },
-  greenCardBtn: {
-    backgroundColor: "blue",
-    color: "white",
-  },
-  redCardBtn: {
-    backgroundColor: "darkred",
-    color: "white",
-  },
-  cardBtnText: {
-    //backgroundColor: "green",
-    color: "white",
+  noMoreCardsText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingBottom: 40,
   },
 });
 export default TrainCollection;

@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from "react";
 import * as SQLite from "expo-sqlite";
+import capitals from "../data/capitals";
 
 // Define Collection type
 type Collection = {
@@ -22,9 +23,12 @@ type Card = {
   collectionId: number;
   hide: Boolean;
   successfulRepeats: number;
-  repeatTime?: number | null;
-  prevRepeatTime?: number | null;
+  failedRepeats: number;
+  repeatTime: number | null;
+  prevRepeatTime: number | null;
   createdAt?: number | null;
+  easeFactor: number | null;
+  interval: number | null;
 };
 
 type Session = {
@@ -48,7 +52,7 @@ type SessionCard = {
 };
 
 interface CollectionContextProps {
-  collections: Collection[] | undefined;
+  collections: Collection[];
   newCollection: Function;
   updateCollection: Function;
   deleteCollection: Function;
@@ -60,17 +64,19 @@ interface CollectionContextProps {
   deleteCard: Function;
   updateCardRepeatTime: Function;
   selectNewTrainingCards: Function;
-  selectToRepeatTrainingCard: Function;
+  selectToRepeatTrainingCards: Function;
   getSession: Function;
   getSessionCards: Function;
   createSession: Function;
   createSessionCard: Function;
   removeSession: Function;
   updateSessionCard: Function;
+  updateCard: Function;
+  removeSessionCard: Function;
 }
 
 const CollectionContext = createContext<CollectionContextProps>({
-  collections: undefined,
+  collections: [],
   newCollection: () => {},
   updateCollection: () => {},
   deleteCollection: () => {},
@@ -82,13 +88,15 @@ const CollectionContext = createContext<CollectionContextProps>({
   deleteCard: () => {},
   updateCardRepeatTime: () => {},
   selectNewTrainingCards: () => {},
-  selectToRepeatTrainingCard: () => {},
+  selectToRepeatTrainingCards: () => {},
   getSession: () => {},
   getSessionCards: () => {},
   createSession: () => {},
   createSessionCard: () => {},
   removeSession: () => {},
   updateSessionCard: () => {},
+  updateCard: () => {},
+  removeSessionCard: () => {},
 });
 
 interface CollectionProviderProps {
@@ -96,7 +104,7 @@ interface CollectionProviderProps {
 }
 
 const CollectionProvider = ({ children }: CollectionProviderProps) => {
-  const [collections, setCollections] = useState<Collection[]>();
+  const [collections, setCollections] = useState<Collection[]>([]);
   const db = SQLite.useSQLiteContext();
   // const collections = [
   //   { id: "1", name: "Math", cardsNumber: 20 },
@@ -114,7 +122,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
   useEffect(() => {
     async function setup() {
       try {
-        const DATABASE_VERSION = 10;
+        const DATABASE_VERSION = 15;
         let res = await db.getFirstAsync<{
           user_version: number;
         }>("PRAGMA user_version");
@@ -144,6 +152,9 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
                  repeatTime INTEGER,
                  prevRepeatTime INTEGER,
                  successfulRepeats INTEGER DEFAULT 0,
+                 failedRepeats INTEGER DEFAULT 0,
+                 easeFactor INTEGER DEFAULT 0,
+                 interval INTEGER DEFAULT 0,
                  FOREIGN KEY (collectionId) REFERENCES collections(id) ON DELETE CASCADE);`);
 
         // Sessions
@@ -176,52 +187,29 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
           "INSERT INTO collections (name, cardsNumber) VALUES ( ?, ?)",
 
           "Capitals",
-          3
+          4
         );
         console.log("collection create");
 
-        await db.runAsync(
-          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
-          1,
-          "Russia",
-          "Moscow"
-        );
-        await db.runAsync(
-          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
-          1,
-          "Spain",
-          "Madrid"
-        );
-        await db.runAsync(
-          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
-          1,
-          "Italy",
-          "Rome"
-        );
-        await db.runAsync(
-          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
-          1,
-          "Italy",
-          "Rome"
-        );
-        await db.runAsync(
-          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
-          1,
-          "Italy",
-          "Rome"
-        );
-        await db.runAsync(
-          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
-          1,
-          "Italy",
-          "Rome"
-        );
-        await db.runAsync(
-          "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
-          1,
-          "Germany",
-          "Berlin"
-        );
+        // shuffle capitals
+        for (let i = capitals.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [capitals[i], capitals[j]] = [capitals[j], capitals[i]];
+        }
+
+        capitals.forEach((entry) => {
+          async function insert() {
+            if (entry.country && entry.city) {
+              await db.runAsync(
+                "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
+                1,
+                entry.country,
+                entry.city
+              );
+            }
+          }
+          insert();
+        });
 
         await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
       } catch (error) {
@@ -277,12 +265,10 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
   };
 
   const getCardById = async (cardId: number) => {
-    console.log("getCardById, cardId=", cardId);
     const result = await db.getFirstAsync<Card>(
       "SELECT * FROM cards where id=? ",
       cardId
     );
-    console.log("getCardById", result);
     return result;
   };
 
@@ -293,6 +279,13 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
       front,
       back
     );
+
+    await db.runAsync(
+      "UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?",
+      collectionId,
+      collectionId
+    );
+
     //todo update collection count
     await fetchCollections();
   };
@@ -320,7 +313,17 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
   };
 
   const deleteCard = async (cardId: number) => {
+    const card = await getCardById(cardId);
     await db.runAsync("DELETE FROM cards where id=?", cardId);
+    // Update card number
+    if (card) {
+      const collectionId = card.collectionId;
+      await db.runAsync(
+        "UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?",
+        collectionId,
+        collectionId
+      );
+    }
     await fetchCollections();
   };
 
@@ -336,31 +339,17 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
     return result;
   };
 
-  const selectNewTrainingCard = async (collectionId: number) => {
-    //const curTime: number = Date.now();
-    const result = await db.getFirstAsync<{ minId: number } | null>(
-      "SELECT min(id) as minId FROM cards where collectionId=? and  repeatTime is null",
-      collectionId
-    );
-    const minId = result !== null ? result.minId : null;
-    if (minId === null) {
-      return null;
-    }
-    return await getCardById(minId);
-  };
-
-  const selectToRepeatTrainingCard = async (collectionId: number) => {
-    const curTime: number = Date.now(); // TODO: add delta
-    const result = await db.getFirstAsync<{ minId: number } | null>(
-      "SELECT min(id) as minId FROM cards where collectionId=? and repeatTime < ?",
+  const selectToRepeatTrainingCards = async (
+    collectionId: number,
+    time: number
+  ) => {
+    const result = await db.getAllAsync<Card>(
+      "SELECT * FROM cards where collectionId = ? and repeatTime <= ?",
       collectionId,
-      curTime
+      time
     );
-    const minId = result !== null ? result.minId : null;
-    if (minId === null) {
-      return null;
-    }
-    return await getCardById(minId);
+
+    return result;
   };
 
   const getSession = async (collectionId: number, dateString: string) => {
@@ -428,6 +417,33 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
       sessionCard.cardId
     );
   };
+
+  const removeSessionCard = async (sessionId: number, cardId: number) => {
+    await db.runAsync(
+      "DELETE FROM sessionCards where sessionId = ? and cardId = ?",
+      sessionId,
+      cardId
+    );
+  };
+
+  const updateCard = async (card: Card) => {
+    await db.runAsync(
+      `UPDATE cards SET front = ?, back = ?, collectionId = ?, hide = ?, successfulRepeats = ?, failedRepeats=?,
+           repeatTime = ?, prevRepeatTime = ?, easeFactor = ?, interval = ?  where id = ?`,
+      card.front,
+      card.back,
+      card.collectionId,
+      card.hide ? 1 : 0,
+      card.successfulRepeats,
+      card.failedRepeats,
+      card.repeatTime,
+      card.prevRepeatTime,
+      card.easeFactor,
+      card.interval,
+      card.id
+    );
+  };
+
   return (
     <CollectionContext.Provider
       value={{
@@ -443,13 +459,15 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
         deleteCard,
         updateCardRepeatTime,
         selectNewTrainingCards,
-        selectToRepeatTrainingCard,
+        selectToRepeatTrainingCards,
         getSession,
         getSessionCards,
         createSession,
         createSessionCard,
         removeSession,
         updateSessionCard,
+        updateCard,
+        removeSessionCard,
       }}
     >
       {children}

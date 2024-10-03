@@ -1,70 +1,43 @@
 // app/index.tsx
-import { Link, useRouter } from "expo-router";
-import { View, Text, Button, FlatList, StyleSheet } from "react-native";
-import * as SQLite from "expo-sqlite";
-import { useEffect, useState } from "react";
-import { Collection, useDatabase } from "@/context/DatabaseContext";
+import { useRouter } from "expo-router";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
+
+import { useDatabase } from "@/context/DatabaseContext";
+import MyCardCollections from "@/components/MyCardCollections";
+import { useState } from "react";
 
 export default function CollectionsScreen() {
   const router = useRouter();
   const { collections } = useDatabase();
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleAddPress = () => {
     router.push("/manage-collection/new");
   };
   return (
     <View style={styles.container}>
-      <View style={styles.table}>
-        <View style={styles.header}>
-          <Text style={styles.headerItem}>Collection Name</Text>
-          <Text style={styles.headerItem}>Number of Cards</Text>
-          <Text style={styles.headerItem}> </Text>
-        </View>
-        {/* <FlatList
-        data={collections}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-            <View>
-            <Text>{item.name}</Text>
-            <Button
-            title="Manage Collection"
-            onPress={() => router.push(`/manage-collection/${item.id}`)}
-            />
-            <Button
-            title="Start Training"
-            onPress={() => router.push(`/training/${item.id}`)}
-            />
-            </View>
-            )}
-            /> */}
-
-        <FlatList
-          data={collections}
-          keyExtractor={(item: Collection) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.row}>
-              <Link
-                href={`/manage-collection/${item.id}`}
-                //href={`/manage-collection/test`}
-                style={[styles.rowItem, styles.link]}
-              >
-                <Text>{item.name}</Text>
-              </Link>
-              <Text style={styles.rowItem}>{item.cardsNumber}</Text>
-              <Link
-                href={`/manage-collection/${item.id}/train`}
-                style={[styles.rowItem, styles.link]}
-              >
-                <Text>Train</Text>
-              </Link>
-            </View>
-          )}
+      <View style={styles.searchBar}>
+        <TextInput
+          style={styles.input}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search New Collections"
         />
-        <Button
-          title="Add Collection"
-          color="#4CAF50"
-          onPress={handleAddPress}
-        ></Button>
+      </View>
+      <View style={styles.colContainer}>
+        <Text style={styles.colContainerText}>My Collections</Text>
+        <MyCardCollections collections={collections} />
+      </View>
+      <View>
+        <TouchableOpacity style={styles.addColBtn} onPress={handleAddPress}>
+          <Text style={styles.addColBtnTxt}>Add Collection</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -74,39 +47,50 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     flexDirection: "column",
-    justifyContent: "center",
+    //justifyContent: "center",
     width: "100%",
     height: "100%",
   },
-  table: {
-    marginHorizontal: 30,
-    borderColor: "#000",
+  addColBtn: {
+    margin: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "#4CAF50",
+    color: "white",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addColBtnTxt: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "uppercase",
+  },
+  input: {
+    backgroundColor: "#FFF",
+    borderColor: "#DDD",
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 5,
-    backgroundColor: "#666666",
-    flexDirection: "column",
-    //flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "stretch",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    fontSize: 16,
+    color: "#333",
+    textAlignVertical: "top",
   },
-  header: {
-    //flex: 1,
-    flexDirection: "row",
-
-    backgroundColor: "#808080",
+  searchBar: {
+    marginTop: 50,
   },
-  headerItem: { flex: 1, padding: 5 },
-  row: {
-    flexDirection: "row",
-    backgroundColor: "#909090",
-    borderColor: "#777777",
-    borderWidth: 1,
+  colContainer: {
+    flex: 1,
+    //backgroundColor: "lightgreen",
+    justifyContent: "center",
   },
-  rowItem: { flex: 1, padding: 5 },
-  link: {
-    color: "#1010FF", // Blue color commonly used for links
-    textDecorationLine: "underline", // Underline to indicate it's a link
-    //fontWeight: "bold", // Bold to make it more obvious
+  colContainerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    margin: 10,
   },
 });

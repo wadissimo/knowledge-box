@@ -12,9 +12,6 @@ import {
   Pressable,
   Alert,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Card, useDatabase } from "@/context/DatabaseContext";
 
@@ -33,14 +30,14 @@ function generateRandomCards(count: number) {
     const front = countries[randomIndex];
     const back = capitals[randomIndex];
 
-    fakeCards.push({
-      id: i, // Ensuring unique id
-      front,
-      back,
-      hide: false,
-      collectionId: 1,
-      successfulRepeats: 0,
-    });
+    // fakeCards.push({
+    //   id: i, // Ensuring unique id
+    //   front,
+    //   back,
+    //   hide: false,
+    //   collectionId: 1,
+    //   successfulRepeats: 0,
+    // });
   }
   return fakeCards;
 }
@@ -54,7 +51,7 @@ export default function ManageCollectionScreen() {
 
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
-  const [selectedCard, setSelectedCard] = useState<number | null>(2);
+  const [selectedCard, setSelectedCard] = useState<number | null>(1);
 
   const { deleteCollection, getCards, deleteCard } = useDatabase();
   const [cards, setCards] = useState<Card[]>([]);
