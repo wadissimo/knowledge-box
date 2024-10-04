@@ -115,7 +115,7 @@ const TrainCollection = () => {
         NEW_CARDS_PER_DAY
       );
       console.log("new cards");
-      console.log(newCards);
+      //console.log(newCards);
 
       const curTime: number = Date.now();
       console.log("curTime: ", curTime.toString());
@@ -125,7 +125,7 @@ const TrainCollection = () => {
       );
 
       console.log("cardsToRepeat");
-      console.log(cardsToRepeat);
+      //console.log(cardsToRepeat);
       if (cardsToRepeat.length < session.repeatCards) {
         // get extra cards from tomorrow
         let extraCardsToRepeat = await selectToRepeatTrainingCards(
@@ -138,7 +138,7 @@ const TrainCollection = () => {
           (card: Card) => !cardsToRepeatIds.includes(card.id)
         );
         console.log("extraCardsToRepeat");
-        console.log(extraCardsToRepeat);
+        //console.log(extraCardsToRepeat);
         if (
           extraCardsToRepeat.length >
           session.repeatCards - cardsToRepeat.length
@@ -157,7 +157,7 @@ const TrainCollection = () => {
       if (newCards) combinedArray = combinedArray.concat(newCards);
       if (cardsToRepeat) combinedArray = combinedArray.concat(cardsToRepeat);
       console.log("combinedArray");
-      console.log(combinedArray);
+      //console.log(combinedArray);
       // shuffle combined array
       for (let i = combinedArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

@@ -218,7 +218,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
     }
 
     async function fetchData() {
-      await setup();
+      //await setup();
       await fetchCollections();
     }
 
