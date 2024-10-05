@@ -68,6 +68,22 @@ export default function RootLayout() {
                 title: "Training",
               }}
             />
+            <Stack.Screen
+              name="newBox"
+              options={{
+                headerShown: true,
+                //headerBackTitle: "Edit Collection",
+                title: "New Box",
+              }}
+            />
+            <Stack.Screen
+              name="box/[boxId]"
+              options={{
+                headerShown: true,
+                //headerBackTitle: "Edit Collection",
+                title: "Box",
+              }}
+            />
             {/* <Stack.Screen
           name="manage-collection/addcard"
           options={{ headerShown: true, title: "Add Card" }}

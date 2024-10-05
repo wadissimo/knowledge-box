@@ -12,16 +12,31 @@ import {
 
 import { useDatabase } from "@/context/DatabaseContext";
 import MyCardCollections from "@/components/MyCardCollections";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "react-native-ionicons";
+import { Box, useBoxModel } from "@/data/BoxModel";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function CollectionsScreen() {
   const router = useRouter();
-  const { collections } = useDatabase();
+  const { fetchBoxes } = useBoxModel();
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const isFocused = useIsFocused();
+  const [boxes, setBoxes] = useState<Box[]>([]);
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchBoxes().then((res) => {
+        setBoxes(res);
+      });
+    }
+  }, [isFocused]);
 
   const handleAddPress = () => {
-    router.push("/manage-collection/new");
+    router.push("/newBox");
+  };
+  const handleBoxPress = (boxId: number) => {
+    router.push(`/box/${boxId}/`);
   };
   return (
     <SafeAreaView>
@@ -39,29 +54,21 @@ export default function CollectionsScreen() {
         </Link>
         <ScrollView>
           <View style={styles.boxesContainer}>
-            <View style={styles.box}>
-              <Text style={styles.boxHeaderText}>Geography</Text>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.boxHeaderText}>French</Text>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.boxHeaderText}>History</Text>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.boxHeaderText}>React Native</Text>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.boxHeaderText}>Ai</Text>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.boxHeaderText}>Chinese</Text>
-            </View>
+            {boxes.map((box) => (
+              <TouchableOpacity
+                onPress={() => handleBoxPress(box.id)}
+                key={`box_${box.id}`}
+              >
+                <View style={styles.box}>
+                  <Text style={styles.boxHeaderText}>{box.name}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         </ScrollView>
 
         <View style={styles.bottomPanel}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleAddPress}>
             <View style={styles.addBoxBtn}>
               {/* <Text style={styles.addBoxBtnTxt}>+</Text> */}
               <Icon name="add" color="white" size={42} />
@@ -111,6 +118,7 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlignVertical: "top",
   },
+  descInput: {},
   searchBar: {
     marginTop: 50,
   },
