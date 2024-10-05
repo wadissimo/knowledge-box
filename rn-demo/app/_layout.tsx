@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Slot, Stack, Tabs, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { Suspense, useEffect, useState } from "react";
 import { useFonts } from "expo-font";
@@ -25,7 +25,6 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-
   if (!fontsLoaded || !dbLoaded || !database) {
     return null;
   }
@@ -39,6 +38,9 @@ export default function RootLayout() {
       >
         <CollectionProvider>
           <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+          {/* <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen
               name="collections"
@@ -93,11 +95,8 @@ export default function RootLayout() {
               }}
             />
 
-            {/* <Stack.Screen
-          name="manage-collection/addcard"
-          options={{ headerShown: true, title: "Add Card" }}
-        /> */}
-          </Stack>
+           
+          </Stack> */}
         </CollectionProvider>
       </SQLiteProvider>
     </Suspense>

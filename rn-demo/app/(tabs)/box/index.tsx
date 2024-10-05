@@ -10,17 +10,15 @@ import {
   SafeAreaView,
 } from "react-native";
 
-import { useDatabase } from "@/context/DatabaseContext";
-import MyCardCollections from "@/components/MyCardCollections";
 import { useEffect, useState } from "react";
 import Icon from "react-native-ionicons";
 import { Box, useBoxModel } from "@/data/BoxModel";
 import { useIsFocused } from "@react-navigation/native";
 
-export default function CollectionsScreen() {
+export default function BoxesPage() {
   const router = useRouter();
   const { fetchBoxes } = useBoxModel();
-  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const isFocused = useIsFocused();
   const [boxes, setBoxes] = useState<Box[]>([]);
 
@@ -36,19 +34,19 @@ export default function CollectionsScreen() {
     router.push("/newBox");
   };
   const handleBoxPress = (boxId: number) => {
-    router.push(`/box/${boxId}/`);
+    router.push(`box/${boxId}/`);
   };
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <View style={styles.searchBar}>
+        {/* <View style={styles.searchBar}>
           <TextInput
             style={styles.input}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search New Collections"
           />
-        </View>
+        </View> */}
         <Link href={"/collections"}>
           <Text>Collections</Text>
         </Link>

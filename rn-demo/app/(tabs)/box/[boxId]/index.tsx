@@ -22,7 +22,7 @@ const BoxContent = () => {
   }, [isFocused]);
 
   function handleAddCollection() {
-    router.push(`/box/${boxId}/collections/new`);
+    router.push(`/(tabs)/box/${boxId}/collections/new`);
   }
 
   return (
