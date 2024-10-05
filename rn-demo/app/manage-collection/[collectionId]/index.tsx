@@ -13,34 +13,8 @@ import {
   Alert,
 } from "react-native";
 
-import { Card, useDatabase } from "@/context/DatabaseContext";
-
-function generateRandomCards(count: number) {
-  const countries = [
-    ".",
-    "Portugal",
-    "Netherlands very long name",
-    "Belgium",
-    "Greece",
-  ];
-  const capitals = [".", "Lisbon", "Amsterdam", "Brussels", "Athens"];
-  let fakeCards: Card[] = [];
-  for (let i = 0; i < count; i++) {
-    const randomIndex = Math.floor(Math.random() * countries.length);
-    const front = countries[randomIndex];
-    const back = capitals[randomIndex];
-
-    // fakeCards.push({
-    //   id: i, // Ensuring unique id
-    //   front,
-    //   back,
-    //   hide: false,
-    //   collectionId: 1,
-    //   successfulRepeats: 0,
-    // });
-  }
-  return fakeCards;
-}
+import { useCollectionModel } from "@/data/CollectionModel";
+import { Card, useCardModel } from "@/data/CardModel";
 
 export default function ManageCollectionScreen() {
   const router = useRouter();
@@ -53,7 +27,9 @@ export default function ManageCollectionScreen() {
   const [perPage, setPerPage] = useState(10);
   const [selectedCard, setSelectedCard] = useState<number | null>(1);
 
-  const { deleteCollection, getCards, deleteCard } = useDatabase();
+  const { deleteCollection } = useCollectionModel();
+
+  const { getCards, deleteCard } = useCardModel();
   const [cards, setCards] = useState<Card[]>([]);
   const numCards = cards.length;
 
@@ -61,15 +37,15 @@ export default function ManageCollectionScreen() {
   const nextPageDisabled = numCards <= (page + 1) * perPage;
 
   async function fetchCards() {
-    var cards = await getCards(collectionId);
+    var cards = await getCards(Number(collectionId));
     setCards(cards);
     if (affectedCardId) {
       if (affectedCardId == "-1") {
         // choose last card
         if (cards.length > 0) {
           setPage(Math.ceil(cards.length / perPage) - 1);
-
-          setSelectedCard(Number(cards.at(-1).id));
+          const lastElement = cards.at(-1);
+          if (lastElement) setSelectedCard(lastElement.id);
         } else {
           setPage(0);
           setSelectedCard(null);
@@ -85,27 +61,6 @@ export default function ManageCollectionScreen() {
       fetchCards();
     }, [collectionId, affectedCardId, perPage])
   );
-
-  //   useEffect(() => {
-  //     async function fetchCards() {
-  //       var cards = await getCards(collectionId);
-  //       setCards(cards);
-  //     }
-  //     fetchCards();
-  //   }, [collectionId]);
-
-  //   const pickImage = async () => {
-  //     let result = await ImagePicker.launchImageLibraryAsync();
-
-  //     // Check if the result has not been canceled and if it includes a 'uri'
-  //     if (!result.canceled && result.assets && result.assets.length > 0) {
-  //       setImage(result.assets[0].uri);
-  //     }
-
-  //     // if (!result.canceled) {
-  //     //   setImage(result.uri);
-  //     // }
-  //   };
 
   const prevPage = () => {
     setSelectedCard(null);

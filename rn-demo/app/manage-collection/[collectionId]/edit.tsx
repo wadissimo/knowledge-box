@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Collection, useDatabase } from "@/context/DatabaseContext";
+import { useCollectionModel } from "@/data/CollectionModel";
 
 const EditCollection = () => {
   const router = useRouter();
@@ -9,14 +10,16 @@ const EditCollection = () => {
   const { collectionId } = useLocalSearchParams();
 
   const [name, setName] = useState<string>("");
-  const { updateCollection, getCollectionById } = useDatabase();
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const { updateCollection, getCollectionById } = useCollectionModel();
 
   useEffect(() => {
     async function updateName() {
-      const col = await getCollectionById(collectionId);
+      const col = await getCollectionById(Number(collectionId));
       if (col) {
         setName(col.name);
       }
+      setCollection(col);
     }
     updateName();
   }, [collectionId]);
@@ -26,7 +29,13 @@ const EditCollection = () => {
       Alert.alert("Error", "Name must be filled.");
       return;
     }
-    updateCollection(collectionId, name);
+    if (collection !== null) {
+      collection.name = name;
+      updateCollection(collection);
+    } else {
+      throw Error("Empty Collection");
+    }
+
     router.back();
   };
 

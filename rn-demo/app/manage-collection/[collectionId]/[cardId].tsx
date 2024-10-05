@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
-import { useDatabase } from "@/context/DatabaseContext";
+
+import { useCardModel } from "@/data/CardModel";
 
 const EditFlashcard = () => {
   const router = useRouter();
@@ -10,7 +11,7 @@ const EditFlashcard = () => {
 
   const [frontSide, setFrontSide] = useState<string>("");
   const [backSide, setBackSide] = useState<string>("");
-  const { getCardById, newCard, updateCardFrontBack } = useDatabase();
+  const { getCardById, newCard, updateCardFrontBack } = useCardModel();
   //console.log("cardId", cardId);
   const navigation = useNavigation();
 
@@ -23,7 +24,8 @@ const EditFlashcard = () => {
           title: "New Card",
         });
       } else {
-        const card = await getCardById(cardId);
+        const card = await getCardById(Number(cardId));
+        if (card === null) throw Error("Can't find a card:" + cardId);
 
         setFrontSide(card.front);
         setBackSide(card.back);
@@ -41,7 +43,7 @@ const EditFlashcard = () => {
       return;
     }
     if (cardId === "new") {
-      newCard(collectionId, frontSide, backSide);
+      newCard(Number(collectionId), frontSide, backSide);
       router.back();
       router.replace(`/manage-collection/${collectionId}/?affectedCardId=-1`);
     } else {

@@ -8,6 +8,7 @@ import {
 } from "@/context/DatabaseContext";
 import { useLocalSearchParams } from "expo-router";
 import CardComponent from "@/components/CardComponent";
+import { useCardModel } from "@/data/CardModel";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
@@ -44,6 +45,8 @@ const HARD_DELTA_EASE_FACTOR = 0.1;
 const TrainCollection = () => {
   const { collectionId } = useLocalSearchParams();
 
+  const { updateCard } = useCardModel();
+
   const {
     selectNewTrainingCards,
     selectToRepeatTrainingCards,
@@ -53,7 +56,6 @@ const TrainCollection = () => {
     createSessionCard,
     removeSession,
     updateSessionCard,
-    updateCard,
     removeSessionCard,
   } = useDatabase();
 

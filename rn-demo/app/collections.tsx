@@ -1,22 +1,31 @@
 // app/index.tsx
 import { useRouter } from "expo-router";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-import { useDatabase } from "@/context/DatabaseContext";
 import MyCardCollections from "@/components/MyCardCollections";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function CollectionsScreen() {
   const router = useRouter();
-  const { collections } = useDatabase();
+
+  //const { collections } = useDatabase();
+  const { fetchCollections } = useCollectionModel();
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  const isFocused = useIsFocused(); // check if screen is focused
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchCollections().then((res) => setCollections(res));
+    }
+  }, [isFocused]);
+
+  if (collections.length === 0) {
+    return null;
+  }
   const handleAddPress = () => {
     router.push("/manage-collection/new");
   };

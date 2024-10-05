@@ -53,15 +53,7 @@ type SessionCard = {
 
 interface CollectionContextProps {
   collections: Collection[];
-  newCollection: Function;
-  updateCollection: Function;
-  deleteCollection: Function;
-  getCollectionById: Function;
-  getCards: Function;
-  newCard: Function;
-  updateCardFrontBack: Function;
-  getCardById: Function;
-  deleteCard: Function;
+
   updateCardRepeatTime: Function;
   selectNewTrainingCards: Function;
   selectToRepeatTrainingCards: Function;
@@ -71,21 +63,13 @@ interface CollectionContextProps {
   createSessionCard: Function;
   removeSession: Function;
   updateSessionCard: Function;
-  updateCard: Function;
+
   removeSessionCard: Function;
 }
 
 const CollectionContext = createContext<CollectionContextProps>({
   collections: [],
-  newCollection: () => {},
-  updateCollection: () => {},
-  deleteCollection: () => {},
-  getCollectionById: () => {},
-  getCards: () => {},
-  newCard: () => {},
-  updateCardFrontBack: () => {},
-  getCardById: () => {},
-  deleteCard: () => {},
+
   updateCardRepeatTime: () => {},
   selectNewTrainingCards: () => {},
   selectToRepeatTrainingCards: () => {},
@@ -95,7 +79,7 @@ const CollectionContext = createContext<CollectionContextProps>({
   createSessionCard: () => {},
   removeSession: () => {},
   updateSessionCard: () => {},
-  updateCard: () => {},
+
   removeSessionCard: () => {},
 });
 
@@ -448,15 +432,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
     <CollectionContext.Provider
       value={{
         collections,
-        newCollection,
-        updateCollection,
-        deleteCollection,
-        getCollectionById,
-        getCards,
-        newCard,
-        updateCardFrontBack,
-        getCardById,
-        deleteCard,
+
         updateCardRepeatTime,
         selectNewTrainingCards,
         selectToRepeatTrainingCards,
@@ -466,7 +442,7 @@ const CollectionProvider = ({ children }: CollectionProviderProps) => {
         createSessionCard,
         removeSession,
         updateSessionCard,
-        updateCard,
+
         removeSessionCard,
       }}
     >

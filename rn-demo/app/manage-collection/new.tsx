@@ -2,18 +2,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useDatabase } from "@/context/DatabaseContext";
+import { useCollectionModel } from "@/data/CollectionModel";
 
 const AddCollection = () => {
   const router = useRouter();
 
-  const { collectionId } = useLocalSearchParams();
-
   const [name, setName] = useState<string>("");
-  const { newCollection } = useDatabase();
-
-  useEffect(() => {
-    setName("");
-  }, [collectionId]);
+  const { newCollection } = useCollectionModel();
 
   const handleSave = () => {
     if (!name) {

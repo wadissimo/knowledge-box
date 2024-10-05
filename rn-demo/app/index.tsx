@@ -1,5 +1,5 @@
 // app/index.tsx
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import {
   View,
   Text,
@@ -34,6 +34,9 @@ export default function CollectionsScreen() {
             placeholder="Search New Collections"
           />
         </View>
+        <Link href={"/collections"}>
+          <Text>Collections</Text>
+        </Link>
         <ScrollView>
           <View style={styles.boxesContainer}>
             <View style={styles.box}>
@@ -56,6 +59,7 @@ export default function CollectionsScreen() {
             </View>
           </View>
         </ScrollView>
+
         <View style={styles.bottomPanel}>
           <TouchableOpacity>
             <View style={styles.addBoxBtn}>
