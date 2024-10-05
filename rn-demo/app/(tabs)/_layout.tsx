@@ -5,16 +5,13 @@ import Icon from "react-native-ionicons";
 
 const _layout = () => {
   return (
-    <Tabs initialRouteName="box">
-      {/* <Tabs.Screen
+    <Tabs initialRouteName="box" screenOptions={{}}>
+      <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Icon size={28} name="home" color={color} />
-          ),
+          href: null,
         }}
-      /> */}
+      />
       <Tabs.Screen
         name="box"
         options={{
