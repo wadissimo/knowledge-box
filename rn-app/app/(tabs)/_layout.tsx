@@ -5,7 +5,7 @@ import Icon from "react-native-ionicons";
 
 const _layout = () => {
   return (
-    <Tabs initialRouteName="box" screenOptions={{}}>
+    <Tabs screenOptions={{}}>
       <Tabs.Screen
         name="index"
         options={{
@@ -17,7 +17,7 @@ const _layout = () => {
         options={{
           headerShown: false,
           title: "Boxes",
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="cube" color={color} />
           ),
         }}
@@ -26,7 +26,7 @@ const _layout = () => {
         name="user"
         options={{
           title: "User",
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="person" color={color} />
           ),
         }}
@@ -35,7 +35,7 @@ const _layout = () => {
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="cog" color={color} />
           ),
         }}

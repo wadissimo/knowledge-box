@@ -1,4 +1,3 @@
-// app/index.tsx
 import { Link, useRouter } from "expo-router";
 import {
   View,
@@ -34,11 +33,14 @@ export default function BoxesPage() {
     router.push("/newBox");
   };
   const handleBoxPress = (boxId: number) => {
-    router.push(`/(tabs)/box/${boxId}`);
+    router.push(`/(tabs)/box/${boxId}/boxView`);
   };
   return (
     <SafeAreaView>
       <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTxt}>My Boxes</Text>
+        </View>
         {/* <View style={styles.searchBar}>
           <TextInput
             style={styles.input}
@@ -47,9 +49,7 @@ export default function BoxesPage() {
             placeholder="Search New Collections"
           />
         </View> */}
-        <Link href={"/collections"}>
-          <Text>Collections</Text>
-        </Link>
+
         <ScrollView>
           <View style={styles.boxesContainer}>
             {boxes.map((box) => (
@@ -80,12 +80,23 @@ export default function BoxesPage() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
     flexDirection: "column",
+
     //justifyContent: "center",
     //alignItems: "center",
     width: "100%",
     height: "100%",
+  },
+  header: {
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    backgroundColor: "#1da422",
+    height: 80,
+  },
+  headerTxt: {
+    color: "white",
+    fontSize: 36,
+    fontWeight: "bold",
   },
   boxesContainer: {
     alignItems: "center",
