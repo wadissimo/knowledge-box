@@ -1,0 +1,13 @@
+npx create-expo-app@latest
+
+npm install react-native-ionicons
+
+npx expo install expo-sqlite
+
+npm install --save react-native-webview
+
+npm run reset-project
+
+npm i react-native-pell-rich-editor
+
+node_modules/react-native-ionicons/fonts/Ionicons.ttf -> projectname/android/app/src/main/assets/fonts/Ionicons.ttf

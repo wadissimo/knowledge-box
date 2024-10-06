@@ -1,0 +1,22 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "app/manage-collection/colId.tsx.back",
+    "components/utils/SeparatorWithText.tsx",
+    "../knowledge-box-mobile/hooks/useDatabaseFromAsset.ts",
+    "../knowledge-box-mobile/data/BoxCollectionModel.ts",
+    "../knowledge-box-mobile/data/BoxModel.ts",
+    "../knowledge-box-mobile/data/CardModel.ts",
+    "../knowledge-box-mobile/data/CollectionModel.ts"
+  ]
+}
