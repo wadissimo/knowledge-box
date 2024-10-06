@@ -11,13 +11,13 @@ function useCollectionModel() {
   const db = SQLite.useSQLiteContext();
 
   // Create
-  const newCollection = async (name: string) => {
-    await db.runAsync(
+  const newCollection = async (name: string): Promise<number> => {
+    const result = await db.runAsync(
       "INSERT INTO collections (name, cardsNumber) VALUES (?, ?)",
       name,
       0
     );
-    //const lastIdResult = await db.queryAsync("SELECT last_insert_rowid() AS id");
+    return result.lastInsertRowId;
   };
 
   // Update

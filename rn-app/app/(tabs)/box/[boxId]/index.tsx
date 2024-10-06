@@ -1,4 +1,4 @@
-import { View, Text, Button } from "react-native";
+import { View, Text, Button, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Collection, useCollectionModel } from "@/data/CollectionModel";
@@ -22,16 +22,46 @@ const BoxContent = () => {
   }, [isFocused]);
 
   function handleAddCollection() {
-    router.push(`/(tabs)/box/${boxId}/collections/new`);
+    router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
   }
 
   return (
-    <View>
-      <Text>My Collections</Text>
-      <MyCardCollections collections={collections} />
-      <Button title="Add Collection" onPress={handleAddCollection}></Button>
+    <View style={styles.container}>
+      <View style={styles.colContainer}>
+        <Text style={styles.colHeaderText}>My Collections</Text>
+        <View style={styles.colListContainer}>
+          <MyCardCollections collections={collections} />
+        </View>
+        <Button
+          title="Add Collection"
+          onPress={handleAddCollection}
+          color={styles.addBtn.color}
+        ></Button>
+      </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { paddingTop: 20 },
+  colContainer: {
+    padding: 5,
+  },
+  colHeaderText: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  colListContainer: {
+    padding: 10,
+  },
+  addBtn: {
+    color: "#4CAF50",
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "grey",
+    marginVertical: 1,
+  },
+});
 
 export default BoxContent;

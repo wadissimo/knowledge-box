@@ -19,14 +19,14 @@ function useBoxModel() {
     name: string,
     description: string | null,
     parentId: number | null
-  ) => {
-    await db.runAsync(
+  ): Promise<number> => {
+    const result = await db.runAsync(
       "INSERT INTO boxes (name, description, parentId) VALUES (?, ?, ?)",
       name,
       description,
       parentId
     );
-    //const lastIdResult = await db.queryAsync("SELECT last_insert_rowid() AS id");
+    return result.lastInsertRowId;
   };
 
   // Update

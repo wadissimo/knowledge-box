@@ -19,8 +19,12 @@ function useCardModel() {
   const db = SQLite.useSQLiteContext();
 
   // Create
-  const newCard = async (collectionId: number, front: string, back: string) => {
-    await db.runAsync(
+  const newCard = async (
+    collectionId: number,
+    front: string,
+    back: string
+  ): Promise<number> => {
+    const result = await db.runAsync(
       "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
       collectionId,
       front,
@@ -32,6 +36,7 @@ function useCardModel() {
       collectionId,
       collectionId
     );
+    return result.lastInsertRowId;
   };
 
   // Update

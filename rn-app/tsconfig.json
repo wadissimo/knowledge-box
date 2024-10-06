@@ -11,6 +11,7 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "app/manage-collection/colId.tsx.back"
+    "app/manage-collection/colId.tsx.back",
+    "components/utils/SeparatorWithText.tsx"
   ]
 }
