@@ -13,7 +13,7 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Collection, useCollectionModel } from "@/data/CollectionModel";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useTheme } from "@react-navigation/native";
 import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
 import MyCardCollections from "@/components/MyCardCollections";
 
@@ -23,6 +23,7 @@ import { Box, useBoxModel } from "@/data/BoxModel";
 import Icon from "react-native-ionicons";
 
 const BoxViewContent = () => {
+  const { colors } = useTheme();
   const router = useRouter();
   const { boxId } = useLocalSearchParams();
   const { getBoxById } = useBoxModel();
@@ -55,14 +56,14 @@ const BoxViewContent = () => {
         </View>
 
         <View style={styles.colContainer}>
-          <Text style={styles.sectionHeaderText}>My Collections1</Text>
+          <Text style={styles.sectionHeaderText}>My Collections</Text>
           <View style={styles.colListContainer}>
             <MyCardCollections collections={collections} />
           </View>
           <Button
             title="Add Collection"
             onPress={handleAddCollection}
-            color={styles.addBtn.color}
+            color={colors.primary}
           ></Button>
         </View>
         <View style={styles.notesView}>
@@ -71,7 +72,7 @@ const BoxViewContent = () => {
           <Button
             title="New Note"
             onPress={handleAddNotePress}
-            color={styles.addBtn.color}
+            color={colors.primary}
           ></Button>
         </View>
       </View>

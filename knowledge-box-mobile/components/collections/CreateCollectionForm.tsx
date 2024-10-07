@@ -1,9 +1,11 @@
 import { View, Text, StyleSheet, TextInput, Alert, Button } from "react-native";
 import React, { useState } from "react";
+import { useTheme } from "@react-navigation/native";
 
 const CreateCollectionForm: React.FC<{
   onCreate: Function;
 }> = ({ onCreate }) => {
+  const { colors } = useTheme();
   const [name, setName] = useState<string>("");
   const handleSave = async () => {
     if (!name) {
@@ -24,7 +26,7 @@ const CreateCollectionForm: React.FC<{
         placeholder="Name"
       />
 
-      <Button title="Create" onPress={handleSave} color="#4CAF50" />
+      <Button title="Create" onPress={handleSave} color={colors.primary} />
     </View>
   );
 };

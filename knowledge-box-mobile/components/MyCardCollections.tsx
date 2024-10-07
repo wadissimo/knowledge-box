@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     padding: 5,
-    backgroundColor: "#70ce74",
+    backgroundColor: "#c2fbc4",
     flexDirection: "column",
     //flex: 1,
     justifyContent: "flex-start",

@@ -39,6 +39,28 @@ function useCardModel() {
     return result.lastInsertRowId;
   };
 
+  const newCards = async (
+    cardList: { collectionId: number; front: string; back: string }[]
+  ) => {
+    let query = "INSERT INTO cards (collectionId, front, back) VALUES ";
+    const values: any[] = [];
+    cardList.forEach((card) => {
+      query += "(?, ?, ?),";
+      values.push(card.collectionId, card.front, card.back);
+    });
+    query = query.slice(0, -1); // Remove the trailing comma
+    await db.withTransactionAsync(async () => {
+      await db.runAsync(query, values);
+
+      const collectionId = cardList[0].collectionId;
+      await db.runAsync(
+        "UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?",
+        collectionId,
+        collectionId
+      );
+    });
+  };
+
   // Update
   const updateCard = async (card: Card) => {
     await db.runAsync(
@@ -106,6 +128,7 @@ function useCardModel() {
   };
   return {
     newCard,
+    newCards,
     updateCard,
     updateCardFrontBack,
     deleteCard,

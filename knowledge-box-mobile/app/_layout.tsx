@@ -11,6 +11,24 @@ import {
   DATABASE_NAME,
   useDatabaseFromAsset,
 } from "@/hooks/useDatabaseFromAsset";
+import {
+  DefaultTheme,
+  NavigationContainer,
+  ThemeProvider,
+  useTheme,
+} from "@react-navigation/native";
+
+const MyCustomTheme = {
+  ...DefaultTheme, // or DarkTheme
+  colors: {
+    ...DefaultTheme.colors,
+    primary: "#1da422",
+    background: "white",
+    text: "black",
+    card: "lightgray",
+    border: "gray",
+  },
+};
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,75 +48,20 @@ export default function RootLayout() {
   }
 
   return (
-    <Suspense fallback={<Text>Loading...</Text>}>
-      <SQLiteProvider
-        databaseName={DATABASE_NAME}
-        useSuspense={true}
-        // assetSource={{ assetId: require("@/assets/userdata.db") }}
-      >
-        <CollectionProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-          {/* <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="collections"
-              options={{ headerShown: true, title: "Collections" }}
-            />
-            <Stack.Screen
-              name="manage-collection/[collectionId]/index"
-              options={{
-                headerShown: true,
-                //headerBackTitle: "Manage Collection",
-                title: "Manage Collection",
-              }}
-            />
-            <Stack.Screen
-              name="manage-collection/[collectionId]/[cardId]"
-              options={{
-                headerShown: true,
-                //headerBackTitle: "Edit Collection",
-                title: "Edit Card",
-              }}
-            />
-            <Stack.Screen
-              name="manage-collection/[collectionId]/train"
-              options={{
-                headerShown: true,
-                //headerBackTitle: "Edit Collection",
-                title: "Training",
-              }}
-            />
-            <Stack.Screen
-              name="newBox"
-              options={{
-                headerShown: true,
-                //headerBackTitle: "Edit Collection",
-                title: "New Box",
-              }}
-            />
-            <Stack.Screen
-              name="box/[boxId]/index"
-              options={{
-                headerShown: true,
-                //headerBackTitle: "Edit Collection",
-                title: "Box",
-              }}
-            />
-            <Stack.Screen
-              name="box/[boxId]/collections/new"
-              options={{
-                headerShown: true,
-                //headerBackTitle: "Edit Collection",
-                title: "New Collection",
-              }}
-            />
-
-           
-          </Stack> */}
-        </CollectionProvider>
-      </SQLiteProvider>
-    </Suspense>
+    <ThemeProvider value={MyCustomTheme}>
+      <Suspense fallback={<Text>Loading...</Text>}>
+        <SQLiteProvider
+          databaseName={DATABASE_NAME}
+          useSuspense={true}
+          // assetSource={{ assetId: require("@/assets/userdata.db") }}
+        >
+          <CollectionProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+          </CollectionProvider>
+        </SQLiteProvider>
+      </Suspense>
+    </ThemeProvider>
   );
 }
