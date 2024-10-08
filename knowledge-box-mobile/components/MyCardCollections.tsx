@@ -20,7 +20,7 @@ const MyCardCollections: React.FC<{
         renderItem={({ item }) => (
           <View style={styles.row}>
             <Link
-              href={`/manage-collection/${item.id}`}
+              href={`/(tabs)/box/manage-collection/${item.id}`}
               //href={`/manage-collection/test`}
               style={[styles.rowItem, styles.link]}
             >
@@ -28,7 +28,7 @@ const MyCardCollections: React.FC<{
             </Link>
             <Text style={styles.rowItem}>{item.cardsNumber}</Text>
             <Link
-              href={`/manage-collection/${item.id}/train`}
+              href={`/(tabs)/box/manage-collection/${item.id}/train`}
               style={[styles.rowItem, styles.link]}
             >
               <Text>Train</Text>

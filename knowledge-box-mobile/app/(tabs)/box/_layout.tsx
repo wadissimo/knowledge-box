@@ -59,6 +59,98 @@ const BoxLayout = () => {
           },
         }}
       />
+      <Stack.Screen
+        name="manage-collection/[collectionId]/index"
+        options={{
+          title: "Manage Collection",
+          headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Icon name="chevron-left" size={42} color="white" />
+            </TouchableOpacity>
+          ),
+          headerBackVisible: false,
+          headerShadowVisible: false,
+
+          headerStyle: {
+            backgroundColor: "#1da422",
+          },
+          headerTitleStyle: {
+            color: "white",
+            fontSize: 32,
+            fontWeight: "bold",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="manage-collection/[collectionId]/edit"
+        options={{
+          title: "Edit Collection",
+          headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Icon name="chevron-left" size={42} color="white" />
+            </TouchableOpacity>
+          ),
+          headerBackVisible: false,
+          headerShadowVisible: false,
+
+          headerStyle: {
+            backgroundColor: "#1da422",
+          },
+          headerTitleStyle: {
+            color: "white",
+            fontSize: 32,
+            fontWeight: "bold",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="manage-collection/[collectionId]/[cardId]"
+        options={{
+          title: "Edit Card",
+          headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Icon name="chevron-left" size={42} color="white" />
+            </TouchableOpacity>
+          ),
+          headerBackVisible: false,
+          headerShadowVisible: false,
+
+          headerStyle: {
+            backgroundColor: "#1da422",
+          },
+          headerTitleStyle: {
+            color: "white",
+            fontSize: 32,
+            fontWeight: "bold",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="manage-collection/[collectionId]/train"
+        options={{
+          title: "Train",
+          headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Icon name="chevron-left" size={42} color="white" />
+            </TouchableOpacity>
+          ),
+          headerBackVisible: false,
+          headerShadowVisible: false,
+
+          headerStyle: {
+            backgroundColor: "#1da422",
+          },
+          headerTitleStyle: {
+            color: "white",
+            fontSize: 32,
+            fontWeight: "bold",
+          },
+        }}
+      />
     </Stack>
   );
 };

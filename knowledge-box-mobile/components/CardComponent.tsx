@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: 10,
-    height: 300,
-    width: 200,
+    height: 500,
+    width: 300,
     backgroundColor: "lightgreen",
     borderRadius: 20,
     justifyContent: "center",

@@ -1,0 +1,126 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+} from "react-native";
+import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
+
+import { useCardModel } from "@/data/CardModel";
+import { useTheme } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+const EditFlashcard = () => {
+  const router = useRouter();
+  const { colors } = useTheme();
+
+  const { collectionId, cardId } = useLocalSearchParams();
+
+  const [frontSide, setFrontSide] = useState<string>("");
+  const [backSide, setBackSide] = useState<string>("");
+  const { getCardById, newCard, updateCardFrontBack } = useCardModel();
+  //console.log("cardId", cardId);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    async function fetchCards() {
+      if (cardId === "new") {
+        setFrontSide("");
+        setBackSide("");
+        navigation.setOptions({
+          title: "New Card",
+        });
+      } else {
+        const card = await getCardById(Number(cardId));
+        if (card === null) throw Error("Can't find a card:" + cardId);
+
+        setFrontSide(card.front);
+        setBackSide(card.back);
+        navigation.setOptions({
+          title: "Edit Card",
+        });
+      }
+    }
+    fetchCards();
+  }, [collectionId, cardId]);
+
+  const handleSave = () => {
+    if (!frontSide || !backSide) {
+      Alert.alert("Error", "Both front and back sides must be filled.");
+      return;
+    }
+    if (cardId === "new") {
+      newCard(Number(collectionId), frontSide, backSide);
+      router.back();
+      router.replace(
+        `/(tabs)/box/manage-collection/${collectionId}/?affectedCardId=-1`
+      );
+    } else {
+      updateCardFrontBack(Number(cardId), frontSide, backSide);
+      router.back();
+      router.replace(
+        `/(tabs)/box/manage-collection/${collectionId}/?affectedCardId=${cardId}`
+      );
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* <Text style={styles.label}>Edit Flashcard</Text> */}
+
+      <TextInput
+        style={styles.input}
+        value={frontSide}
+        onChangeText={setFrontSide}
+        placeholder="Front side"
+        multiline
+        numberOfLines={3}
+      />
+
+      <TextInput
+        style={styles.input}
+        value={backSide}
+        onChangeText={setBackSide}
+        placeholder="Back side"
+        multiline
+        numberOfLines={3}
+      />
+
+      <Button title="Save" onPress={handleSave} color={colors.primary} />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#F5F5F5",
+  },
+  label: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    //textAlign: "center",
+    color: "#333",
+  },
+  multilineInput: {},
+  input: {
+    backgroundColor: "#FFF",
+    borderColor: "#DDD",
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    fontSize: 16,
+    color: "#333",
+    textAlignVertical: "top",
+    height: 120,
+  },
+});
+
+export default EditFlashcard;
