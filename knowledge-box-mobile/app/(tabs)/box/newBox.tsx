@@ -2,8 +2,10 @@ import { View, Text, TextInput, StyleSheet, Button } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { useBoxModel } from "@/data/BoxModel";
+import { useTheme } from "@react-navigation/native";
 
 const ManageBox = () => {
+  const { colors } = useTheme();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
@@ -41,7 +43,7 @@ const ManageBox = () => {
           numberOfLines={4}
         />
       </View>
-      <Button title="Create" onPress={handleSave} color="#4CAF50" />
+      <Button title="Create" onPress={handleSave} color={colors.primary} />
     </View>
   );
 };

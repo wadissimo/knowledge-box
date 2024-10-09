@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Collection, useCollectionModel } from "@/data/CollectionModel";
 import { useIsFocused, useTheme } from "@react-navigation/native";
 import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
@@ -20,11 +20,15 @@ import MyCardCollections from "@/components/MyCardCollections";
 import { Component } from "react";
 import { WebView } from "react-native-webview";
 import { Box, useBoxModel } from "@/data/BoxModel";
-import Icon from "react-native-ionicons";
+//import Icon from "react-native-ionicons";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import MyCardCollectionsCarousel from "@/components/MyCardCollectionsCarousel";
 
 const BoxViewContent = () => {
   const { colors } = useTheme();
   const router = useRouter();
+  const navigation = useNavigation();
+
   const { boxId } = useLocalSearchParams();
   const { getBoxById } = useBoxModel();
   const { fetchCollectionsByBoxId } = useBoxCollectionModel();
@@ -40,6 +44,31 @@ const BoxViewContent = () => {
     }
   }, [isFocused]);
 
+  useEffect(() => {
+    if (box !== null) {
+      navigation.setOptions({
+        title: box.name,
+        headerShown: true,
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => router.back()}>
+            <Icon name="chevron-left" size={42} color="white" />
+          </TouchableOpacity>
+        ),
+        headerBackVisible: false,
+        headerShadowVisible: false,
+
+        headerStyle: {
+          backgroundColor: "#1da422",
+        },
+        headerTitleStyle: {
+          color: "white",
+          fontSize: 32,
+          fontWeight: "bold",
+        },
+      });
+    }
+  }, [box]);
+
   function handleAddCollection() {
     router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
   }
@@ -51,14 +80,14 @@ const BoxViewContent = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View>
-        <View style={styles.header}>
+        {/* <View style={styles.header}>
           <Text style={styles.headerTxt}>{box.name}</Text>
-        </View>
+        </View> */}
 
         <View style={styles.colContainer}>
           <Text style={styles.sectionHeaderText}>My Collections</Text>
           <View style={styles.colListContainer}>
-            <MyCardCollections collections={collections} />
+            <MyCardCollectionsCarousel collections={collections} />
           </View>
           <Button
             title="Add Collection"

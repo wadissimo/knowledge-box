@@ -57,13 +57,13 @@ const EditFlashcard = () => {
       newCard(Number(collectionId), frontSide, backSide);
       router.back();
       router.replace(
-        `/(tabs)/box/manage-collection/${collectionId}/?affectedCardId=-1`
+        `/(tabs)/box/manage-collection/${collectionId}/manage?affectedCardId=-1`
       );
     } else {
       updateCardFrontBack(Number(cardId), frontSide, backSide);
       router.back();
       router.replace(
-        `/(tabs)/box/manage-collection/${collectionId}/?affectedCardId=${cardId}`
+        `/(tabs)/box/manage-collection/${collectionId}/manage?affectedCardId=${cardId}`
       );
     }
   };

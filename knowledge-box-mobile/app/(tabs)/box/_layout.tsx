@@ -62,6 +62,29 @@ const BoxLayout = () => {
       <Stack.Screen
         name="manage-collection/[collectionId]/index"
         options={{
+          title: "View Collection",
+          headerShown: true,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Icon name="chevron-left" size={42} color="white" />
+            </TouchableOpacity>
+          ),
+          headerBackVisible: false,
+          headerShadowVisible: false,
+
+          headerStyle: {
+            backgroundColor: "#1da422",
+          },
+          headerTitleStyle: {
+            color: "white",
+            fontSize: 32,
+            fontWeight: "bold",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="manage-collection/[collectionId]/manage"
+        options={{
           title: "Manage Collection",
           headerShown: true,
           headerLeft: () => (
