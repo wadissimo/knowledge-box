@@ -5,7 +5,7 @@ def read_csv(name):
     with open(name,encoding='utf-8') as f:
         line = f.readline()
         while line:
-            row = line.split(sep=',')
+            row = line.strip().split(sep=',')
             if len(row) != 2:
                 raise RuntimeError("wrong data:", row)
             data.append(row)
@@ -23,11 +23,19 @@ def insert_data(data, name, description, tags, reverse=False):
     res = cur.execute("SELECT last_insert_rowid();")
     collection_id = res.fetchone()[0]
     print("collection_id", collection_id)
-    
-    if reverse:
-        values = [(collection_id, row[1], row[0]) for row in data]
-    else:
-        values = [(collection_id, row[0], row[1]) for row in data]
+    values = []
+    unique = set()
+    for row in data:
+        front = row[1] if reverse else row[0]
+        back = row[0] if reverse else row[1]
+        if front in unique:
+            continue
+        unique.add(front)
+        values.append((collection_id, front, back))
+        
+            
 
     cur.executemany("INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)", values)
+    cur.execute("UPDATE collections set cardsNumber = ? where id = ?;", (len(values), collection_id))
     con.commit()
+    con.close()
