@@ -25,8 +25,23 @@ function useSoundModel() {
     return result.lastInsertRowId;
   };
 
+  const newSoundWithId = async (
+    id: number,
+    file: string,
+    ref: string | null,
+    comment: string | null
+  ): Promise<void> => {
+    const result = await db.runAsync(
+      "INSERT INTO sounds (id, file, ref, comment) VALUES (?, ?, ?, ?)",
+      id,
+      file,
+      ref,
+      comment
+    );
+  };
+
   // Update
-  const updateSound = async (sound: SoundData) => {
+  const updateSound = async (sound: SoundData): Promise<void> => {
     await db.runAsync(
       "UPDATE sounds SET file = ?, ref = ?, comment = ? where id=?",
       sound.file,
@@ -37,17 +52,20 @@ function useSoundModel() {
   };
 
   // Delete
-  const deleteSound = async (id: number) => {
+  const deleteSound = async (id: number): Promise<void> => {
     await db.runAsync("DELETE FROM sounds where id=?", id);
   };
 
   // Read
-
-  return {
-    newSound,
-    updateSound,
-    deleteSound,
+  const getSoundById = async (id: number): Promise<SoundData | null> => {
+    const res = await db.getFirstAsync<SoundData>(
+      "select * FROM sounds where id=?",
+      id
+    );
+    return res;
   };
+
+  return { newSound, updateSound, deleteSound, newSoundWithId, getSoundById };
 }
 
 export { SoundData, useSoundModel };

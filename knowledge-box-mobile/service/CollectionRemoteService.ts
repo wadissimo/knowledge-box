@@ -99,18 +99,18 @@ export default function useCollectionRemoteService() {
           collection.createdBy
         );
         await newBoxCollection(boxId, newColId);
-        await newCards(
-          (data.cards as Card[]).map((card) => ({
-            collectionId: newColId,
-            front: card.front,
-            back: card.back,
-            frontImg: card.frontImg,
-            backImg: card.backImg,
-            frontSound: card.frontSound,
-            backSound: card.backSound,
-            initialEaseFactor: card.initialEaseFactor,
-          }))
-        );
+        const cards = (data.cards as Card[]).map((card) => ({
+          collectionId: newColId,
+          front: card.front,
+          back: card.back,
+          frontImg: card.frontImg ? -card.frontImg : null, // Important: update global id to "-", positive values would be local ids
+          backImg: card.backImg ? -card.backImg : null, // Important: update global id to "-", positive values would be local ids
+          frontSound: card.frontSound ? -card.frontSound : null, // Important: update global id to "-", positive values would be local ids
+          backSound: card.backSound ? -card.backSound : null, // Important: update global id to "-", positive values would be local ids
+          initialEaseFactor: card.initialEaseFactor,
+        }));
+        await newCards(cards);
+        //TODO: sync media if needed too
       }
     } catch (e) {
       console.error(e);

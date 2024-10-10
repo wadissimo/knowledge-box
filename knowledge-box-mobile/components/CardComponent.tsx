@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SessionCard } from "@/data/SessionCardModel";
+import useMediaDataService from "@/service/MediaDataService";
 
 const CardComponent: React.FC<{
   currentCard: SessionCard;
@@ -8,6 +9,8 @@ const CardComponent: React.FC<{
 }> = ({ currentCard, onUserResponse }) => {
   const [cardFlip, setCardFlip] = useState(false);
   const [answerShown, setAnswerShown] = useState(false);
+
+  const { playSound } = useMediaDataService();
 
   useEffect(() => {
     setCardFlip(false);
@@ -17,6 +20,12 @@ const CardComponent: React.FC<{
   function handleCardFlip() {
     setCardFlip((flip) => !flip);
     setAnswerShown(true);
+  }
+
+  async function handlePlay(soundId: number | null) {
+    if (soundId !== null) {
+      await playSound(soundId); //TODO: remove -
+    }
   }
 
   return (

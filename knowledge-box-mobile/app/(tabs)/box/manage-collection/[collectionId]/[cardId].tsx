@@ -16,6 +16,7 @@ import { useTheme } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useMediaDataService from "@/service/MediaDataService";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { Audio } from "expo-av";
 
 const EditFlashcard = () => {
   const router = useRouter();
@@ -32,7 +33,8 @@ const EditFlashcard = () => {
 
   // Media
   const [card, setCard] = useState<Card | null>(null);
-  const { loading, downloadSound } = useMediaDataService();
+  const { loading, importGlobalSoundIfNotExists, playSound } =
+    useMediaDataService();
 
   useEffect(() => {
     async function fetchCards() {
@@ -45,10 +47,9 @@ const EditFlashcard = () => {
       } else {
         const card = await getCardById(Number(cardId));
         if (card === null) throw Error("Can't find a card:" + cardId);
-        if (card.backSound !== null) {
-          downloadSound(card.backSound).then(() => {
-            console.log("Sound download completed");
-          });
+        console.log("card.backSound", card.backSound);
+        if (card.backSound !== null && card.backSound < 0) {
+          importGlobalSoundIfNotExists(-card.backSound); //async
         }
         setCard(card);
         setFrontSide(card.front);
@@ -81,6 +82,12 @@ const EditFlashcard = () => {
     }
   };
 
+  async function handlePlay(soundId: number | null) {
+    if (soundId !== null) {
+      await playSound(soundId); //TODO: remove -
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* <Text style={styles.label}>Edit Flashcard</Text> */}
@@ -103,11 +110,8 @@ const EditFlashcard = () => {
         numberOfLines={3}
       />
       {card !== null && (
-        <View>
-          <Text>TODO: Remove: {card.backSound}</Text>
-          <TouchableOpacity
-            onPress={() => handlePlay("test_fr-FR-Standard-A.mp3")}
-          >
+        <View style={styles.soundContainer}>
+          <TouchableOpacity onPress={() => handlePlay(card.backSound)}>
             <Icon name="play-circle-outline" size={42} color="black" />
           </TouchableOpacity>
         </View>
@@ -143,6 +147,11 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlignVertical: "top",
     height: 120,
+  },
+  soundContainer: {
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginBottom: 20,
   },
 });
 
