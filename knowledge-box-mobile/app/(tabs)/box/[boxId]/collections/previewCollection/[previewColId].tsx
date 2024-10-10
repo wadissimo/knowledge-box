@@ -1,97 +1,48 @@
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ServerCollection } from "../addCollection";
+
 import { useTheme } from "@react-navigation/native";
 import { Button } from "react-native";
-import { useCollectionModel } from "@/data/CollectionModel";
-import { useCardModel } from "@/data/CardModel";
+import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import { Card, useCardModel } from "@/data/CardModel";
 import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-
-export type ServerCard = {
-  id: number;
-  collectionId: number;
-  front: string;
-  back: string;
-  createdAt: string | null;
-  easeFactor: number;
-};
+import useSyncService from "@/service/CollectionRemoteService";
 
 const CollectionPreview = () => {
   const { colors } = useTheme();
   const { boxId, previewColId } = useLocalSearchParams();
-  const [collection, setCollection] = useState<ServerCollection | null>(null);
-  const [cards, setCards] = useState<ServerCard[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const { newCollection } = useCollectionModel();
-  const { newBoxCollection } = useBoxCollectionModel();
-  const { newCards } = useCardModel();
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const [cards, setCards] = useState<Card[]>([]);
+
   const router = useRouter();
+  const { error, loading, getCollectionPreview, addCollection } =
+    useSyncService();
 
   useEffect(() => {
-    const URL =
-      process.env.EXPO_PUBLIC_API_URL +
-      "collections/preview/" +
-      Number(previewColId);
-
-    setLoading(true);
-
-    fetch(URL)
-      .then((data) => data.json())
-      .then((r) => onLoad(r))
-      .catch((e) => {
-        console.error(e);
-        setLoading(false);
-      });
+    getCollectionPreview(Number(previewColId)).then((res) => {
+      if (res !== null) {
+        setCollection(res.collection);
+        setCards(res.cards);
+      }
+    });
   }, []);
 
-  function onLoad(res: any) {
-    setLoading(false);
-    if (res && res.collection && res.cards) {
-      setCollection(res.collection);
-      setCards(res.cards);
-    }
-  }
-
   function handleAddCollection() {
-    const URL =
-      process.env.EXPO_PUBLIC_API_URL +
-      "collections/download/" +
-      Number(previewColId);
-
-    setLoading(true);
-
-    fetch(URL)
-      .then((data) => data.json())
-      .then((r) => onDownload(r))
-      .then(() => setLoading(false))
-      .catch((e) => {
-        console.error(e);
-        setLoading(false);
-      });
-  }
-
-  async function onDownload(res: any) {
-    if (res && res.collection && res.cards) {
-      const collection = res.collection;
-      //const cards = res.cards;
-      //console.log("collection:", collection);
-      //console.log("cards:", cards[0]);
-      const newColId = await newCollection(collection.name);
-      await newBoxCollection(Number(boxId), newColId);
-      await newCards(
-        (res.cards as ServerCard[]).map((card) => ({
-          collectionId: newColId,
-          front: card.front,
-          back: card.back,
-        }))
-      );
-      router.back();
-      router.back();
-    }
+    // Add collection and all it's cards and get back to the Box screen
+    addCollection(Number(boxId), Number(previewColId)).then(() => {
+      if (error) {
+        // TODO: Error should be shown on UI
+        console.log("Add Collection Failed");
+      } else {
+        router.back();
+        router.back();
+      }
+    });
   }
 
   if (!collection) return null;
+
   return (
     <View style={styles.container}>
       <View>

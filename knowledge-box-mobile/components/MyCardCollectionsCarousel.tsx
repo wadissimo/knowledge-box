@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React from "react";
 import { Link, useRouter } from "expo-router";
-import { Collection } from "@/context/DatabaseContext";
+import { Collection } from "@/data/CollectionModel";
 
 const MyCardCollectionsCarousel: React.FC<{
   collections: Collection[];

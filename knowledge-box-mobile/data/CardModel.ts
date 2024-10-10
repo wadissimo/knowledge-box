@@ -5,14 +5,19 @@ type Card = {
   front: string;
   back: string;
   collectionId: number;
+  frontImg: number | null;
+  backImg: number | null;
+  frontSound: number | null;
+  backSound: number | null;
+  initialEaseFactor: number | null;
   hide: Boolean;
-  successfulRepeats: number;
-  failedRepeats: number;
   repeatTime: number | null;
   prevRepeatTime: number | null;
-  createdAt?: number | null;
-  easeFactor: number | null;
+  successfulRepeats: number | null;
+  failedRepeats: number | null;
   interval: number | null;
+  easeFactor: number | null;
+  createdAt?: number | null;
 };
 
 function useCardModel() {
@@ -40,13 +45,32 @@ function useCardModel() {
   };
 
   const newCards = async (
-    cardList: { collectionId: number; front: string; back: string }[]
+    cardList: {
+      collectionId: number;
+      front: string;
+      back: string;
+      frontImg: number | null;
+      backImg: number | null;
+      frontSound: number | null;
+      backSound: number | null;
+      initialEaseFactor: number | null;
+    }[]
   ) => {
-    let query = "INSERT INTO cards (collectionId, front, back) VALUES ";
+    let query =
+      "INSERT INTO cards (collectionId, front, back, frontImg, backImg, frontSound, backSound, initialEaseFactor) VALUES ";
     const values: any[] = [];
     cardList.forEach((card) => {
-      query += "(?, ?, ?),";
-      values.push(card.collectionId, card.front, card.back);
+      query += "(?, ?, ?, ?, ?, ?, ?, ?),";
+      values.push(
+        card.collectionId,
+        card.front,
+        card.back,
+        card.frontImg,
+        card.backImg,
+        card.frontSound,
+        card.backSound,
+        card.initialEaseFactor
+      );
     });
     query = query.slice(0, -1); // Remove the trailing comma
     await db.withTransactionAsync(async () => {
@@ -64,18 +88,26 @@ function useCardModel() {
   // Update
   const updateCard = async (card: Card) => {
     await db.runAsync(
-      `UPDATE cards SET front = ?, back = ?, collectionId = ?, hide = ?, successfulRepeats = ?, failedRepeats=?,
-           repeatTime = ?, prevRepeatTime = ?, easeFactor = ?, interval = ?  where id = ?`,
+      `UPDATE cards SET front = ?, back = ?, collectionId = ?, frontImg = ?, backImg = ?, 
+           frontSound=?, backSound = ?, initialEaseFactor = ?, hide = ?, repeatTime = ?,
+            prevRepeatTime = ?, successfulRepeats = ?, failedRepeats = ?, interval=?,
+           easeFactor = ?
+           where id = ?`,
       card.front,
       card.back,
       card.collectionId,
+      card.frontImg,
+      card.backImg,
+      card.frontSound,
+      card.backSound,
+      card.initialEaseFactor,
       card.hide ? 1 : 0,
-      card.successfulRepeats,
-      card.failedRepeats,
       card.repeatTime,
       card.prevRepeatTime,
-      card.easeFactor,
+      card.successfulRepeats,
+      card.failedRepeats,
       card.interval,
+      card.easeFactor,
       card.id
     );
   };

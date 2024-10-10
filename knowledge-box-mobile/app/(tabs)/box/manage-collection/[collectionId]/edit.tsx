@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { Collection, useDatabase } from "@/context/DatabaseContext";
-import { useCollectionModel } from "@/data/CollectionModel";
+
+import { Collection, useCollectionModel } from "@/data/CollectionModel";
 import { useTheme } from "@react-navigation/native";
 
 const EditCollection = () => {

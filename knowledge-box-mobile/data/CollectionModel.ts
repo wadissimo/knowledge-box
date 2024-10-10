@@ -3,7 +3,10 @@ import * as SQLite from "expo-sqlite";
 type Collection = {
   id: number;
   name: string;
+  description: string | null;
+  tags: string | null;
   cardsNumber: number;
+  createdBy: string | null;
   createdAt: number;
 };
 
@@ -11,11 +14,20 @@ function useCollectionModel() {
   const db = SQLite.useSQLiteContext();
 
   // Create
-  const newCollection = async (name: string): Promise<number> => {
+  const newCollection = async (
+    name: string,
+    description: string | null,
+    tags: string | null,
+    cardsNumber: number,
+    createdBy: string | null
+  ): Promise<number> => {
     const result = await db.runAsync(
-      "INSERT INTO collections (name, cardsNumber) VALUES (?, ?)",
+      "INSERT INTO collections (name, description, tags, cardsNumber, createdBy) VALUES (?, ?, ?, ?, ?)",
       name,
-      0
+      description,
+      tags,
+      cardsNumber,
+      createdBy
     );
     return result.lastInsertRowId;
   };
@@ -23,9 +35,12 @@ function useCollectionModel() {
   // Update
   const updateCollection = async (collection: Collection) => {
     await db.runAsync(
-      "UPDATE collections SET name = ?, cardsNumber=? where id=?",
+      "UPDATE collections SET name = ?, description = ?, tags = ?, cardsNumber=?, createdBy = ? where id=?",
       collection.name,
+      collection.description,
+      collection.tags,
       collection.cardsNumber,
+      collection.createdBy,
       collection.id
     );
   };

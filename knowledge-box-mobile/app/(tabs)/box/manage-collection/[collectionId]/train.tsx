@@ -1,15 +1,13 @@
 import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  useDatabase,
-  Session,
-  SessionCard,
-} from "@/context/DatabaseContext";
+
 import { useLocalSearchParams } from "expo-router";
 import CardComponent from "@/components/CardComponent";
-import { useCardModel } from "@/data/CardModel";
+import { Card, useCardModel } from "@/data/CardModel";
 import { useTheme } from "@react-navigation/native";
+import { Session, useSessionModel } from "@/data/SessionModel";
+import { SessionCard, useSessionCardModel } from "@/data/SessionCardModel";
+import { useCardTrainingService } from "@/service/CardTrainingService";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
@@ -54,17 +52,15 @@ const TrainCollection = () => {
 
   const { updateCard } = useCardModel();
 
+  const { newSession, deleteSession, getSession } = useSessionModel();
   const {
-    selectNewTrainingCards,
-    selectToRepeatTrainingCards,
-    getSession,
-    getSessionCards,
-    createSession,
-    createSessionCard,
-    removeSession,
+    newSessionCard,
     updateSessionCard,
-    removeSessionCard,
-  } = useDatabase();
+    deleteSessionCard,
+    getSessionCards,
+  } = useSessionCardModel();
+  const { selectNewTrainingCards, selectToRepeatTrainingCards } =
+    useCardTrainingService();
 
   const [currentCard, setCurrentCard] = useState<SessionCard | null>(null);
   const [sessionCards, setSessionCards] = useState<SessionCard[]>([]);
@@ -103,7 +99,7 @@ const TrainCollection = () => {
 
     const curDateStripped = stripTimeFromDate(new Date());
 
-    var session: Session = await getSession(collectionId, curDateStripped);
+    var session = await getSession(Number(collectionId), curDateStripped);
     // Check if there is a session for the current date (today)
     if (session === null) {
       console.log("Creating a training session");
@@ -114,13 +110,14 @@ const TrainCollection = () => {
         newCards: NEW_CARDS_PER_DAY,
         repeatCards: REPEAT_CARDS_PER_DAY,
       };
-      await createSession(session);
+      await newSession(session);
       // fetch created session
-      session = await getSession(collectionId, curDateStripped);
+      session = await getSession(Number(collectionId), curDateStripped);
+      if (session === null) throw Error("Can't create a session");
 
       console.log("Creating sessionCards");
       const newCards = await selectNewTrainingCards(
-        collectionId,
+        Number(collectionId),
         NEW_CARDS_PER_DAY
       );
       console.log("new cards");
@@ -129,7 +126,7 @@ const TrainCollection = () => {
       const curTime: number = Date.now();
       console.log("curTime: ", curTime.toString());
       let cardsToRepeat = await selectToRepeatTrainingCards(
-        collectionId,
+        Number(collectionId),
         curTime
       );
 
@@ -138,7 +135,7 @@ const TrainCollection = () => {
       if (cardsToRepeat.length < session.repeatCards) {
         // get extra cards from tomorrow
         let extraCardsToRepeat = await selectToRepeatTrainingCards(
-          collectionId,
+          Number(collectionId),
           getTomorrowAsNumber()
         );
         const cardsToRepeatIds = cardsToRepeat.map((card: Card) => card.id);
@@ -178,16 +175,16 @@ const TrainCollection = () => {
       console.log("combinedArray, size", combinedArray.length);
       for (let i = 0; i < combinedArray.length; i++) {
         const card = combinedArray[i];
-        const newSessionCard: SessionCard = {
+        const nsc: SessionCard = {
           sessionId: session.id,
           cardId: card.id,
           type: card.repeatTime ? "repeat" : "new",
           status: "training",
           sessionOrder: i,
-          successfulRepeats: card.successfulRepeats,
+          successfulRepeats: card.successfulRepeats ?? 0,
         };
 
-        await createSessionCard(newSessionCard); // TODO: parallel
+        await newSessionCard(nsc); // TODO: parallel
       }
     } else {
       console.log("training session already exists");
@@ -208,8 +205,9 @@ const TrainCollection = () => {
   const resetTraining = async () => {
     console.log("training reset");
     const curDateStripped = stripTimeFromDate(new Date());
-    var session: Session = await getSession(collectionId, curDateStripped);
-    await removeSession(session.id);
+    var session = await getSession(Number(collectionId), curDateStripped);
+    if (session === null) throw Error("can't find session");
+    await deleteSession(session.id);
     console.log("session removed: ", session.id);
     await updateSession();
   };
@@ -235,7 +233,7 @@ const TrainCollection = () => {
           easeFactor - AGAIN_DELTA_EASE_FACTOR
         );
         card.successfulRepeats = 0;
-        card.failedRepeats += 1;
+        card.failedRepeats = (card.failedRepeats ?? 0) + 1;
         card.interval = 1;
         currentCard.successfulRepeats = 0;
         // set a new order in the session
@@ -298,7 +296,7 @@ const TrainCollection = () => {
             ", repeat ",
             new Date(card.repeatTime)
           );
-          await removeSessionCard(currentCard.sessionId, currentCard.cardId);
+          await deleteSessionCard(currentCard.sessionId, currentCard.cardId);
           // remove card from the current session
           updatedSessionCards = sessionCards.filter(
             (sessionCard) => sessionCard.cardId !== currentCard.cardId
@@ -324,7 +322,7 @@ const TrainCollection = () => {
       case "easy":
         console.log("easy");
         card.easeFactor = easeFactor + 0.15;
-        card.successfulRepeats += 1;
+        card.successfulRepeats = (card.successfulRepeats ?? 0) + 1;
         console.log("card successfulRepeats", card.successfulRepeats);
         // push into next days
         card.failedRepeats = 0;
@@ -342,7 +340,7 @@ const TrainCollection = () => {
           new Date(card.repeatTime)
         );
         // remove the card from the session
-        await removeSessionCard(currentCard.sessionId, currentCard.cardId);
+        await deleteSessionCard(currentCard.sessionId, currentCard.cardId);
 
         // update card
         await updateCard(card);

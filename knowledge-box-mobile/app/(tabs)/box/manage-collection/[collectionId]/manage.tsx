@@ -27,7 +27,7 @@ export default function ManageCollectionScreen() {
 
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
-  const [selectedCard, setSelectedCard] = useState<number | null>(1);
+  const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const { getCollectionById, deleteCollection } = useCollectionModel();
 
@@ -97,7 +97,7 @@ export default function ManageCollectionScreen() {
       console.error("collectionId is undefined");
       return;
     }
-    console.log("handleEditCardPress");
+    console.log("handleEditCardPress", collectionId, selectedCard);
 
     router.push(
       `/(tabs)/box/manage-collection/${collectionId}/${selectedCard}`
@@ -157,6 +157,7 @@ export default function ManageCollectionScreen() {
           onPress: () => {
             console.log("Deleting collection...");
             deleteCollection(Number(collectionId));
+            router.back();
             router.back();
           },
           style: "destructive",

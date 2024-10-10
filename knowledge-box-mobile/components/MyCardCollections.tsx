@@ -1,7 +1,7 @@
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import React from "react";
 import { Link } from "expo-router";
-import { Collection } from "@/context/DatabaseContext";
+import { Collection } from "@/data/CollectionModel";
 
 const MyCardCollections: React.FC<{
   collections: Collection[];

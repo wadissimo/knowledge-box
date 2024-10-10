@@ -4,21 +4,14 @@ import {
   Button,
   StyleSheet,
   SafeAreaView,
-  StatusBar,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import { Collection } from "@/data/CollectionModel";
 import { useIsFocused, useTheme } from "@react-navigation/native";
 import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-import MyCardCollections from "@/components/MyCardCollections";
 
-import { Component } from "react";
-import { WebView } from "react-native-webview";
 import { Box, useBoxModel } from "@/data/BoxModel";
 //import Icon from "react-native-ionicons";
 import Icon from "react-native-vector-icons/MaterialIcons";

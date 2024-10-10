@@ -8,30 +8,20 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   SafeAreaView,
-  Button,
 } from "react-native";
 import React, { useState } from "react";
-import { useCollectionModel } from "@/data/CollectionModel";
+import { Collection, useCollectionModel } from "@/data/CollectionModel";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
 import SeparatorWithText from "@/components/utils/SeparatorWithText";
 import CreateCollectionForm from "@/components/collections/CreateCollectionForm";
 import Icon from "react-native-ionicons";
-
-export type ServerCollection = {
-  id: number;
-  name: string;
-  description: string | null;
-  tags: string | null;
-  cardsNumber: number;
-  createdBy: string | null;
-  createdAt: string | null;
-};
+import useCollectionRemoteService from "@/service/CollectionRemoteService";
 
 const AddCollection = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<ServerCollection[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [searchResults, setSearchResults] = useState<Collection[]>([]);
+
   const [noResults, setNoResults] = useState<boolean>(false);
 
   const { newCollection } = useCollectionModel();
@@ -39,44 +29,32 @@ const AddCollection = () => {
   const { boxId } = useLocalSearchParams();
   const router = useRouter();
 
+  const { error, loading, searchCollections } = useCollectionRemoteService();
+
   const handleCollectionCreate = async (name: string) => {
-    const colId = await newCollection(name);
+    const colId = await newCollection(name, null, null, 0, null);
     await newBoxCollection(Number(boxId), colId);
     router.back();
   };
 
   const handleSearch = () => {
-    const URL =
-      process.env.EXPO_PUBLIC_API_URL +
-      "collections/search?" +
-      new URLSearchParams({
-        query: searchQuery,
+    searchCollections(searchQuery)
+      .then((collections) => {
+        if (error) {
+          console.log("Error fetching collection");
+        } else if (!collections || collections.length == 0) {
+          setNoResults(true);
+          setSearchResults([]);
+        } else {
+          setNoResults(false);
+
+          setSearchResults(collections);
+        }
+      })
+      .finally(() => {
+        // Hide keyboard after search
+        Keyboard.dismiss();
       });
-    console.log(`Searching for: ${searchQuery} ${URL}`);
-    setLoading(true);
-    setNoResults(false);
-    fetch(URL)
-      .then((data) => data.json())
-      .then((r) => onSearchResult(r))
-      .catch((e) => {
-        console.error(e);
-        setLoading(false);
-      });
-
-    // Hide keyboard after search
-    Keyboard.dismiss();
-  };
-
-  const onSearchResult = (result: any) => {
-    setLoading(false);
-    setNoResults(false);
-    if (!result || !result.results) {
-      throw Error("Network Error");
-    }
-
-    setNoResults(result.results.length == 0);
-    setSearchResults(result.results as ServerCollection[]);
-    //console.log("query result:" + JSON.stringify(result.results));
   };
 
   const handleCollectionPress = (collectionId: number) => {

@@ -100,6 +100,8 @@ log_file = "fr-log.txt"
 
 RUN_LOOP = True
 
+# TODO: make data unique!
+
 # Generation loop
 voice_idx = 0
 if RUN_LOOP:
