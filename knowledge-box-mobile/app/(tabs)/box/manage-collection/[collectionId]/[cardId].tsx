@@ -7,12 +7,15 @@ import {
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
 
-import { useCardModel } from "@/data/CardModel";
+import { Card, useCardModel } from "@/data/CardModel";
 import { useTheme } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import useMediaDataService from "@/service/MediaDataService";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const EditFlashcard = () => {
   const router = useRouter();
@@ -23,8 +26,13 @@ const EditFlashcard = () => {
   const [frontSide, setFrontSide] = useState<string>("");
   const [backSide, setBackSide] = useState<string>("");
   const { getCardById, newCard, updateCardFrontBack } = useCardModel();
+
   //console.log("cardId", cardId);
   const navigation = useNavigation();
+
+  // Media
+  const [card, setCard] = useState<Card | null>(null);
+  const { loading, downloadSound } = useMediaDataService();
 
   useEffect(() => {
     async function fetchCards() {
@@ -37,7 +45,12 @@ const EditFlashcard = () => {
       } else {
         const card = await getCardById(Number(cardId));
         if (card === null) throw Error("Can't find a card:" + cardId);
-
+        if (card.backSound !== null) {
+          downloadSound(card.backSound).then(() => {
+            console.log("Sound download completed");
+          });
+        }
+        setCard(card);
         setFrontSide(card.front);
         setBackSide(card.back);
         navigation.setOptions({
@@ -89,6 +102,16 @@ const EditFlashcard = () => {
         multiline
         numberOfLines={3}
       />
+      {card !== null && (
+        <View>
+          <Text>TODO: Remove: {card.backSound}</Text>
+          <TouchableOpacity
+            onPress={() => handlePlay("test_fr-FR-Standard-A.mp3")}
+          >
+            <Icon name="play-circle-outline" size={42} color="black" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Button title="Save" onPress={handleSave} color={colors.primary} />
     </View>

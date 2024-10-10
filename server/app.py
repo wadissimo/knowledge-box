@@ -1,9 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import sqlite3
+import os
+
 app = Flask(__name__)
 
 DB_NAME = "serverdata.db"
 CARDS_COLLECTION_PREVIEW = 10
+MEDIA_FOLDER = "media/"
+
 
 @app.route('/collections/search', methods=['GET'])
 def search_collections():
@@ -58,6 +62,26 @@ def get_collection_download(id):
     cards = [dict(row) for row in cards]
 
     return jsonify({"collection":collection, "cards":cards}), 200
+
+
+
+@app.route('/sounds/download/<int:id>', methods=['GET'])
+def get_sound_download(id):
+    con = sqlite3.connect(DB_NAME)
+
+    cursor = con.cursor()
+    cursor.execute("SELECT file FROM sounds WHERE id = ?", (id,))
+    res = cursor.fetchone()
+    if res:
+        file_path = MEDIA_FOLDER + res[0]
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True)
+        else:
+            return jsonify({'error': 'File not found'}), 404
+    else:
+        return jsonify({'error': 'Data not found'}), 404
+    
+
 
 def find_match(con, query):
     cursor = con.cursor()
