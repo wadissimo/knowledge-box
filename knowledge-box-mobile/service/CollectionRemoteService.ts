@@ -10,6 +10,7 @@ export default function useCollectionRemoteService() {
   const { newCards } = useCardModel();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
   //const db = SQLite.useSQLiteContext();
 
   async function searchCollections(

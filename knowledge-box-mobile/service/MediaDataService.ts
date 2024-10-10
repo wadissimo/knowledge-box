@@ -30,6 +30,7 @@ export default function useMediaDataService() {
   const { newSoundWithId, getSoundById, updateSound } = useSoundModel();
   const [initialized, setInitialized] = useState<boolean>(false);
   //const db = SQLite.useSQLiteContext();
+  const [sound, setSound] = useState<Audio.Sound>();
 
   useEffect(() => {
     if (!initialized) {
@@ -37,6 +38,15 @@ export default function useMediaDataService() {
       ensureDirExists().then(() => setInitialized(true));
     }
   }, []);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log("Unloading Sound");
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
 
   async function downloadSound(
     globalSoundId: number,
@@ -119,6 +129,7 @@ export default function useMediaDataService() {
     const { sound } = await Audio.Sound.createAsync({
       uri: getMediaUriByName(fileName),
     });
+    setSound(sound);
     console.log("Playing Sound ", fileName);
     await sound.playAsync();
     //await sound.unloadAsync();
