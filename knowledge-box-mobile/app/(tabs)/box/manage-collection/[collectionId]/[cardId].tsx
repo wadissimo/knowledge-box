@@ -51,6 +51,9 @@ const EditFlashcard = () => {
         if (card.backSound !== null && card.backSound < 0) {
           importGlobalSoundIfNotExists(-card.backSound); //async
         }
+        if (card.frontSound !== null && card.frontSound < 0) {
+          importGlobalSoundIfNotExists(-card.frontSound); //async
+        }
         setCard(card);
         setFrontSide(card.front);
         setBackSide(card.back);
@@ -100,6 +103,13 @@ const EditFlashcard = () => {
         multiline
         numberOfLines={3}
       />
+      {card !== null && card.frontSound && (
+        <View style={styles.soundContainer}>
+          <TouchableOpacity onPress={() => handlePlay(card.frontSound)}>
+            <Icon name="play-circle-outline" size={42} color="black" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       <TextInput
         style={styles.input}
@@ -109,7 +119,7 @@ const EditFlashcard = () => {
         multiline
         numberOfLines={3}
       />
-      {card !== null && (
+      {card !== null && card.backSound && (
         <View style={styles.soundContainer}>
           <TouchableOpacity onPress={() => handlePlay(card.backSound)}>
             <Icon name="play-circle-outline" size={42} color="black" />

@@ -2,6 +2,8 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SessionCard } from "@/data/SessionCardModel";
 import useMediaDataService from "@/service/MediaDataService";
+import { Card } from "@/data/CardModel";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const CardComponent: React.FC<{
   currentCard: SessionCard;
@@ -18,6 +20,14 @@ const CardComponent: React.FC<{
   }, [currentCard]);
 
   function handleCardFlip() {
+    if (
+      !cardFlip &&
+      currentCard &&
+      currentCard.card &&
+      currentCard.card.backSound
+    ) {
+      handlePlay(currentCard.card.backSound);
+    }
     setCardFlip((flip) => !flip);
     setAnswerShown(true);
   }
@@ -32,23 +42,9 @@ const CardComponent: React.FC<{
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.card} onPress={handleCardFlip}>
         {cardFlip ? (
-          <>
-            <View style={styles.frontBackTextView}>
-              <Text style={styles.frontBackText}>Back</Text>
-            </View>
-            <View style={styles.cardTextView}>
-              <Text>{currentCard.card?.back}</Text>
-            </View>
-          </>
+          <CardBackSide currentCard={currentCard} onSoundPlay={handlePlay} />
         ) : (
-          <>
-            <View style={styles.frontBackTextView}>
-              <Text style={styles.frontBackText}>Front</Text>
-            </View>
-            <View style={styles.cardTextView}>
-              <Text>{currentCard.card?.front}</Text>
-            </View>
-          </>
+          <CardFrontSide currentCard={currentCard} onSoundPlay={handlePlay} />
         )}
       </TouchableOpacity>
       {answerShown && (
@@ -85,6 +81,60 @@ const CardComponent: React.FC<{
 
       <View style={{ height: 20 }}></View>
     </View>
+  );
+};
+
+const CardFrontSide = ({
+  currentCard,
+  onSoundPlay,
+}: {
+  currentCard: SessionCard;
+  onSoundPlay: Function;
+}) => {
+  const card: Card | null | undefined = currentCard.card;
+  return (
+    <>
+      <View style={styles.frontBackTextView}>
+        <Text style={styles.frontBackText}>Front</Text>
+      </View>
+      <View style={styles.cardTextView}>
+        <Text style={styles.cardText}>{currentCard.card?.front}</Text>
+        {card && card.frontSound && (
+          <View style={styles.soundContainer}>
+            <TouchableOpacity onPress={() => onSoundPlay(card.frontSound)}>
+              <Icon name="play-circle-outline" size={48} color="black" />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </>
+  );
+};
+
+const CardBackSide = ({
+  currentCard,
+  onSoundPlay,
+}: {
+  currentCard: SessionCard;
+  onSoundPlay: Function;
+}) => {
+  const card: Card | null | undefined = currentCard.card;
+  return (
+    <>
+      <View style={styles.frontBackTextView}>
+        <Text style={styles.frontBackText}>Back</Text>
+      </View>
+      <View style={styles.cardTextView}>
+        <Text style={styles.cardText}>{card?.back}</Text>
+      </View>
+      {card && card.backSound && (
+        <View style={styles.soundContainer}>
+          <TouchableOpacity onPress={() => onSoundPlay(card.backSound)}>
+            <Icon name="play-circle-outline" size={48} color="black" />
+          </TouchableOpacity>
+        </View>
+      )}
+    </>
   );
 };
 
@@ -147,11 +197,20 @@ const styles = StyleSheet.create({
     flex: 0,
   },
   frontBackText: {
+    fontSize: 16,
     fontWeight: "bold",
   },
   cardTextView: {
     flex: 1,
     justifyContent: "center",
+  },
+  cardText: {
+    fontSize: 20,
+  },
+  soundContainer: {
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginBottom: 20,
   },
 });
 

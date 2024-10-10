@@ -119,7 +119,7 @@ export default function useMediaDataService() {
     const { sound } = await Audio.Sound.createAsync({
       uri: getMediaUriByName(fileName),
     });
-    console.log("Playing Sound");
+    console.log("Playing Sound ", fileName);
     await sound.playAsync();
     //await sound.unloadAsync();
   };
