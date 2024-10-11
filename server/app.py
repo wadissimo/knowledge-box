@@ -81,7 +81,21 @@ def get_sound_download(id):
     else:
         return jsonify({'error': 'Data not found'}), 404
     
+@app.route('/images/download/<int:id>', methods=['GET'])
+def get_image_download(id):
+    con = sqlite3.connect(DB_NAME)
 
+    cursor = con.cursor()
+    cursor.execute("SELECT file FROM images WHERE id = ?", (id,))
+    res = cursor.fetchone()
+    if res:
+        file_path = MEDIA_FOLDER + res[0]
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True, download_name=res[0])
+        else:
+            return jsonify({'error': 'File not found'}), 404
+    else:
+        return jsonify({'error': 'Data not found'}), 404
 
 def find_match(con, query):
     cursor = con.cursor()
@@ -128,4 +142,6 @@ def search_collections(query):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True, if __name__ == '__main__':
+    # run app in debug mode on port 5000
+    app.run(debug=True, port=5000, host='0.0.0.0')

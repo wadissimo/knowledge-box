@@ -33,8 +33,7 @@ const EditFlashcard = () => {
 
   // Media
   const [card, setCard] = useState<Card | null>(null);
-  const { loading, importGlobalSoundIfNotExists, playSound } =
-    useMediaDataService();
+  const { loading, playSound } = useMediaDataService();
 
   useEffect(() => {
     async function fetchCards() {
@@ -47,13 +46,13 @@ const EditFlashcard = () => {
       } else {
         const card = await getCardById(Number(cardId));
         if (card === null) throw Error("Can't find a card:" + cardId);
-        console.log("card.backSound", card.backSound);
-        if (card.backSound !== null && card.backSound < 0) {
-          importGlobalSoundIfNotExists(-card.backSound); //async
-        }
-        if (card.frontSound !== null && card.frontSound < 0) {
-          importGlobalSoundIfNotExists(-card.frontSound); //async
-        }
+        // console.log("card.backSound", card.backSound);
+        // if (card.backSound !== null && card.backSound < 0) {
+        //   importGlobalSoundIfNotExists(-card.backSound); //async
+        // }
+        // if (card.frontSound !== null && card.frontSound < 0) {
+        //   importGlobalSoundIfNotExists(-card.frontSound); //async
+        // }
         setCard(card);
         setFrontSide(card.front);
         setBackSide(card.back);

@@ -4,6 +4,12 @@ import { SessionCard } from "@/data/SessionCardModel";
 import useMediaDataService from "@/service/MediaDataService";
 import { Card } from "@/data/CardModel";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { Image } from "expo-image";
+import * as FileSystem from "expo-file-system";
+import { SvgUri } from "react-native-svg";
+
+const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 const CardComponent: React.FC<{
   currentCard: SessionCard;
@@ -11,13 +17,48 @@ const CardComponent: React.FC<{
 }> = ({ currentCard, onUserResponse }) => {
   const [cardFlip, setCardFlip] = useState(false);
   const [answerShown, setAnswerShown] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [frontImgSrc, setFrontImgSrc] = useState<string | null>(null);
+  const [backImgSrc, setBackImgSrc] = useState<string | null>(null);
+  const { playSound, getImageSource } = useMediaDataService();
 
-  const { playSound } = useMediaDataService();
-
+  async function loadImages(card: Card) {
+    if (card.backImg !== null) {
+      console.log("card.backImg", card.backImg);
+      //await importGlobalImageIfNotExists(card.backImg);
+      setBackImgSrc(await getImageSource(card.backImg));
+    }
+    if (card.frontImg !== null) {
+      console.log("card.frontImg", card.frontImg);
+      //await importGlobalImageIfNotExists(card.frontImg);
+      const imgSrc = await getImageSource(card.frontImg);
+      setFrontImgSrc(imgSrc);
+      if (imgSrc) {
+        var { exists } = await FileSystem.getInfoAsync(imgSrc);
+        if (!exists) {
+          console.log("dont exist", imgSrc);
+        } else {
+          console.log("Do exist", imgSrc);
+        }
+      }
+    }
+  }
   useEffect(() => {
     setCardFlip(false);
     setAnswerShown(false);
+    if (currentCard && currentCard.card) {
+      const card = currentCard.card;
+      if (card.backImg !== null || card.frontImg !== null) {
+        setLoading(true);
+        loadImages(card).then(() => {
+          setLoading(false);
+        });
+      }
+    }
   }, [currentCard]);
+
+  // if loading do nothing
+  if (loading) return;
 
   function handleCardFlip() {
     if (
@@ -42,9 +83,17 @@ const CardComponent: React.FC<{
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.card} onPress={handleCardFlip}>
         {cardFlip ? (
-          <CardBackSide currentCard={currentCard} onSoundPlay={handlePlay} />
+          <CardBackSide
+            currentCard={currentCard}
+            onSoundPlay={handlePlay}
+            imgSrc={backImgSrc}
+          />
         ) : (
-          <CardFrontSide currentCard={currentCard} onSoundPlay={handlePlay} />
+          <CardFrontSide
+            currentCard={currentCard}
+            onSoundPlay={handlePlay}
+            imgSrc={frontImgSrc}
+          />
         )}
       </TouchableOpacity>
       {answerShown && (
@@ -87,9 +136,11 @@ const CardComponent: React.FC<{
 const CardFrontSide = ({
   currentCard,
   onSoundPlay,
+  imgSrc,
 }: {
   currentCard: SessionCard;
   onSoundPlay: Function;
+  imgSrc: string | null;
 }) => {
   const card: Card | null | undefined = currentCard.card;
   return (
@@ -97,9 +148,20 @@ const CardFrontSide = ({
       <View style={styles.frontBackTextView}>
         <Text style={styles.frontBackText}>Front</Text>
       </View>
+      {imgSrc && (
+        <View style={styles.imageContainer}>
+          <Image
+            style={styles.image}
+            source={{ uri: imgSrc }}
+            placeholder={{ blurhash }}
+            contentFit="contain"
+          />
+        </View>
+      )}
       <View style={styles.cardTextView}>
         <Text style={styles.cardText}>{currentCard.card?.front}</Text>
       </View>
+
       {card && card.frontSound && (
         <View style={styles.soundContainer}>
           <TouchableOpacity onPress={() => onSoundPlay(card.frontSound)}>
@@ -114,9 +176,11 @@ const CardFrontSide = ({
 const CardBackSide = ({
   currentCard,
   onSoundPlay,
+  imgSrc,
 }: {
   currentCard: SessionCard;
   onSoundPlay: Function;
+  imgSrc: string | null;
 }) => {
   const card: Card | null | undefined = currentCard.card;
   return (
@@ -124,9 +188,20 @@ const CardBackSide = ({
       <View style={styles.frontBackTextView}>
         <Text style={styles.frontBackText}>Back</Text>
       </View>
+      {imgSrc && (
+        <View style={styles.imageContainer}>
+          <Image
+            style={styles.image}
+            source={{ uri: imgSrc }}
+            placeholder={{ blurhash }}
+            contentFit="contain"
+          />
+        </View>
+      )}
       <View style={styles.cardTextView}>
         <Text style={styles.cardText}>{card?.back}</Text>
       </View>
+
       {card && card.backSound && (
         <View style={styles.soundContainer}>
           <TouchableOpacity onPress={() => onSoundPlay(card.backSound)}>
@@ -139,6 +214,19 @@ const CardBackSide = ({
 };
 
 const styles = StyleSheet.create({
+  imageContainer: {
+    flex: 1,
+
+    alignItems: "center",
+    justifyContent: "center",
+    //height: 150,
+    width: "100%",
+  },
+  image: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
   cardContainer: {
     alignItems: "center",
     margin: 20,

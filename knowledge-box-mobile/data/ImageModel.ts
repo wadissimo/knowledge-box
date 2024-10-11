@@ -25,6 +25,21 @@ function useImageModel() {
     return result.lastInsertRowId;
   };
 
+  const newImageWithId = async (
+    id: number,
+    file: string,
+    ref: string | null,
+    comment: string | null
+  ): Promise<void> => {
+    const result = await db.runAsync(
+      "INSERT INTO images (id, file, ref, comment) VALUES (?, ?, ?, ?)",
+      id,
+      file,
+      ref,
+      comment
+    );
+  };
+
   // Update
   const updateImage = async (image: ImageData) => {
     await db.runAsync(
@@ -42,11 +57,20 @@ function useImageModel() {
   };
 
   // Read
+  const getImageById = async (id: number): Promise<ImageData | null> => {
+    const res = await db.getFirstAsync<ImageData>(
+      "select * FROM images where id=?",
+      id
+    );
+    return res;
+  };
 
   return {
     newImage,
     updateImage,
     deleteImage,
+    getImageById,
+    newImageWithId,
   };
 }
 

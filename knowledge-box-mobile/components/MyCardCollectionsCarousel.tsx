@@ -27,7 +27,9 @@ const MyCardCollectionsCarousel: React.FC<{
           >
             <View style={[styles.colBox, styles.shadowProp, styles.elevation]}>
               <View style={styles.colNameView}>
-                <Text style={styles.colNameTxt}>{collection.name}</Text>
+                <Text style={styles.colNameTxt} numberOfLines={4}>
+                  {collection.name}
+                </Text>
               </View>
               <View style={styles.cardCntView}>
                 <Text style={styles.cardsCntTxt}>
