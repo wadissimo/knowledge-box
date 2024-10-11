@@ -107,7 +107,10 @@ const AddCollection = () => {
                     <TouchableOpacity
                       onPress={() => handleCollectionPress(searchResult.id)}
                     >
-                      <Text style={styles.searchResultNameTxt}>
+                      <Text
+                        style={styles.searchResultNameTxt}
+                        numberOfLines={1}
+                      >
                         {searchResult.name}
                       </Text>
                       <Text
@@ -192,7 +195,7 @@ const styles = StyleSheet.create({
     height: 100,
   },
   searchResultNameTxt: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
   },
   searchResultDescrTxt: {

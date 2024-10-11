@@ -16,7 +16,7 @@ def read_csv(name, skip_errors = False):
             line = f.readline()
     return data
 
-def insert_data(data, name, description, tags, reverse=False, insert_media_back=False, media_sound_prefix_back=""):
+def insert_data(data, name, description, tags, reverse=False, insert_media_back=False, media_sound_prefix_back="", insert_media_front=False, media_sound_prefix_front=""):
     num_cards = len(data)
 
     con = sqlite3.connect("../serverdata.db")
@@ -43,7 +43,12 @@ def insert_data(data, name, description, tags, reverse=False, insert_media_back=
 
     if insert_media_back:        
         query = f"""update cards set backSound=r.soundId
-        from (select cards.id as cardId, sounds.id as soundId from cards inner join sounds on (cards.back = sounds.ref) where sounds.comment like '{media_sound_prefix_back}%' and cards.collectionId = ?) as r
+        from (select cards.id as cardId, sounds.id as soundId from cards inner join sounds on (lower(cards.back) = lower(sounds.ref)) where sounds.comment like '{media_sound_prefix_back}%' and cards.collectionId = ?) as r
+        WHERE cards.id = r.cardId"""
+        cur.execute(query, (collection_id,))
+    if insert_media_front:        
+        query = f"""update cards set frontSound=r.soundId
+        from (select cards.id as cardId, sounds.id as soundId from cards inner join sounds on (lower(cards.front) = lower(sounds.ref)) where sounds.comment like '{media_sound_prefix_front}%' and cards.collectionId = ?) as r
         WHERE cards.id = r.cardId"""
         cur.execute(query, (collection_id,))
 

@@ -99,14 +99,14 @@ const CardFrontSide = ({
       </View>
       <View style={styles.cardTextView}>
         <Text style={styles.cardText}>{currentCard.card?.front}</Text>
-        {card && card.frontSound && (
-          <View style={styles.soundContainer}>
-            <TouchableOpacity onPress={() => onSoundPlay(card.frontSound)}>
-              <Icon name="play-circle-outline" size={48} color="black" />
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
+      {card && card.frontSound && (
+        <View style={styles.soundContainer}>
+          <TouchableOpacity onPress={() => onSoundPlay(card.frontSound)}>
+            <Icon name="play-circle-outline" size={48} color="black" />
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   );
 };
