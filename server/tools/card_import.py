@@ -1,19 +1,22 @@
 import sqlite3
 
-def read_csv(name):
+def read_csv(name, skip_errors = False):
     data = []
     with open(name,encoding='utf-8') as f:
         line = f.readline()
         while line:
             row = line.strip().split(sep=',')
             if len(row) != 2:
-                raise RuntimeError("wrong data:", row)
+                if skip_errors:
+                    print("wrong data:", row)
+                else:
+                    raise RuntimeError("wrong data:", row)
             data.append(row)
 
             line = f.readline()
     return data
 
-def insert_data(data, name, description, tags, reverse=False):
+def insert_data(data, name, description, tags, reverse=False, insert_media_back=False, media_sound_prefix_back=""):
     num_cards = len(data)
 
     con = sqlite3.connect("../serverdata.db")
@@ -37,5 +40,12 @@ def insert_data(data, name, description, tags, reverse=False):
 
     cur.executemany("INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)", values)
     cur.execute("UPDATE collections set cardsNumber = ? where id = ?;", (len(values), collection_id))
+
+    if insert_media_back:        
+        query = f"""update cards set backSound=r.soundId
+        from (select cards.id as cardId, sounds.id as soundId from cards inner join sounds on (cards.back = sounds.ref) where sounds.comment like '{media_sound_prefix_back}%' and cards.collectionId = ?) as r
+        WHERE cards.id = r.cardId"""
+        cur.execute(query, (collection_id,))
+
     con.commit()
     con.close()

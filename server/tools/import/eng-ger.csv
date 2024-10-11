@@ -1,0 +1,421 @@
+Hello,Hallo
+Goodbye,Auf Wiedersehen
+Please,Bitte
+Thank you,Danke
+Yes,Ja
+No,Nein
+Excuse me,Entschuldigung
+I'm sorry,Es tut mir leid
+What,Was
+When,Wann
+Where,Wo
+Why,Warum
+Who,Wer
+How,Wie
+I,Ich
+You,Du
+He,Er
+She,Sie
+It,Es
+We,Wir
+They,Sie
+My,Mein
+Your,Dein
+His,Sein
+Her,Ihr
+Its,Sein
+Our,Unser
+Their,Ihr
+Man,Mann
+Woman,Frau
+Boy,Junge
+Girl,Mädchen
+Friend,Freund
+Family,Familie
+House,Haus
+Car,Auto
+Bicycle,Fahrrad
+Bus,Bus
+Train,Zug
+Airport,Flughafen
+Station,Bahnhof
+Hotel,Hotel
+Restaurant,Restaurant
+Bank,Bank
+Store,Geschäft
+School,Schule
+Work,Arbeit
+Doctor,Arzt
+Hospital,Krankenhaus
+Police,Polizei
+Water,Wasser
+Food,Essen
+Bread,Brot
+Milk,Milch
+Coffee,Kaffee
+Tea,Tee
+Beer,Bier
+Wine,Wein
+Juice,Saft
+Sugar,Zucker
+Salt,Salz
+Pepper,Pfeffer
+Apple,Apfel
+Orange,Orange
+Banana,Banane
+Chicken,Hähnchen
+Fish,Fisch
+Meat,Fleisch
+Vegetables,Gemüse
+Fruit,Frucht
+Breakfast,Frühstück
+Lunch,Mittagessen
+Dinner,Abendessen
+Morning,Morgen
+Afternoon,Nachmittag
+Evening,Abend
+Night,Nacht
+Day,Tag
+Week,Woche
+Month,Monat
+Year,Jahr
+Today,Heute
+Tomorrow,Morgen
+Yesterday,Gestern
+Now,Jetzt
+Later,Später
+Before,Vor
+After,Nach
+Always,Immer
+Never,Niemals
+Sometimes,Manchmal
+Here,Hier
+There,Dort
+Far,Weit
+Near,Nah
+Big,Groß
+Small,Klein
+Hot,Heiß
+Cold,Kalt
+New,Neu
+Old,Alt
+Happy,Glücklich
+Sad,Traurig
+Beautiful,Schön
+Ugly,Hässlich
+Fast,Schnell
+Slow,Langsam
+Expensive,Teuer
+Cheap,Billig
+Easy,Einfach
+Difficult,Schwierig
+Hard,Hart
+Soft,Weich
+Strong,Stark
+Weak,Schwach
+Clean,Sauber
+Dirty,Schmutzig
+Full,Voll
+Empty,Leer
+Light,Licht
+Dark,Dunkel
+High,Hoch
+Low,Niedrig
+Right,Rechts
+Left,Links
+Up,Oben
+Down,Unten
+Inside,Innen
+Outside,Draußen
+Open,Offen
+Closed,Geschlossen
+Start,Anfang
+End,Ende
+Win,Gewinnen
+Lose,Verlieren
+Love,Liebe
+Like,Mögen
+Want,Wollen
+Need,Brauchen
+Have,Hab
+Give,Geben
+Take,Nehmen
+Come,Kommen
+Go,Gehen
+Do,Tun
+Make,Machen
+Say,Sagen
+Speak,Sprechen
+Listen,Hören
+Hear,Hören
+See,Sehen
+Look,Schauen
+Touch,Berühren
+Feel,Fühlen
+Taste,Schmecken
+Smell,Riechen
+Stand,Stehen
+Sit,Sitzen
+Run,Rennen
+Walk,Gehen
+Jump,Springen
+Read,Lesen
+Write,Schreiben
+Play,Spielen
+Work,Arbeiten
+Sleep,Schlafen
+Eat,Essen
+Drink,Trinken
+Buy,Kaufen
+Sell,Verkaufen
+Pay,Zahlen
+Help,Helfen
+Wait,Warten
+Find,Finden
+Lose,Verlieren
+Know,Wissen
+Understand,Verstehen
+Remember,Erinnern
+Forget,Vergessen
+Think,Denken
+Believe,Glauben
+Hope,Hoffen
+Open,Öffnen
+Close,Schließen
+Push,Drücken
+Pull,Ziehen
+Break,Brechen
+Fix,Reparieren
+Call,Anrufen
+Answer,Antworten
+Ask,Fragen
+Tell,Erzählen
+Show,Zeigen
+Teach,Lehren
+Learn,Lernen
+Study,Studieren
+Drive,Fahren
+Ride,Fahren
+Fly,Fliegen
+Sing,Singen
+Dance,Tanzen
+Laugh,Lachen
+Cry,Weinen
+Smile,Lächeln
+Live,Leben
+Die,Sterben
+Born,Geboren
+Begin,Beginnen
+Finish,Beenden
+Win,Gewinnen
+Lose,Verlieren
+Forget,Vergessen
+Clean,Reinigen
+Wash,Waschen
+Cook,Kochen
+Open,Öffnen
+Close,Schließen
+Hot,Heiß
+Cold,Kalt
+Heavy,Schwer
+Light,Leicht
+Tall,Groß
+Short,Kurz
+Fat,Dick
+Thin,Dünn
+Rich,Reich
+Poor,Arm
+Happy,Glücklich
+Sad,Traurig
+Strong,Stark
+Weak,Schwach
+Good,Gut
+Bad,Schlecht
+Easy,Einfach
+Difficult,Schwierig
+Old,Alt
+Young,Jung
+Male,Männlich
+Female,Weiblich
+Left,Links
+Right,Rechts
+Beautiful,Schön
+Ugly,Hässlich
+Clean,Sauber
+Dirty,Schmutzig
+Healthy,Gesund
+Sick,Krank
+Tired,Müde
+Hungry,Hungrig
+Thirsty,Durstig
+Afraid,Angst
+Brave,Mutig
+Busy,Beschäftigt
+Free,Frei
+Safe,Sicher
+Dangerous,Gefährlich
+Brother,Bruder
+Sister,Schwester
+Son,Sohn
+Daughter,Tochter
+Parents,Eltern
+Grandfather,Großvater
+Grandmother,Großmutter
+Uncle,Onkel
+Aunt,Tante
+Cousin,Cousin
+Neighbor,Nachbar
+Teacher,Lehrer
+Student,Schüler
+Classroom,Klassenzimmer
+Pen,Stift
+Pencil,Bleistift
+Book,Buch
+Notebook,Notizbuch
+Chair,Stuhl
+Table,Tisch
+Window,Fenster
+Door,Tür
+Light,Lampe
+Phone,Telefon
+Computer,Computer
+Bag,Tasche
+Dog,Hund
+Cat,Katze
+Bird,Vogel
+Fish,Fisch
+Cow,Kuh
+Horse,Pferd
+Sheep,Schaf
+Pig,Schwein
+Farm,Bauernhof
+Field,Feld
+Forest,Wald
+River,Fluss
+Mountain,Berg
+Beach,Strand
+City,Stadt
+Village,Dorf
+Road,Straße
+Bridge,Brücke
+Map,Karte
+Cup,Tasse
+Plate,Teller
+Fork,Gabel
+Spoon,Löffel
+Knife,Messer
+Bowl,Schüssel
+Glass,Glas
+Pillow,Kissen
+Blanket,Decke
+Bed,Bett
+Shower,Dusche
+Toilet,Toilette
+Towel,Handtuch
+Soap,Seife
+Toothbrush,Zahnbürste
+Toothpaste,Zahnpasta
+Comb,Kamm
+Brush,Bürste
+Shampoo,Shampoo
+Clothes,Kleidung
+Shirt,Hemd
+Pants,Hose
+Shoes,Schuhe
+Socks,Socken
+Jacket,Jacke
+Hat,Hut
+Dress,Kleid
+Skirt,Rock
+T-shirt,T-shirt
+Sweater,Pullover
+Coat,Mantel
+Gloves,Handschuhe
+Scarf,Schal
+Belt,Gürtel
+Ring,Ring
+Watch,Uhr
+Money,Geld
+Wallet,Portemonnaie
+Key,Schlüssel
+Backpack,Rucksack
+Gift,Geschenk
+Holiday,Feiertag
+Birthday,Geburtstag
+Christmas,Weihnachten
+Easter,Ostern
+Party,Party
+Game,Spiel
+Music,Musik
+Movie,Film
+Song,Lied
+Dance,Tanz
+Art,Kunst
+Photo,Foto
+Picture,Bild
+Color,Farbe
+Red,Rot
+Blue,Blau
+Green,Grün
+Yellow,Gelb
+Black,Schwarz
+White,Weiß
+Gray,Grau
+Brown,Braun
+Purple,Lila
+Pink,Rosa
+Gold,Gold
+Silver,Silber
+How are you?,Wie geht es dir?
+I am fine.,Mir geht es gut.
+What is your name?,Wie heißt du?
+My name is...,Ich heiße...
+Where do you live?,Wo wohnst du?
+I live in...,Ich wohne in...
+How old are you?,Wie alt bist du?
+I am ... years old.,Ich bin ... Jahre alt.
+Do you speak English?,Sprichst du Englisch?
+I speak a little German.,Ich spreche ein bisschen Deutsch.
+What time is it?,Wie spät ist es?
+It is ... o'clock.,Es ist ... Uhr.
+I would like...,Ich möchte...
+Can I help you?,Kann ich Ihnen helfen?
+I need help.,Ich brauche Hilfe.
+Where is the bathroom?,Wo ist die Toilette?
+How much does this cost?,Wie viel kostet das?
+I don't understand.,Ich verstehe nicht.
+Can you repeat that?,Können Sie das wiederholen?
+Please speak slowly.,Sprechen Sie bitte langsam.
+Do you have a map?,Haben Sie eine Karte?
+Where is the train station?,Wo ist der Bahnhof?
+What is this?,Was ist das?
+I like this.,Das gefällt mir.
+I am hungry.,Ich habe Hunger.
+I am thirsty.,Ich habe Durst.
+Can I have water?,Kann ich Wasser haben?
+I would like coffee.,Ich möchte Kaffee.
+The food is delicious.,Das Essen ist lecker.
+Where is the hotel?,Wo ist das Hotel?
+I am looking for...,Ich suche...
+I am lost.,Ich habe mich verirrt.
+I am tired.,Ich bin müde.
+I am happy.,Ich bin glücklich.
+It is hot today.,Es ist heute heiß.
+It is cold today.,Es ist heute kalt.
+Do you have time?,Haben Sie Zeit?
+Can we meet later?,Können wir uns später treffen?
+What do you do?,Was machst du beruflich?
+I work as...,Ich arbeite als...
+I am a student.,Ich bin Student.
+I like to read.,Ich lese gerne.
+I like to travel.,Ich reise gerne.
+Can I get the bill?,Kann ich die Rechnung bekommen?
+Where is the nearest store?,Wo ist das nächste Geschäft?
+What is your favorite color?,Was ist deine Lieblingsfarbe?
+My favorite color is...,Meine Lieblingsfarbe ist...
+What do you think?,Was denkst du?
+I think it’s good.,Ich denke, es ist gut.
+Good night!,Gute Nacht!
+Good morning!,Guten Morgen!
+Good evening!,Guten Abend!
+See you later!,Bis später!

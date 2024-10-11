@@ -1,0 +1,350 @@
+hello,hola
+goodbye,adiós
+please,por favor
+thank you,gracias
+yes,sí
+no,no
+sorry,lo siento
+excuse me,perdón
+good morning,buenos días
+good night,buenas noches
+how are you,¿cómo estás?
+help,ayuda
+danger,peligro
+stop,alto
+go ahead,siga
+wait,espera
+water,agua
+food,comida
+coffee,café
+tea,té
+milk,leche
+bread,pan
+fruit,fruta
+vegetables,verduras
+meat,carne
+fish,pescado
+chicken,pollo
+apple,manzana
+banana,plátano
+orange,naranja
+carrot,zanahoria
+potato,patata
+tomato,tomate
+onion,cebolla
+salt,sal
+pepper,pimienta
+sugar,azúcar
+rice,arroz
+egg,huevo
+breakfast,desayuno
+lunch,almuerzo
+dinner,cena
+day,día
+night,noche
+week,semana
+month,mes
+year,año
+today,hoy
+tomorrow,mañana
+yesterday,ayer
+morning,mañana
+afternoon,tarde
+evening,noche
+always,siempre
+never,nunca
+sometimes,a veces
+now,ahora
+later,luego
+soon,pronto
+before,antes
+after,después
+inside,dentro
+outside,fuera
+above,arriba
+below,abajo
+near,cerca
+far,lejos
+left,izquierda
+right,derecha
+straight,recto
+car,coche
+bus,autobús
+train,tren
+airplane,avión
+bicycle,bicicleta
+boat,barco
+ticket,billete
+station,estación
+airport,aeropuerto
+street,calle
+hotel,hotel
+room,habitación
+key,llave
+door,puerta
+window,ventana
+bed,cama
+bathroom,baño
+shower,ducha
+toilet,inodoro
+kitchen,cocina
+living room,sala de estar
+friend,amigo
+family,familia
+mother,madre
+father,padre
+brother,hermano
+sister,hermana
+son,hijo
+daughter,hija
+child,niño
+baby,bebé
+husband,esposo
+wife,esposa
+man,hombre
+woman,mujer
+boy,niño
+girl,niña
+teacher,profesor
+student,estudiante
+doctor,médico
+nurse,enfermera
+police officer,policía
+firefighter,bombero
+shop,tienda
+restaurant,restaurante
+bank,banco
+hospital,hospital
+pharmacy,farmacia
+school,escuela
+university,universidad
+market,mercado
+park,parque
+church,iglesia
+museum,museo
+movie theater,cine
+library,biblioteca
+book,libro
+pen,bolígrafo
+pencil,lápiz
+paper,papel
+computer,computadora
+phone,teléfono
+television,televisión
+chair,silla
+table,mesa
+window,ventana
+door,puerta
+dog,perro
+cat,gato
+bird,pájaro
+fish,pez
+horse,caballo
+cow,vaca
+pig,cerdo
+sheep,oveja
+chicken,gallina
+tree,árbol
+flower,flor
+grass,césped
+mountain,montaña
+river,río
+sea,mar
+sun,sol
+moon,luna
+star,estrella
+sky,cielo
+weather,clima
+rain,lluvia
+snow,nieve
+wind,viento
+storm,tormenta
+hot,caliente
+cold,frío
+happy,feliz
+sad,triste
+angry,enojado
+tired,cansado
+hungry,hambriento
+thirsty,sediento
+sick,enfermo
+busy,ocupado
+ready,listo
+big,grande
+small,pequeño
+fast,rápido
+slow,lento
+strong,fuerte
+weak,débil
+new,nuevo
+old,viejo
+expensive,caro
+cheap,barato
+easy,fácil
+difficult,difícil
+beautiful,hermoso
+ugly,feo
+clean,limpio
+dirty,sucio
+open,abierto
+closed,cerrado
+what,¿qué?
+who,¿quién?
+where,¿dónde?
+when,¿cuándo?
+why,¿por qué?
+which,¿cuál?
+how,¿cómo?
+I don't know,no sé
+I understand,entiendo
+I don't understand,no entiendo
+could you repeat that,¿puedes repetirlo?
+how much,¿cuánto cuesta?
+where is the bathroom,¿dónde está el baño?
+I am sorry,lo siento
+How much is this,¿cuánto cuesta esto?
+Where is the hotel,¿dónde está el hotel?
+Can you help me,¿puedes ayudarme?
+Where is the restaurant,¿dónde está el restaurante?
+Where is the train station,¿dónde está la estación de tren?
+I want water,quiero agua
+I want coffee,quiero café
+I need help,necesito ayuda
+I am lost,estoy perdido
+I am hungry,tengo hambre
+I am thirsty,tengo sed
+I am tired,estoy cansado
+Where is the bank,¿dónde está el banco?
+The food is good,la comida es buena
+The coffee is cold,el café está frío
+The room is clean,la habitación está limpia
+The car is expensive,el coche es caro
+The park is beautiful,el parque es hermoso
+This is easy,esto es fácil
+The day is hot,el día está caliente
+The night is cold,la noche está fría
+train ticket,billete de tren
+bus stop,parada de autobús
+passenger,pasajero
+driver,conductor
+airport terminal,terminal de aeropuerto
+flight,vuelo
+baggage,equipaje
+suitcase,maleta
+passport,pasaporte
+arrival,llegada
+departure,salida
+city,ciudad
+village,pueblo
+country,país
+flag,bandera
+map,mapa
+street corner,esquina
+crosswalk,paso de peatones
+traffic light,semáforo
+car rental,alquiler de coches
+police station,comisaría de policía
+fire station,estación de bomberos
+hospital room,habitación de hospital
+pharmacy counter,mostrador de farmacia
+university campus,el campus de la universidad
+school playground,patio de la escuela
+shopping mall,centro comercial
+coffee shop,cafetería
+bakery,panadería
+clothing store,tienda de ropa
+supermarket,supermercado
+cashier,cajero
+checkout,caja
+price,precio
+sale,oferta
+discount,descuento
+cash,dinero en efectivo
+credit card,tarjeta de crédito
+receipt,recibo
+return,devolución
+open now,abierto ahora
+closed today,cerrado hoy
+doctor's appointment,cita con el médico
+medicine,medicina
+prescription,receta
+sick leave,baja médica
+health insurance,seguro de salud
+temperature,temperatura
+fever,fiebre
+headache,dolor de cabeza
+cold (illness),resfriado
+toothache,dolor de muelas
+back pain,dolor de espalda
+emergency,emergencia
+clinic,clínica
+ambulance,ambulancia
+operation,operación
+nurse's station,puesto de enfermería
+waiting room,sala de espera
+pharmacy bag,bolsa de farmacia
+bus ticket,billete de autobús
+I have a question,tengo una pregunta
+I want to go,quiero ir
+Do you understand,¿entiendes?
+Can you repeat that,¿puedes repetir eso?
+Please speak slowly,por favor habla despacio
+I don't speak much Spanish,no hablo mucho español
+I am learning Spanish,estoy aprendiendo español
+Do you speak English,¿hablas inglés?
+How do you say this,¿cómo se dice esto?
+What is your name,¿cómo te llamas?
+My name is ...,me llamo ...
+Where do you live,¿dónde vives?
+I live in the city,vivo en la ciudad
+I live in the country,vivo en el campo
+I need to buy a ticket,necesito comprar un billete
+I need help finding ...,necesito ayuda para encontrar ...
+Is there a hospital nearby,¿hay un hospital cerca?
+Where can I find a bank,¿dónde puedo encontrar un banco?
+How long is the trip,¿cuánto dura el viaje?
+What time is it,¿qué hora es?
+It's late,es tarde
+It's early,es temprano
+I am ready,estoy listo
+I am busy,estoy ocupado
+I am waiting,estoy esperando
+Do you have a car,¿tienes un coche?
+Where is the nearest pharmacy,¿dónde está la farmacia más cercana?
+I would like to buy ...,me gustaría comprar ...
+Can I pay with cash,¿puedo pagar con dinero en efectivo?
+Can I pay by card,¿puedo pagar con tarjeta?
+What is the price,¿cuál es el precio?
+Is this on sale,¿esto está en oferta?
+I am here,estoy aquí
+I am at the station,estoy en la estación
+Where is the ticket office,¿dónde está la taquilla?
+Can I rent a car,¿puedo alquilar un coche?
+How far is it,¿qué tan lejos está?
+Is this the right way,¿es este el camino correcto?
+Where is the exit,¿dónde está la salida?
+What time does it close,¿a qué hora cierra?
+What time does it open,¿a qué hora abre?
+I need an appointment,necesito una cita
+I feel sick,me siento enfermo
+I have a fever,tengo fiebre
+I am lost,estoy perdido
+Can you help me find ...,¿puedes ayudarme a encontrar ...?
+Do you know where ...,¿sabes dónde ...?
+This is difficult,esto es difícil
+That is easy,eso es fácil
+This place is beautiful,este lugar es hermoso
+The food is delicious,la comida está deliciosa
+How is the weather,¿cómo está el clima?
+The weather is hot,el clima está caliente
+The weather is cold,el clima está frío
+It is sunny,está soleado
+It is raining,está lloviendo
+There is a storm,hay una tormenta
+It is windy,hay viento
+Is it far from here,¿está lejos de aquí?
+How do I get to ...,¿cómo llego a ...?
+Where can I find a taxi,¿dónde puedo encontrar un taxi?
+Do you accept credit cards,¿aceptan tarjetas de crédito?
+Can I have the check,¿me puede traer la cuenta?
+The service is excellent,el servicio es excelente

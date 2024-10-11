@@ -1,0 +1,390 @@
+Gesund sounds/ger/1022.mp3 1022
+Beginnen sounds/ger/1023.mp3 1023
+Teller sounds/ger/1024.mp3 1024
+Rennen sounds/ger/1025.mp3 1025
+Einfach sounds/ger/1026.mp3 1026
+Schmecken sounds/ger/1027.mp3 1027
+Was sounds/ger/1028.mp3 1028
+Dusche sounds/ger/1029.mp3 1029
+Computer sounds/ger/1030.mp3 1030
+Dorf sounds/ger/1031.mp3 1031
+Kommen sounds/ger/1032.mp3 1032
+Angst sounds/ger/1033.mp3 1033
+Auto sounds/ger/1034.mp3 1034
+Hallo sounds/ger/1035.mp3 1035
+Ich möchte Kaffee. sounds/ger/1036.mp3 1036
+Schlüssel sounds/ger/1037.mp3 1037
+Lachen sounds/ger/1038.mp3 1038
+Zahnbürste sounds/ger/1039.mp3 1039
+Was denkst du? sounds/ger/1040.mp3 1040
+Pullover sounds/ger/1041.mp3 1041
+Es ist ... Uhr. sounds/ger/1042.mp3 1042
+Beschäftigt sounds/ger/1043.mp3 1043
+Rechts sounds/ger/1044.mp3 1044
+Vergessen sounds/ger/1045.mp3 1045
+Geboren sounds/ger/1046.mp3 1046
+Tanz sounds/ger/1047.mp3 1047
+Ich habe Durst. sounds/ger/1048.mp3 1048
+Entschuldigung sounds/ger/1049.mp3 1049
+Rock sounds/ger/1050.mp3 1050
+Notizbuch sounds/ger/1051.mp3 1051
+Innen sounds/ger/1052.mp3 1052
+Morgen sounds/ger/1053.mp3 1053
+Kleidung sounds/ger/1054.mp3 1054
+Bauernhof sounds/ger/1055.mp3 1055
+Messer sounds/ger/1056.mp3 1056
+Hier sounds/ger/1057.mp3 1057
+Haus sounds/ger/1058.mp3 1058
+Handschuhe sounds/ger/1059.mp3 1059
+Banane sounds/ger/1060.mp3 1060
+Weiblich sounds/ger/1061.mp3 1061
+Abendessen sounds/ger/1062.mp3 1062
+Kunst sounds/ger/1063.mp3 1063
+Ich wohne in... sounds/ger/1064.mp3 1064
+Öffnen sounds/ger/1065.mp3 1065
+Buch sounds/ger/1066.mp3 1066
+Hoch sounds/ger/1067.mp3 1067
+Familie sounds/ger/1068.mp3 1068
+Stehen sounds/ger/1069.mp3 1069
+Ende sounds/ger/1070.mp3 1070
+Was ist deine Lieblingsfarbe? sounds/ger/1071.mp3 1071
+Schwierig sounds/ger/1072.mp3 1072
+Dunkel sounds/ger/1073.mp3 1073
+Kann ich Ihnen helfen? sounds/ger/1074.mp3 1074
+Hund sounds/ger/1075.mp3 1075
+Braun sounds/ger/1076.mp3 1076
+Musik sounds/ger/1077.mp3 1077
+Offen sounds/ger/1078.mp3 1078
+Saft sounds/ger/1079.mp3 1079
+Geben sounds/ger/1080.mp3 1080
+Es ist heute heiß. sounds/ger/1081.mp3 1081
+Ziehen sounds/ger/1082.mp3 1082
+Hose sounds/ger/1083.mp3 1083
+Kissen sounds/ger/1084.mp3 1084
+Wasser sounds/ger/1085.mp3 1085
+Wie spät ist es? sounds/ger/1086.mp3 1086
+Gute Nacht! sounds/ger/1087.mp3 1087
+Schal sounds/ger/1088.mp3 1088
+Fisch sounds/ger/1089.mp3 1089
+Hut sounds/ger/1090.mp3 1090
+Neu sounds/ger/1091.mp3 1091
+Mutig sounds/ger/1092.mp3 1092
+Dick sounds/ger/1093.mp3 1093
+Sterben sounds/ger/1094.mp3 1094
+Kann ich Wasser haben? sounds/ger/1095.mp3 1095
+Schlafen sounds/ger/1096.mp3 1096
+Wer sounds/ger/1097.mp3 1097
+Guten Abend! sounds/ger/1098.mp3 1098
+Mantel sounds/ger/1099.mp3 1099
+Pfeffer sounds/ger/1100.mp3 1100
+Feiertag sounds/ger/1101.mp3 1101
+Wie sounds/ger/1102.mp3 1102
+Auf Wiedersehen sounds/ger/1103.mp3 1103
+Weihnachten sounds/ger/1104.mp3 1104
+Ich möchte... sounds/ger/1105.mp3 1105
+Ring sounds/ger/1106.mp3 1106
+Jung sounds/ger/1107.mp3 1107
+Arbeit sounds/ger/1108.mp3 1108
+Hotel sounds/ger/1109.mp3 1109
+Sehen sounds/ger/1110.mp3 1110
+Schwein sounds/ger/1111.mp3 1111
+Mir geht es gut. sounds/ger/1112.mp3 1112
+Trinken sounds/ger/1113.mp3 1113
+Tee sounds/ger/1114.mp3 1114
+Es ist heute kalt. sounds/ger/1115.mp3 1115
+Glas sounds/ger/1116.mp3 1116
+Schmutzig sounds/ger/1117.mp3 1117
+Nachbar sounds/ger/1118.mp3 1118
+Shampoo sounds/ger/1119.mp3 1119
+Ich lese gerne. sounds/ger/1120.mp3 1120
+Handtuch sounds/ger/1121.mp3 1121
+Nehmen sounds/ger/1122.mp3 1122
+Durstig sounds/ger/1123.mp3 1123
+Lehren sounds/ger/1124.mp3 1124
+Billig sounds/ger/1125.mp3 1125
+Was ist das? sounds/ger/1126.mp3 1126
+Brücke sounds/ger/1127.mp3 1127
+Licht sounds/ger/1128.mp3 1128
+Krank sounds/ger/1129.mp3 1129
+Schuhe sounds/ger/1130.mp3 1130
+Kurz sounds/ger/1131.mp3 1131
+Kaffee sounds/ger/1132.mp3 1132
+Lampe sounds/ger/1133.mp3 1133
+Gabel sounds/ger/1134.mp3 1134
+Fahrrad sounds/ger/1135.mp3 1135
+Ich arbeite als... sounds/ger/1136.mp3 1136
+Ich denke sounds/ger/1137.mp3 1137
+Geschlossen sounds/ger/1138.mp3 1138
+Bier sounds/ger/1139.mp3 1139
+Geld sounds/ger/1140.mp3 1140
+Später sounds/ger/1141.mp3 1141
+Gold sounds/ger/1142.mp3 1142
+Sagen sounds/ger/1143.mp3 1143
+Lernen sounds/ger/1144.mp3 1144
+Fluss sounds/ger/1145.mp3 1145
+Orange sounds/ger/1146.mp3 1146
+Tür sounds/ger/1147.mp3 1147
+Straße sounds/ger/1148.mp3 1148
+Wollen sounds/ger/1149.mp3 1149
+Essen sounds/ger/1150.mp3 1150
+Eltern sounds/ger/1151.mp3 1151
+Guten Morgen! sounds/ger/1152.mp3 1152
+Ich spreche ein bisschen Deutsch. sounds/ger/1153.mp3 1153
+Bett sounds/ger/1154.mp3 1154
+Vogel sounds/ger/1155.mp3 1155
+Ihr sounds/ger/1156.mp3 1156
+Voll sounds/ger/1157.mp3 1157
+Gürtel sounds/ger/1158.mp3 1158
+Nacht sounds/ger/1159.mp3 1159
+Beenden sounds/ger/1160.mp3 1160
+Hungrig sounds/ger/1161.mp3 1161
+Studieren sounds/ger/1162.mp3 1162
+Singen sounds/ger/1163.mp3 1163
+Antworten sounds/ger/1164.mp3 1164
+Kann ich die Rechnung bekommen? sounds/ger/1165.mp3 1165
+Meine Lieblingsfarbe ist... sounds/ger/1166.mp3 1166
+Brot sounds/ger/1167.mp3 1167
+Wie heißt du? sounds/ger/1168.mp3 1168
+Weit sounds/ger/1169.mp3 1169
+Schwach sounds/ger/1170.mp3 1170
+Grau sounds/ger/1171.mp3 1171
+Links sounds/ger/1172.mp3 1172
+Ostern sounds/ger/1173.mp3 1173
+Klassenzimmer sounds/ger/1174.mp3 1174
+Frucht sounds/ger/1175.mp3 1175
+Nein sounds/ger/1176.mp3 1176
+Bild sounds/ger/1177.mp3 1177
+Groß sounds/ger/1178.mp3 1178
+Müde sounds/ger/1179.mp3 1179
+Fühlen sounds/ger/1180.mp3 1180
+Können wir uns später treffen? sounds/ger/1181.mp3 1181
+Flughafen sounds/ger/1182.mp3 1182
+Bank sounds/ger/1183.mp3 1183
+Spielen sounds/ger/1184.mp3 1184
+Ich sounds/ger/1185.mp3 1185
+Großvater sounds/ger/1186.mp3 1186
+Schlecht sounds/ger/1187.mp3 1187
+Ich bin ... Jahre alt. sounds/ger/1188.mp3 1188
+Heute sounds/ger/1189.mp3 1189
+Haben Sie eine Karte? sounds/ger/1190.mp3 1190
+Wissen sounds/ger/1191.mp3 1191
+Zucker sounds/ger/1192.mp3 1192
+Du sounds/ger/1193.mp3 1193
+Salz sounds/ger/1194.mp3 1194
+Geschäft sounds/ger/1195.mp3 1195
+Sauber sounds/ger/1196.mp3 1196
+Jahr sounds/ger/1197.mp3 1197
+Katze sounds/ger/1198.mp3 1198
+Vor sounds/ger/1199.mp3 1199
+Was machst du beruflich? sounds/ger/1200.mp3 1200
+Party sounds/ger/1201.mp3 1201
+Brauchen sounds/ger/1202.mp3 1202
+Ich suche... sounds/ger/1203.mp3 1203
+Warten sounds/ger/1204.mp3 1204
+Arbeiten sounds/ger/1205.mp3 1205
+Cousin sounds/ger/1206.mp3 1206
+Leer sounds/ger/1207.mp3 1207
+Gelb sounds/ger/1208.mp3 1208
+Spiel sounds/ger/1209.mp3 1209
+Frau sounds/ger/1210.mp3 1210
+Tante sounds/ger/1211.mp3 1211
+Decke sounds/ger/1212.mp3 1212
+Kleid sounds/ger/1213.mp3 1213
+Unser sounds/ger/1214.mp3 1214
+Woche sounds/ger/1215.mp3 1215
+Schwester sounds/ger/1216.mp3 1216
+Tochter sounds/ger/1217.mp3 1217
+Männlich sounds/ger/1218.mp3 1218
+Riechen sounds/ger/1219.mp3 1219
+Bruder sounds/ger/1220.mp3 1220
+Kuh sounds/ger/1221.mp3 1221
+Glauben sounds/ger/1222.mp3 1222
+Gut sounds/ger/1223.mp3 1223
+Hab sounds/ger/1224.mp3 1224
+Warum sounds/ger/1225.mp3 1225
+Alt sounds/ger/1226.mp3 1226
+Feld sounds/ger/1227.mp3 1227
+Frühstück sounds/ger/1228.mp3 1228
+Wo ist das Hotel? sounds/ger/1229.mp3 1229
+Nah sounds/ger/1230.mp3 1230
+Schule sounds/ger/1231.mp3 1231
+Sitzen sounds/ger/1232.mp3 1232
+Niedrig sounds/ger/1233.mp3 1233
+Verstehen sounds/ger/1234.mp3 1234
+Fliegen sounds/ger/1235.mp3 1235
+Sein sounds/ger/1236.mp3 1236
+Ja sounds/ger/1237.mp3 1237
+Lied sounds/ger/1238.mp3 1238
+Blau sounds/ger/1239.mp3 1239
+Wie geht es dir? sounds/ger/1240.mp3 1240
+Langsam sounds/ger/1241.mp3 1241
+Mein sounds/ger/1242.mp3 1242
+Onkel sounds/ger/1243.mp3 1243
+Gehen sounds/ger/1244.mp3 1244
+Socken sounds/ger/1245.mp3 1245
+Traurig sounds/ger/1246.mp3 1246
+Lila sounds/ger/1247.mp3 1247
+Wir sounds/ger/1248.mp3 1248
+Ich reise gerne. sounds/ger/1249.mp3 1249
+Glücklich sounds/ger/1250.mp3 1250
+Portemonnaie sounds/ger/1251.mp3 1251
+Karte sounds/ger/1252.mp3 1252
+Geschenk sounds/ger/1253.mp3 1253
+Wein sounds/ger/1254.mp3 1254
+Wo ist der Bahnhof? sounds/ger/1255.mp3 1255
+Es sounds/ger/1256.mp3 1256
+Haben Sie Zeit? sounds/ger/1257.mp3 1257
+Großmutter sounds/ger/1258.mp3 1258
+Löffel sounds/ger/1259.mp3 1259
+Tasse sounds/ger/1260.mp3 1260
+Bürste sounds/ger/1261.mp3 1261
+Abend sounds/ger/1262.mp3 1262
+Zahnpasta sounds/ger/1263.mp3 1263
+Kaufen sounds/ger/1264.mp3 1264
+Tasche sounds/ger/1265.mp3 1265
+Berühren sounds/ger/1266.mp3 1266
+Schwer sounds/ger/1267.mp3 1267
+Liebe sounds/ger/1268.mp3 1268
+Stark sounds/ger/1269.mp3 1269
+Rot sounds/ger/1270.mp3 1270
+Das Essen ist lecker. sounds/ger/1271.mp3 1271
+Gemüse sounds/ger/1272.mp3 1272
+Apfel sounds/ger/1273.mp3 1273
+Bitte sounds/ger/1274.mp3 1274
+Manchmal sounds/ger/1275.mp3 1275
+Farbe sounds/ger/1276.mp3 1276
+Lehrer sounds/ger/1277.mp3 1277
+Stuhl sounds/ger/1278.mp3 1278
+Leben sounds/ger/1279.mp3 1279
+Unten sounds/ger/1280.mp3 1280
+Rosa sounds/ger/1281.mp3 1281
+Hemd sounds/ger/1282.mp3 1282
+Wo ist das nächste Geschäft? sounds/ger/1283.mp3 1283
+Ich brauche Hilfe. sounds/ger/1284.mp3 1284
+Gestern sounds/ger/1285.mp3 1285
+Oben sounds/ger/1286.mp3 1286
+Silber sounds/ger/1287.mp3 1287
+Polizei sounds/ger/1288.mp3 1288
+Anrufen sounds/ger/1289.mp3 1289
+Wie alt bist du? sounds/ger/1290.mp3 1290
+Heiß sounds/ger/1291.mp3 1291
+Schüssel sounds/ger/1292.mp3 1292
+Kamm sounds/ger/1293.mp3 1293
+Wo sounds/ger/1294.mp3 1294
+Stadt sounds/ger/1295.mp3 1295
+Sie sounds/ger/1296.mp3 1296
+Monat sounds/ger/1297.mp3 1297
+Gefährlich sounds/ger/1298.mp3 1298
+Hoffen sounds/ger/1299.mp3 1299
+Fragen sounds/ger/1300.mp3 1300
+Hähnchen sounds/ger/1301.mp3 1301
+Zeigen sounds/ger/1302.mp3 1302
+Fahren sounds/ger/1303.mp3 1303
+Arm sounds/ger/1304.mp3 1304
+Jetzt sounds/ger/1305.mp3 1305
+Leicht sounds/ger/1306.mp3 1306
+Schwarz sounds/ger/1307.mp3 1307
+Springen sounds/ger/1308.mp3 1308
+Lächeln sounds/ger/1309.mp3 1309
+Zug sounds/ger/1310.mp3 1310
+Reinigen sounds/ger/1311.mp3 1311
+Schließen sounds/ger/1312.mp3 1312
+Erzählen sounds/ger/1313.mp3 1313
+Restaurant sounds/ger/1314.mp3 1314
+Tag sounds/ger/1315.mp3 1315
+Dein sounds/ger/1316.mp3 1316
+Krankenhaus sounds/ger/1317.mp3 1317
+Lesen sounds/ger/1318.mp3 1318
+Drücken sounds/ger/1319.mp3 1319
+Schnell sounds/ger/1320.mp3 1320
+Kalt sounds/ger/1321.mp3 1321
+Schön sounds/ger/1322.mp3 1322
+Reparieren sounds/ger/1323.mp3 1323
+Fenster sounds/ger/1324.mp3 1324
+Brechen sounds/ger/1325.mp3 1325
+Ich verstehe nicht. sounds/ger/1326.mp3 1326
+Mädchen sounds/ger/1327.mp3 1327
+Mittagessen sounds/ger/1328.mp3 1328
+Teuer sounds/ger/1329.mp3 1329
+Stift sounds/ger/1330.mp3 1330
+Anfang sounds/ger/1331.mp3 1331
+Mögen sounds/ger/1332.mp3 1332
+Foto sounds/ger/1333.mp3 1333
+Bus sounds/ger/1334.mp3 1334
+Sicher sounds/ger/1335.mp3 1335
+Dort sounds/ger/1336.mp3 1336
+Tisch sounds/ger/1337.mp3 1337
+Weiß sounds/ger/1338.mp3 1338
+Wie viel kostet das? sounds/ger/1339.mp3 1339
+Sprechen Sie bitte langsam. sounds/ger/1340.mp3 1340
+Immer sounds/ger/1341.mp3 1341
+Sprichst du Englisch? sounds/ger/1342.mp3 1342
+Erinnern sounds/ger/1343.mp3 1343
+Telefon sounds/ger/1344.mp3 1344
+Mann sounds/ger/1345.mp3 1345
+Kochen sounds/ger/1346.mp3 1346
+Sohn sounds/ger/1347.mp3 1347
+Toilette sounds/ger/1348.mp3 1348
+Wo ist die Toilette? sounds/ger/1349.mp3 1349
+Jacke sounds/ger/1350.mp3 1350
+Ich bin müde. sounds/ger/1351.mp3 1351
+T-shirt sounds/ger/1352.mp3 1352
+Weich sounds/ger/1353.mp3 1353
+Wann sounds/ger/1354.mp3 1354
+Strand sounds/ger/1355.mp3 1355
+Finden sounds/ger/1356.mp3 1356
+Er sounds/ger/1357.mp3 1357
+Weinen sounds/ger/1358.mp3 1358
+Gewinnen sounds/ger/1359.mp3 1359
+Schaf sounds/ger/1360.mp3 1360
+Junge sounds/ger/1361.mp3 1361
+Nach sounds/ger/1362.mp3 1362
+Wald sounds/ger/1363.mp3 1363
+Milch sounds/ger/1364.mp3 1364
+Ich bin glücklich. sounds/ger/1365.mp3 1365
+Uhr sounds/ger/1366.mp3 1366
+Arzt sounds/ger/1367.mp3 1367
+Hässlich sounds/ger/1368.mp3 1368
+Das gefällt mir. sounds/ger/1369.mp3 1369
+Grün sounds/ger/1370.mp3 1370
+Niemals sounds/ger/1371.mp3 1371
+Ich heiße... sounds/ger/1372.mp3 1372
+Schreiben sounds/ger/1373.mp3 1373
+Helfen sounds/ger/1374.mp3 1374
+Bis später! sounds/ger/1375.mp3 1375
+Rucksack sounds/ger/1376.mp3 1376
+Seife sounds/ger/1377.mp3 1377
+Schauen sounds/ger/1378.mp3 1378
+Verlieren sounds/ger/1379.mp3 1379
+Verkaufen sounds/ger/1380.mp3 1380
+Nachmittag sounds/ger/1381.mp3 1381
+Denken sounds/ger/1382.mp3 1382
+Freund sounds/ger/1383.mp3 1383
+Zahlen sounds/ger/1384.mp3 1384
+Pferd sounds/ger/1385.mp3 1385
+Hart sounds/ger/1386.mp3 1386
+Hören sounds/ger/1387.mp3 1387
+Draußen sounds/ger/1388.mp3 1388
+Reich sounds/ger/1389.mp3 1389
+Danke sounds/ger/1390.mp3 1390
+Sprechen sounds/ger/1391.mp3 1391
+Können Sie das wiederholen? sounds/ger/1392.mp3 1392
+Schüler sounds/ger/1393.mp3 1393
+Fleisch sounds/ger/1394.mp3 1394
+Wo wohnst du? sounds/ger/1395.mp3 1395
+Ich bin Student. sounds/ger/1396.mp3 1396
+Es tut mir leid sounds/ger/1397.mp3 1397
+Bahnhof sounds/ger/1398.mp3 1398
+Waschen sounds/ger/1399.mp3 1399
+Tun sounds/ger/1400.mp3 1400
+Dünn sounds/ger/1401.mp3 1401
+Machen sounds/ger/1402.mp3 1402
+Bleistift sounds/ger/1403.mp3 1403
+Klein sounds/ger/1404.mp3 1404
+Berg sounds/ger/1405.mp3 1405
+Tanzen sounds/ger/1406.mp3 1406
+Geburtstag sounds/ger/1407.mp3 1407
+Film sounds/ger/1408.mp3 1408
+Frei sounds/ger/1409.mp3 1409
+Ich habe mich verirrt. sounds/ger/1410.mp3 1410
+Ich habe Hunger. sounds/ger/1411.mp3 1411

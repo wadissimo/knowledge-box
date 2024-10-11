@@ -1,0 +1,338 @@
+fácil sounds/sp/685.mp3 685
+manzana sounds/sp/686.mp3 686
+sala de espera sounds/sp/687.mp3 687
+la comida está deliciosa sounds/sp/688.mp3 688
+lejos sounds/sp/689.mp3 689
+pasajero sounds/sp/690.mp3 690
+policía sounds/sp/691.mp3 691
+madre sounds/sp/692.mp3 692
+sí sounds/sp/693.mp3 693
+estoy en la estación sounds/sp/694.mp3 694
+¿dónde está la farmacia más cercana? sounds/sp/695.mp3 695
+está lloviendo sounds/sp/696.mp3 696
+bolsa de farmacia sounds/sp/697.mp3 697
+abierto ahora sounds/sp/698.mp3 698
+hija sounds/sp/699.mp3 699
+estoy listo sounds/sp/700.mp3 700
+¿a qué hora cierra? sounds/sp/701.mp3 701
+estación de bomberos sounds/sp/702.mp3 702
+abajo sounds/sp/703.mp3 703
+niña sounds/sp/704.mp3 704
+débil sounds/sp/705.mp3 705
+niño sounds/sp/706.mp3 706
+abierto sounds/sp/707.mp3 707
+caja sounds/sp/708.mp3 708
+azúcar sounds/sp/709.mp3 709
+bebé sounds/sp/710.mp3 710
+me gustaría comprar ... sounds/sp/711.mp3 711
+hermana sounds/sp/712.mp3 712
+cielo sounds/sp/713.mp3 713
+escuela sounds/sp/714.mp3 714
+¿cómo te llamas? sounds/sp/715.mp3 715
+precio sounds/sp/716.mp3 716
+amigo sounds/sp/717.mp3 717
+hermoso sounds/sp/718.mp3 718
+fiebre sounds/sp/719.mp3 719
+árbol sounds/sp/720.mp3 720
+llegada sounds/sp/721.mp3 721
+emergencia sounds/sp/722.mp3 722
+mujer sounds/sp/723.mp3 723
+hijo sounds/sp/724.mp3 724
+estoy cansado sounds/sp/725.mp3 725
+necesito ayuda sounds/sp/726.mp3 726
+plátano sounds/sp/727.mp3 727
+recto sounds/sp/728.mp3 728
+vaca sounds/sp/729.mp3 729
+avión sounds/sp/730.mp3 730
+¿puedes repetirlo? sounds/sp/731.mp3 731
+¿cómo llego a ...? sounds/sp/732.mp3 732
+es temprano sounds/sp/733.mp3 733
+equipaje sounds/sp/734.mp3 734
+autobús sounds/sp/735.mp3 735
+el clima está caliente sounds/sp/736.mp3 736
+viejo sounds/sp/737.mp3 737
+nieve sounds/sp/738.mp3 738
+mostrador de farmacia sounds/sp/739.mp3 739
+semáforo sounds/sp/740.mp3 740
+parada de autobús sounds/sp/741.mp3 741
+¿es este el camino correcto? sounds/sp/742.mp3 742
+fuera sounds/sp/743.mp3 743
+estrella sounds/sp/744.mp3 744
+zanahoria sounds/sp/745.mp3 745
+restaurante sounds/sp/746.mp3 746
+esquina sounds/sp/747.mp3 747
+¿puedo pagar con dinero en efectivo? sounds/sp/748.mp3 748
+pasaporte sounds/sp/749.mp3 749
+¿cómo estás? sounds/sp/750.mp3 750
+devolución sounds/sp/751.mp3 751
+¿por qué? sounds/sp/752.mp3 752
+buenos días sounds/sp/753.mp3 753
+alquiler de coches sounds/sp/754.mp3 754
+por favor sounds/sp/755.mp3 755
+feliz sounds/sp/756.mp3 756
+no entiendo sounds/sp/757.mp3 757
+¿dónde puedo encontrar un taxi? sounds/sp/758.mp3 758
+bolígrafo sounds/sp/759.mp3 759
+billete sounds/sp/760.mp3 760
+¿dónde está la estación de tren? sounds/sp/761.mp3 761
+mapa sounds/sp/762.mp3 762
+familia sounds/sp/763.mp3 763
+¿sabes dónde ...? sounds/sp/764.mp3 764
+cita con el médico sounds/sp/765.mp3 765
+dolor de espalda sounds/sp/766.mp3 766
+río sounds/sp/767.mp3 767
+carne sounds/sp/768.mp3 768
+lluvia sounds/sp/769.mp3 769
+cerdo sounds/sp/770.mp3 770
+cine sounds/sp/771.mp3 771
+pescado sounds/sp/772.mp3 772
+pimienta sounds/sp/773.mp3 773
+cajero sounds/sp/774.mp3 774
+clima sounds/sp/775.mp3 775
+lo siento sounds/sp/776.mp3 776
+cebolla sounds/sp/777.mp3 777
+computadora sounds/sp/778.mp3 778
+pájaro sounds/sp/779.mp3 779
+grande sounds/sp/780.mp3 780
+el coche es caro sounds/sp/781.mp3 781
+resfriado sounds/sp/782.mp3 782
+después sounds/sp/783.mp3 783
+tengo fiebre sounds/sp/784.mp3 784
+esto es fácil sounds/sp/785.mp3 785
+coche sounds/sp/786.mp3 786
+ventana sounds/sp/787.mp3 787
+adiós sounds/sp/788.mp3 788
+verduras sounds/sp/789.mp3 789
+huevo sounds/sp/790.mp3 790
+sala de estar sounds/sp/791.mp3 791
+lápiz sounds/sp/792.mp3 792
+almuerzo sounds/sp/793.mp3 793
+fruta sounds/sp/794.mp3 794
+ciudad sounds/sp/795.mp3 795
+no sé sounds/sp/796.mp3 796
+¿a qué hora abre? sounds/sp/797.mp3 797
+¿puedo pagar con tarjeta? sounds/sp/798.mp3 798
+mar sounds/sp/799.mp3 799
+espera sounds/sp/800.mp3 800
+vuelo sounds/sp/801.mp3 801
+baño sounds/sp/802.mp3 802
+pez sounds/sp/803.mp3 803
+médico sounds/sp/804.mp3 804
+té sounds/sp/805.mp3 805
+patio de la escuela sounds/sp/806.mp3 806
+maleta sounds/sp/807.mp3 807
+cerrado sounds/sp/808.mp3 808
+leche sounds/sp/809.mp3 809
+flor sounds/sp/810.mp3 810
+¿dónde está la salida? sounds/sp/811.mp3 811
+oferta sounds/sp/812.mp3 812
+¿aceptan tarjetas de crédito? sounds/sp/813.mp3 813
+universidad sounds/sp/814.mp3 814
+teléfono sounds/sp/815.mp3 815
+estudiante sounds/sp/816.mp3 816
+frío sounds/sp/817.mp3 817
+¿cómo está el clima? sounds/sp/818.mp3 818
+feo sounds/sp/819.mp3 819
+el café está frío sounds/sp/820.mp3 820
+estoy esperando sounds/sp/821.mp3 821
+¿cuál? sounds/sp/822.mp3 822
+ducha sounds/sp/823.mp3 823
+billete de autobús sounds/sp/824.mp3 824
+alto sounds/sp/825.mp3 825
+televisión sounds/sp/826.mp3 826
+medicina sounds/sp/827.mp3 827
+nunca sounds/sp/828.mp3 828
+café sounds/sp/829.mp3 829
+¿está lejos de aquí? sounds/sp/830.mp3 830
+¿cuál es el precio? sounds/sp/831.mp3 831
+arroz sounds/sp/832.mp3 832
+necesito comprar un billete sounds/sp/833.mp3 833
+la noche está fría sounds/sp/834.mp3 834
+entiendo sounds/sp/835.mp3 835
+¿dónde está la taquilla? sounds/sp/836.mp3 836
+estoy aquí sounds/sp/836.mp3 836
+banco sounds/sp/837.mp3 837
+sediento sounds/sp/838.mp3 838
+aeropuerto sounds/sp/839.mp3 839
+difícil sounds/sp/840.mp3 840
+naranja sounds/sp/841.mp3 841
+¿cuánto cuesta esto? sounds/sp/842.mp3 842
+panadería sounds/sp/843.mp3 843
+conductor sounds/sp/844.mp3 844
+antes sounds/sp/845.mp3 845
+quiero café sounds/sp/846.mp3 846
+cena sounds/sp/847.mp3 847
+oveja sounds/sp/848.mp3 848
+hola sounds/sp/849.mp3 849
+¿dónde está el hotel? sounds/sp/850.mp3 850
+siempre sounds/sp/851.mp3 851
+peligro sounds/sp/852.mp3 852
+fuerte sounds/sp/853.mp3 853
+esto es difícil sounds/sp/854.mp3 854
+inodoro sounds/sp/855.mp3 855
+caro sounds/sp/856.mp3 856
+día sounds/sp/857.mp3 857
+pronto sounds/sp/858.mp3 858
+habitación de hospital sounds/sp/859.mp3 859
+sucio sounds/sp/860.mp3 860
+tienda sounds/sp/861.mp3 861
+lento sounds/sp/862.mp3 862
+arriba sounds/sp/863.mp3 863
+quiero agua sounds/sp/864.mp3 864
+césped sounds/sp/865.mp3 865
+limpio sounds/sp/866.mp3 866
+¿dónde puedo encontrar un banco? sounds/sp/867.mp3 867
+¿cómo? sounds/sp/868.mp3 868
+profesor sounds/sp/869.mp3 869
+luego sounds/sp/870.mp3 870
+el servicio es excelente sounds/sp/871.mp3 871
+tienda de ropa sounds/sp/872.mp3 872
+está soleado sounds/sp/873.mp3 873
+receta sounds/sp/874.mp3 874
+hombre sounds/sp/875.mp3 875
+comisaría de policía sounds/sp/876.mp3 876
+la habitación está limpia sounds/sp/877.mp3 877
+tarjeta de crédito sounds/sp/878.mp3 878
+temperatura sounds/sp/879.mp3 879
+sol sounds/sp/880.mp3 880
+operación sounds/sp/881.mp3 881
+¿me puede traer la cuenta? sounds/sp/882.mp3 882
+patata sounds/sp/883.mp3 883
+desayuno sounds/sp/884.mp3 884
+montaña sounds/sp/885.mp3 885
+izquierda sounds/sp/886.mp3 886
+barato sounds/sp/887.mp3 887
+caliente sounds/sp/888.mp3 888
+perro sounds/sp/889.mp3 889
+baja médica sounds/sp/890.mp3 890
+mercado sounds/sp/891.mp3 891
+perdón sounds/sp/892.mp3 892
+enfermo sounds/sp/893.mp3 893
+terminal de aeropuerto sounds/sp/894.mp3 894
+quiero ir sounds/sp/895.mp3 895
+estoy perdido sounds/sp/896.mp3 896
+barco sounds/sp/897.mp3 897
+nuevo sounds/sp/898.mp3 898
+¿puedes ayudarme? sounds/sp/899.mp3 899
+necesito ayuda para encontrar ... sounds/sp/900.mp3 900
+el campus de la universidad sounds/sp/901.mp3 901
+¿dónde está el banco? sounds/sp/902.mp3 902
+ocupado sounds/sp/903.mp3 903
+país sounds/sp/904.mp3 904
+estoy ocupado sounds/sp/905.mp3 905
+listo sounds/sp/906.mp3 906
+me llamo ... sounds/sp/907.mp3 907
+ayuda sounds/sp/908.mp3 908
+¿qué? sounds/sp/909.mp3 909
+dinero en efectivo sounds/sp/910.mp3 910
+hambriento sounds/sp/911.mp3 911
+pan sounds/sp/912.mp3 912
+año sounds/sp/913.mp3 913
+hay viento sounds/sp/914.mp3 914
+tomate sounds/sp/915.mp3 915
+ahora sounds/sp/916.mp3 916
+paso de peatones sounds/sp/917.mp3 917
+¿qué hora es? sounds/sp/918.mp3 918
+semana sounds/sp/919.mp3 919
+dolor de cabeza sounds/sp/920.mp3 920
+esposo sounds/sp/921.mp3 921
+¿cuánto cuesta? sounds/sp/922.mp3 922
+por favor habla despacio sounds/sp/923.mp3 923
+buenas noches sounds/sp/924.mp3 924
+estación sounds/sp/925.mp3 925
+mes sounds/sp/926.mp3 926
+iglesia sounds/sp/927.mp3 927
+cansado sounds/sp/928.mp3 928
+noche sounds/sp/929.mp3 929
+eso es fácil sounds/sp/930.mp3 930
+ambulancia sounds/sp/931.mp3 931
+papel sounds/sp/932.mp3 932
+mesa sounds/sp/933.mp3 933
+¿dónde vives? sounds/sp/934.mp3 934
+rápido sounds/sp/935.mp3 935
+me siento enfermo sounds/sp/936.mp3 936
+cerrado hoy sounds/sp/937.mp3 937
+¿qué tan lejos está? sounds/sp/938.mp3 938
+caballo sounds/sp/939.mp3 939
+siga sounds/sp/940.mp3 940
+supermercado sounds/sp/941.mp3 941
+seguro de salud sounds/sp/942.mp3 942
+cafetería sounds/sp/943.mp3 943
+viento sounds/sp/944.mp3 944
+cocina sounds/sp/945.mp3 945
+estoy aprendiendo español sounds/sp/946.mp3 946
+bombero sounds/sp/947.mp3 947
+¿hablas inglés? sounds/sp/948.mp3 948
+derecha sounds/sp/949.mp3 949
+billete de tren sounds/sp/950.mp3 950
+llave sounds/sp/951.mp3 951
+enfermera sounds/sp/952.mp3 952
+gato sounds/sp/953.mp3 953
+silla sounds/sp/954.mp3 954
+mañana sounds/sp/955.mp3 955
+¿cuándo? sounds/sp/956.mp3 956
+es tarde sounds/sp/957.mp3 957
+no hablo mucho español sounds/sp/958.mp3 958
+tengo una pregunta sounds/sp/959.mp3 959
+descuento sounds/sp/960.mp3 960
+cerca sounds/sp/961.mp3 961
+¿dónde? sounds/sp/962.mp3 962
+¿entiendes? sounds/sp/963.mp3 963
+tarde sounds/sp/964.mp3 964
+dolor de muelas sounds/sp/965.mp3 965
+gracias sounds/sp/966.mp3 966
+biblioteca sounds/sp/967.mp3 967
+a veces sounds/sp/968.mp3 968
+¿cómo se dice esto? sounds/sp/969.mp3 969
+¿dónde está la taquilla? sounds/sp/970.mp3 970
+tengo sed sounds/sp/971.mp3 971
+hotel sounds/sp/972.mp3 972
+parque sounds/sp/973.mp3 973
+¿puedes ayudarme a encontrar ...? sounds/sp/974.mp3 974
+el clima está frío sounds/sp/975.mp3 975
+el parque es hermoso sounds/sp/976.mp3 976
+el día está caliente sounds/sp/977.mp3 977
+¿quién? sounds/sp/978.mp3 978
+bicicleta sounds/sp/979.mp3 979
+pueblo sounds/sp/980.mp3 980
+hospital sounds/sp/981.mp3 981
+vivo en el campo sounds/sp/982.mp3 982
+pequeño sounds/sp/983.mp3 983
+la comida es buena sounds/sp/984.mp3 984
+museo sounds/sp/985.mp3 985
+agua sounds/sp/986.mp3 986
+gallina sounds/sp/987.mp3 987
+habitación sounds/sp/988.mp3 988
+¿dónde está el baño? sounds/sp/989.mp3 989
+tengo hambre sounds/sp/990.mp3 990
+ayer sounds/sp/991.mp3 991
+recibo sounds/sp/992.mp3 992
+tren sounds/sp/993.mp3 993
+esposa sounds/sp/994.mp3 994
+farmacia sounds/sp/995.mp3 995
+¿puedo alquilar un coche? sounds/sp/996.mp3 996
+centro comercial sounds/sp/997.mp3 997
+hoy sounds/sp/998.mp3 998
+puesto de enfermería sounds/sp/999.mp3 999
+calle sounds/sp/1000.mp3 1000
+bandera sounds/sp/1001.mp3 1001
+¿hay un hospital cerca? sounds/sp/1002.mp3 1002
+cama sounds/sp/1003.mp3 1003
+clínica sounds/sp/1004.mp3 1004
+¿dónde está el restaurante? sounds/sp/1005.mp3 1005
+vivo en la ciudad sounds/sp/1006.mp3 1006
+necesito una cita sounds/sp/1007.mp3 1007
+hay una tormenta sounds/sp/1008.mp3 1008
+¿cuánto dura el viaje? sounds/sp/1009.mp3 1009
+enojado sounds/sp/1010.mp3 1010
+puerta sounds/sp/1011.mp3 1011
+¿puedes repetir eso? sounds/sp/1012.mp3 1012
+salida sounds/sp/1013.mp3 1013
+tormenta sounds/sp/1014.mp3 1014
+¿tienes un coche? sounds/sp/1015.mp3 1015
+comida sounds/sp/1016.mp3 1016
+¿esto está en oferta? sounds/sp/1017.mp3 1017
+este lugar es hermoso sounds/sp/1018.mp3 1018
+sal sounds/sp/1019.mp3 1019
+luna sounds/sp/1020.mp3 1020
+hermano sounds/sp/1021.mp3 1021
