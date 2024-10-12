@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_file
 import sqlite3
 import os
+import re
 
 app = Flask(__name__)
 
@@ -14,6 +15,8 @@ def search_collections():
     print("search_collections called")
     query = request.args.get("query")
 
+    query = sanitize_query(query)
+    
     con = sqlite3.connect(DB_NAME)
     con.row_factory = sqlite3.Row  # This will return rows as dictionaries
     results = find_match(con, query)
@@ -96,6 +99,11 @@ def get_image_download(id):
             return jsonify({'error': 'File not found'}), 404
     else:
         return jsonify({'error': 'Data not found'}), 404
+
+
+def sanitize_query(query):
+    # Keep numbers and letters, remove special characters except spaces
+    return re.sub(r'[^\w\s\d]', '', query)
 
 def find_match(con, query):
     cursor = con.cursor()

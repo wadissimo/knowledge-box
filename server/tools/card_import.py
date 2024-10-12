@@ -1,12 +1,12 @@
 import sqlite3
 
-def read_csv(name, skip_errors = False):
+def read_csv(name, skip_errors = False, col_num=2):
     data = []
     with open(name,encoding='utf-8') as f:
         line = f.readline()
         while line:
             row = line.strip().split(sep=',')
-            if len(row) != 2:
+            if len(row) != col_num:
                 if skip_errors:
                     print("wrong data:", row)
                 else:

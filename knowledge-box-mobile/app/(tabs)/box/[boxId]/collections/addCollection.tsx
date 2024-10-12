@@ -17,6 +17,7 @@ import SeparatorWithText from "@/components/utils/SeparatorWithText";
 import CreateCollectionForm from "@/components/collections/CreateCollectionForm";
 import Icon from "react-native-ionicons";
 import useCollectionRemoteService from "@/service/CollectionRemoteService";
+import SearchTags from "@/components/collections/SearchTags";
 
 const AddCollection = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -64,6 +65,9 @@ const AddCollection = () => {
     );
   };
 
+  const handleTagPress = (tag: string) => {
+    setSearchQuery(tag);
+  };
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -77,6 +81,7 @@ const AddCollection = () => {
                 onChangeText={setSearchQuery}
                 placeholder="Search Collections"
               />
+
               {searchQuery.length > 0 && (
                 <TouchableOpacity
                   style={styles.iconButton}
@@ -86,6 +91,7 @@ const AddCollection = () => {
                 </TouchableOpacity>
               )}
             </View>
+            <SearchTags onTagPressed={handleTagPress} />
           </View>
 
           <ScrollView>
@@ -154,6 +160,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flex: 0,
+    marginBottom: 20,
   },
   searchResult: {
     flex: 1,
@@ -166,7 +173,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 5,
   },
   input: {
     flex: 1,
