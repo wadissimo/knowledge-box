@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "411913463718",
+    "project_id": "knowledge-box-2426d",
+    "storage_bucket": "knowledge-box-2426d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411913463718:android:88c1030aa78bc48ff65167",
+        "android_client_info": {
+          "package_name": "com.wadissimo.knowledgebox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "411913463718-opio0tngcqm3d24b3do2e8i12sqd24s8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wadissimo.knowledgebox",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "411913463718-94bdkqcnea5ii715jpietpg318gp8rjo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOQ2gpGJa5M22wILT-i3ALB0VflLvKmqk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "411913463718-94bdkqcnea5ii715jpietpg318gp8rjo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

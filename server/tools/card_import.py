@@ -54,3 +54,4 @@ def insert_data(data, name, description, tags, reverse=False, insert_media_back=
 
     con.commit()
     con.close()
+    return collection_id

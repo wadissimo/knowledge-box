@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 import React, { useCallback, useRef } from "react";
 import {
@@ -15,88 +16,102 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Href } from "expo-router";
 
 const NewNote = () => {
-  const richText = useRef<RichEditor>(null);
-
-  const handleForeColor = useCallback(() => {
-    richText.current?.setForeColor("blue");
-  }, []);
-
-  const onPressAddImage = useCallback(() => {
-    // insert URL
-    richText.current?.insertImage(
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/100px-React-icon.svg.png",
-      "background: gray;"
-    );
-    // insert base64
-    // this.richText.current?.insertImage(`data:${image.mime};base64,${image.data}`);
-  }, []);
-
+  const router = useRouter();
+  const { boxId } = useLocalSearchParams();
+  const handleNewTextNote = () => {
+    router.replace(`/(tabs)/box/${boxId}/notes/editTextNote` as Href);
+  };
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-        >
-          <View style={styles.notesView}>
-            <RichToolbar
-              editor={richText}
-              selectedIconTint={"#2095F2"}
-              disabledIconTint={"#bfbfbf"}
-              onPressAddImage={onPressAddImage}
-              actions={[
-                actions.undo,
-                actions.redo,
-
-                actions.insertImage,
-
-                actions.insertOrderedList,
-
-                actions.code,
-
-                actions.foreColor,
-                actions.hiliteColor,
-              ]}
-              iconMap={{
-                [actions.foreColor]: () => (
-                  <Text style={[styles.tib, { color: "blue" }]}>FC</Text>
-                ),
-              }}
-              foreColor={handleForeColor}
-            />
-            <RichEditor
-              ref={richText}
-              initialContentHTML={
-                "Hello <b>World</b> <p>this is a new paragraph</p> <p>this is another new paragraph</p>"
-              }
-            />
-            {/* <WebView
-          style={styles.webView}
-          originWhitelist={["*"]}
-          source={{ html: "<h1>Hello</h1>" }}
-        /> */}
-          </View>
-        </KeyboardAvoidingView>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <View style={styles.row}>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity onPress={() => handleNewTextNote()}>
+            <View style={[styles.btn, styles.shadowProp, styles.elevation]}>
+              <View style={styles.btnIcon}>
+                <Icon name="note-text-outline" size={48} color="white" />
+              </View>
+              <Text style={styles.btnText}>Text</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity>
+            <View style={[styles.btn, styles.shadowProp, styles.elevation]}>
+              <View style={styles.btnIcon}>
+                <Icon name="camera" size={48} color="white" />
+              </View>
+              <Text style={styles.btnText}>Photo</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.row}>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity>
+            <View style={[styles.btn, styles.shadowProp, styles.elevation]}>
+              <View style={styles.btnIcon}>
+                <Icon name="record-rec" size={48} color="white" />
+              </View>
+              <Text style={styles.btnText}>Audio</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity>
+            <View style={[styles.btn, styles.shadowProp, styles.elevation]}>
+              <View style={styles.btnIcon}>
+                <Icon name="upload" size={48} color="white" />
+              </View>
+              <Text style={styles.btnText}>Upload</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
   // return null;
 };
 
 const styles = StyleSheet.create({
-  notesView: {
+  container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  webView: {
-    flex: 1,
-    elevation: 4,
-    backgroundColor: "orange",
+  btn: {
+    height: 120,
+    width: 120,
+    backgroundColor: "#1da422",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 5,
+    paddingTop: 10,
   },
-  tib: {
-    textAlign: "center",
-    color: "#515156",
+  btnText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  btnIcon: { flex: 1, justifyContent: "center" },
+  btnContainer: {
+    margin: 20,
+  },
+  row: { flexDirection: "row" },
+  shadowProp: {
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  elevation: {
+    elevation: 10,
+    shadowColor: "#52006A",
   },
 });
 export default NewNote;

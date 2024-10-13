@@ -29,6 +29,7 @@ const _layout = () => {
           tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="person" color={color} />
           ),
+          headerShown: true,
         }}
       />
       <Tabs.Screen

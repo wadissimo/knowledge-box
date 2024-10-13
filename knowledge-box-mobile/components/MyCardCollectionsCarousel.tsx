@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   table: {
-    marginHorizontal: 30,
+    marginHorizontal: 10,
     borderColor: "#000",
     borderWidth: 1,
     borderRadius: 10,
@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexDirection: "row",
-    gap: 10,
-    paddingBottom: 20,
+    gap: 1,
+    paddingBottom: 10,
   },
   colBox: {
     width: 200,
@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 15,
+    margin: 5,
     justifyContent: "center",
   },
   colNameView: {

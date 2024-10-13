@@ -68,6 +68,9 @@ const BoxViewContent = () => {
   function handleAddNotePress() {
     router.push(`/(tabs)/box/${boxId}/notes/newNote`);
   }
+  function handleAddChatPress() {
+    router.push(`/(tabs)/box/${boxId}/chats/newChat`);
+  }
 
   if (!box) return null;
   return (
@@ -90,10 +93,23 @@ const BoxViewContent = () => {
         </View>
         <View style={styles.notesView}>
           <Text style={styles.sectionHeaderText}>My Notes</Text>
-
+          <View style={styles.notesContainer}>
+            <MyCardCollectionsCarousel collections={collections} />
+          </View>
           <Button
             title="New Note"
             onPress={handleAddNotePress}
+            color={colors.primary}
+          ></Button>
+        </View>
+        <View style={styles.notesView}>
+          <Text style={styles.sectionHeaderText}>My Chats</Text>
+          <View style={styles.chatsContainer}>
+            <MyCardCollectionsCarousel collections={collections} />
+          </View>
+          <Button
+            title="New Chat"
+            onPress={handleAddChatPress}
             color={colors.primary}
           ></Button>
         </View>
@@ -104,25 +120,22 @@ const BoxViewContent = () => {
 
 const styles = StyleSheet.create({
   container: { paddingTop: 20, flex: 1, backgroundColor: "lightgrey" },
-  header: {
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    backgroundColor: "#1da422",
-    height: 80,
-  },
-  headerTxt: {
-    color: "white",
-    fontSize: 36,
-    fontWeight: "bold",
-  },
   colContainer: {
-    padding: 5,
+    // padding: 5,
   },
   sectionHeaderText: {
     fontSize: 24,
     fontWeight: "bold",
   },
   colListContainer: {
+    padding: 10,
+  },
+  notesContainer: {
+    // height: 100,
+    padding: 10,
+  },
+  chatsContainer: {
+    // height: 100,
     padding: 10,
   },
   addBtn: {
@@ -144,7 +157,7 @@ const styles = StyleSheet.create({
     color: "#515156",
   },
   notesPanel: {
-    height: 40,
+    height: 80,
     alignItems: "center",
     justifyContent: "center",
   },

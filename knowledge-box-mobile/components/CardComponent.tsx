@@ -6,7 +6,6 @@ import { Card } from "@/data/CardModel";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import * as FileSystem from "expo-file-system";
-import { SvgUri } from "react-native-svg";
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";

@@ -12,9 +12,11 @@ import {
 import { useEffect, useState } from "react";
 import Icon from "react-native-ionicons";
 import { Box, useBoxModel } from "@/data/BoxModel";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useTheme } from "@react-navigation/native";
 
 export default function BoxesPage() {
+  const { colors } = useTheme();
+
   const router = useRouter();
   const { fetchBoxes } = useBoxModel();
 
@@ -30,7 +32,7 @@ export default function BoxesPage() {
   }, [isFocused]);
 
   const handleAddPress = () => {
-    router.push("/newBox");
+    router.push("./newBox");
   };
   const handleBoxPress = (boxId: number) => {
     router.push(`/(tabs)/box/${boxId}/boxView`);
@@ -38,18 +40,6 @@ export default function BoxesPage() {
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTxt}>My Boxes</Text>
-        </View>
-        {/* <View style={styles.searchBar}>
-          <TextInput
-            style={styles.input}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search New Collections"
-          />
-        </View> */}
-
         <ScrollView>
           <View style={styles.boxesContainer}>
             {boxes.map((box) => (
@@ -57,7 +47,7 @@ export default function BoxesPage() {
                 onPress={() => handleBoxPress(box.id)}
                 key={`box_${box.id}`}
               >
-                <View style={styles.box}>
+                <View style={[styles.box, { backgroundColor: colors.card }]}>
                   <Text style={styles.boxHeaderText}>{box.name}</Text>
                 </View>
               </TouchableOpacity>
@@ -67,7 +57,9 @@ export default function BoxesPage() {
 
         <View style={styles.bottomPanel}>
           <TouchableOpacity onPress={handleAddPress}>
-            <View style={styles.addBoxBtn}>
+            <View
+              style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}
+            >
               {/* <Text style={styles.addBoxBtnTxt}>+</Text> */}
               <Icon name="add" color="white" size={42} />
             </View>
@@ -90,7 +82,7 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 20,
     paddingHorizontal: 20,
-    backgroundColor: "#1da422",
+
     height: 80,
   },
   headerTxt: {
@@ -137,7 +129,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   addBoxBtn: {
-    backgroundColor: "#1da422",
     width: 60,
     height: 60,
     borderRadius: 30,

@@ -42,7 +42,7 @@ const ManageBox = () => {
           numberOfLines={4}
         />
       </View>
-      <Button title="Create" onPress={handleSave} color="#4CAF50" />
+      <Button title="Create" onPress={handleSave} color="#000" />
     </View>
   );
 };

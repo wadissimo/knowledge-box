@@ -22,11 +22,13 @@ const MyCustomTheme = {
   ...DefaultTheme, // or DarkTheme
   colors: {
     ...DefaultTheme.colors,
-    primary: "#1da422",
-    background: "white",
+    primary: "#1da422", // primary button , header background
+    background: "#ddd", // screen background
     text: "black",
-    card: "lightgray",
+    card: "#c2fbc4", // cards default background
+    //card: "white",
     border: "gray",
+    notification: "black",
   },
 };
 
