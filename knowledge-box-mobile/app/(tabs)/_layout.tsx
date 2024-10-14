@@ -25,7 +25,7 @@ const _layout = () => {
       <Tabs.Screen
         name="user"
         options={{
-          title: "User",
+          title: "Profile",
           tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="person" color={color} />
           ),

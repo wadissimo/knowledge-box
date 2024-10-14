@@ -5,8 +5,9 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Collection } from "@/data/CollectionModel";
 import { useIsFocused, useTheme } from "@react-navigation/native";
@@ -15,8 +16,10 @@ import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
 import { Box, useBoxModel } from "@/data/BoxModel";
 //import Icon from "react-native-ionicons";
 import Icon from "react-native-vector-icons/MaterialIcons";
+
 import MyCardCollectionsCarousel from "@/components/MyCardCollectionsCarousel";
 
+const ICON_SIZE = 22;
 const BoxViewContent = () => {
   const { colors } = useTheme();
   const router = useRouter();
@@ -26,7 +29,7 @@ const BoxViewContent = () => {
   const { getBoxById } = useBoxModel();
   const { fetchCollectionsByBoxId } = useBoxCollectionModel();
   const [collections, setCollections] = useState<Collection[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const [box, setBox] = useState<Box | null>(null);
   const isFocused = useIsFocused();
 
@@ -74,59 +77,114 @@ const BoxViewContent = () => {
 
   if (!box) return null;
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View>
-        {/* <View style={styles.header}>
-          <Text style={styles.headerTxt}>{box.name}</Text>
-        </View> */}
+    <SafeAreaView style={styles.container}>
+      {/* <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Text style={styles.headerTxt}>{box.description}</Text>
+      </View> */}
+      <ScrollView style={styles.boxContainer}>
+        <BoxSection name="My Collections">
+          <MyCardCollectionsCarousel collections={collections} />
+        </BoxSection>
+        <BoxSection name="My Notes">
+          <MyCardCollectionsCarousel collections={collections} />
+        </BoxSection>
+        <BoxSection name="My Chats">
+          <MyCardCollectionsCarousel collections={collections} />
+        </BoxSection>
 
-        <View style={styles.colContainer}>
-          <Text style={styles.sectionHeaderText}>My Collections</Text>
-          <View style={styles.colListContainer}>
-            <MyCardCollectionsCarousel collections={collections} />
-          </View>
-          <Button
-            title="Add Collection"
-            onPress={handleAddCollection}
-            color={colors.primary}
-          ></Button>
-        </View>
-        <View style={styles.notesView}>
-          <Text style={styles.sectionHeaderText}>My Notes</Text>
-          <View style={styles.notesContainer}>
-            <MyCardCollectionsCarousel collections={collections} />
-          </View>
-          <Button
-            title="New Note"
-            onPress={handleAddNotePress}
-            color={colors.primary}
-          ></Button>
-        </View>
-        <View style={styles.notesView}>
-          <Text style={styles.sectionHeaderText}>My Chats</Text>
-          <View style={styles.chatsContainer}>
-            <MyCardCollectionsCarousel collections={collections} />
-          </View>
-          <Button
-            title="New Chat"
-            onPress={handleAddChatPress}
-            color={colors.primary}
-          ></Button>
-        </View>
-      </View>
+        <View style={styles.footer}></View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
+const BoxSection = ({
+  name,
+  children,
+}: {
+  name: string;
+  children: ReactNode;
+}) => {
+  return (
+    <View style={styles.sectionContainer}>
+      <View style={[styles.sectionHeader]}>
+        <Text style={[styles.sectionHeaderText]}>{name}</Text>
+        {/* <View style={styles.sectionIcons}>
+              <Icon name="expand-less" size={ICON_SIZE} color="black" />
+              <Icon name="expand-more" size={ICON_SIZE} color="black" />
+              <Icon name="add-circle-outline" size={ICON_SIZE} color="black" />
+            </View> */}
+      </View>
+      <View style={[styles.colListContainer]}>
+        {children}
+        {/* <MyCardCollectionsCarousel collections={collections} /> */}
+      </View>
+      <View style={styles.sectionFooter}></View>
+      {/* <Button
+            title="Add Collection"
+            onPress={handleAddCollection}
+            color={colors.primary}
+          ></Button> */}
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: { paddingTop: 20, flex: 1, backgroundColor: "lightgrey" },
-  colContainer: {
+  container: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    margin: 2,
+  },
+  headerTxt: {
+    fontSize: 16,
+  },
+  boxContainer: {
+    paddingTop: 0,
+    // paddingHorizontal: 10,
+    paddingBottom: 10,
+  },
+  sectionContainer: {
+    // borderColor: "#eee",
+    // borderWidth: 1,
+    borderBottomWidth: 0,
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    marginHorizontal: 10,
+    backgroundColor: "#eee",
+
     // padding: 5,
   },
-  sectionHeaderText: {
-    fontSize: 24,
-    fontWeight: "bold",
+  sectionHeader: {
+    paddingHorizontal: 5,
+    paddingVertical: 7,
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#c2fbc4",
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    backgroundColor: "#c2fbc4",
+
+    elevation: 2,
   },
+  sectionHeaderText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "black",
+
+    flex: 1,
+  },
+  sectionFooter: {
+    height: 10,
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    backgroundColor: "#cad1ca",
+  },
+  sectionIcons: { flexDirection: "row", gap: 32 },
   colListContainer: {
     padding: 10,
   },
@@ -147,34 +205,9 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   notesView: {},
-  webView: {
-    flex: 1,
-    elevation: 4,
-    backgroundColor: "orange",
-  },
-  tib: {
-    textAlign: "center",
-    color: "#515156",
-  },
-  notesPanel: {
-    height: 80,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  addBoxBtn: {
-    backgroundColor: "#1da422",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
 
-    alignSelf: "center", // Center horizontally
-  },
-  addBoxBtnTxt: {
-    color: "white",
-    fontSize: 56,
-    fontWeight: "bold",
+  footer: {
+    paddingVertical: 10,
   },
 });
 
