@@ -45,6 +45,10 @@ const BoxLayout = () => {
         options={{ title: "Box", headerShown: false }}
       />
       <Stack.Screen
+        name="[boxId]/boxTest"
+        options={{ title: "Box", headerShown: false }}
+      />
+      <Stack.Screen
         name="newBox"
         options={{
           title: "New Box",

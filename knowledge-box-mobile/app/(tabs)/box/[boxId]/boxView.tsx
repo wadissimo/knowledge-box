@@ -92,7 +92,9 @@ const BoxViewContent = () => {
           <MyCardCollectionsCarousel collections={collections} />
         </BoxSection>
 
-        <View style={styles.footer}></View>
+        <View style={styles.footer}>
+          <Button title="Test" />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

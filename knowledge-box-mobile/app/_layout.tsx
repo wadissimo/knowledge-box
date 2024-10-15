@@ -17,6 +17,7 @@ import {
   ThemeProvider,
   useTheme,
 } from "@react-navigation/native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const MyCustomTheme = {
   ...DefaultTheme, // or DarkTheme
@@ -50,20 +51,22 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={MyCustomTheme}>
-      <Suspense fallback={<Text>Loading...</Text>}>
-        <SQLiteProvider
-          databaseName={DATABASE_NAME}
-          useSuspense={true}
-          // assetSource={{ assetId: require("@/assets/userdata.db") }}
-        >
-          <CollectionProvider>
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            </Stack>
-          </CollectionProvider>
-        </SQLiteProvider>
-      </Suspense>
-    </ThemeProvider>
+    <GestureHandlerRootView>
+      <ThemeProvider value={MyCustomTheme}>
+        <Suspense fallback={<Text>Loading...</Text>}>
+          <SQLiteProvider
+            databaseName={DATABASE_NAME}
+            useSuspense={true}
+            // assetSource={{ assetId: require("@/assets/userdata.db") }}
+          >
+            <CollectionProvider>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              </Stack>
+            </CollectionProvider>
+          </SQLiteProvider>
+        </Suspense>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

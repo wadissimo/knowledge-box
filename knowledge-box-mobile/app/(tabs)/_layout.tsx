@@ -5,7 +5,15 @@ import Icon from "react-native-ionicons";
 
 const _layout = () => {
   return (
-    <Tabs screenOptions={{}}>
+    <Tabs
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: "#fff",
+        },
+        tabBarActiveTintColor: "#444",
+        tabBarInactiveTintColor: "#aaa",
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -41,6 +49,24 @@ const _layout = () => {
           ),
         }}
       />
+      {/* <Tabs.Screen
+        name="boxTest"
+        options={{
+          title: "Test",
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Icon size={28} name="cog" color={color} />
+          ),
+        }}
+      /> */}
+      {/* <Tabs.Screen
+        name="boxShadow"
+        options={{
+          title: "Shadow",
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Icon size={28} name="cog" color={color} />
+          ),
+        }}
+      /> */}
     </Tabs>
   );
 };
