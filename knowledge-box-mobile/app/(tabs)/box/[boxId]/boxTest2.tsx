@@ -27,47 +27,67 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
 const OFFSET_SIDE_TRIGGER_SHUFFLE = 40;
+const BOX_CARD_OFFSET = 10;
+
 const DraggableBoxCard = ({
   offsetY,
-
   onDraggedSide,
   children,
-  isTop = false,
-  pan,
-  zIndex,
-  draggableX,
-  draggableY,
+
+  draggableState,
 }: {
   offsetY: number;
-
   children?: ReactNode;
   onDraggedSide?: Function;
-  isTop: boolean;
-  pan: GestureType;
-  zIndex: SharedValue<number>;
-  draggableX: SharedValue<number>;
-  draggableY: SharedValue<number>;
-}) => {
-  // const [dragged, setDragged] = useState(false);
 
-  //transform: [{ translateY: collectionOffset.value }],
+  draggableState: any;
+}) => {
+  const draggableX = useSharedValue(0);
+
+  const movingBack = useSharedValue(false);
+
   const draggableAnimatedStyle = useAnimatedStyle(() => ({
-    zIndex: zIndex.value,
+    zIndex: draggableState.zIndex.value,
     transform: [
       { translateX: draggableX.value },
-      { translateY: draggableY.value },
+      { translateY: draggableState.offsetY.value },
     ],
   }));
+
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+      if (Math.abs(e.translationX) > OFFSET_SIDE_TRIGGER_SHUFFLE) {
+        console.log("thr reached", movingBack.value);
+        if (!movingBack.value) {
+          if (onDraggedSide) runOnJS(onDraggedSide as any)();
+
+          draggableX.value = withTiming(0);
+          draggableState.zIndex.value = 0;
+          draggableState.offsetY.value = withTiming(0);
+          movingBack.value = true;
+        }
+      } else {
+        movingBack.value = false;
+        draggableX.value = e.translationX;
+        draggableState.offsetY.value = e.translationY + offsetY;
+      }
+    })
+    .onEnd(() => {
+      if (!movingBack.value) {
+        draggableX.value = withTiming(0);
+        draggableState.offsetY.value = withTiming(offsetY);
+      }
+    });
+
   return (
     <GestureDetector gesture={pan}>
       <Animated.View
         style={[
           styles.colBox,
           styles.shadowProp,
-          styles.elevation,
           { transform: [{ translateY: 20 }] },
+          styles.elevation,
           draggableAnimatedStyle,
         ]}
       >
@@ -76,6 +96,7 @@ const DraggableBoxCard = ({
     </GestureDetector>
   );
 };
+
 const BoxSection = forwardRef(
   (
     {
@@ -92,66 +113,28 @@ const BoxSection = forwardRef(
     ref: any
   ) => {
     const [boxItems, setBoxItems] = useState(["Card 1", "Card 2", "Card 3"]);
-    // const draggableX = useSharedValue(0);
-    // const draggableY = useSharedValue(20);
-    const draggable = boxItems.map((item, index) => {
-      return {
-        zIndex: useSharedValue(index + 1),
-        draggableX: useSharedValue(0),
-        draggableY: useSharedValue(index * 10),
-        movingBack: useSharedValue(false),
-      };
-    });
-    function createPan(index: number) {
-      return Gesture.Pan()
-        .onUpdate((e) => {
-          const dragData = draggable[index];
-          if (Math.abs(e.translationX) > OFFSET_SIDE_TRIGGER_SHUFFLE) {
-            console.log("panning behind threshold");
-            if (!dragData.movingBack.value) {
-              // Trigger the callback for when the card is dragged too far
-              //if (onDraggedSide) onDraggedSide();
-              //setDragged(true);
-              // Stop panning and animate back to the original position
-              runOnJS(handleItemDraggedSide)(index);
-              dragData.zIndex.value = 0;
-              dragData.draggableX.value = withTiming(0);
-              dragData.draggableY.value = withTiming(0);
-              dragData.movingBack.value = true;
-              //update all other items
-              draggable.forEach((data, idx) => {
-                if (idx !== index) {
-                  data.zIndex.value += 1;
-                  const offsetY = data.draggableY.value;
-                  data.draggableY.value = withTiming(offsetY + 10);
-                }
-              });
-            }
-          } else {
-            dragData.movingBack.value = false;
-            console.log(dragData.draggableX.value, ">", e.translationX);
-            // Update the draggable values while the gesture is within range
-            dragData.draggableX.value = e.translationX;
-            dragData.draggableY.value = e.translationY + 10 * index;
-          }
-        })
-        .onEnd(() => {
-          const dragData = draggable[index];
-          console.log("onEnd, =", dragData.movingBack.value);
-          if (!dragData.movingBack.value) {
-            // Reset to original position with animation
-            dragData.draggableX.value = withTiming(0);
-            dragData.draggableY.value = withTiming(10 * index);
-          }
-        });
-    }
-    //const pan =
-    const handleItemDraggedSide = (item: any) => {
-      console.log("handleItemDraggedSide");
-      //setBoxItems(boxItems.map((item) => item + "x"));
-      // const len = boxItems.length;
-      // setBoxItems([boxItems[len - 1], ...boxItems.slice(0, len - 1)]);
+
+    const draggablesState = boxItems.map((item, index) => ({
+      zIndex: useSharedValue(index + 1),
+      offsetY: useSharedValue(index * BOX_CARD_OFFSET),
+    }));
+
+    console.log("draggablesState", draggablesState);
+    const handleItemDraggedSide = (index: number) => {
+      console.log("handleItemDraggedSide", index);
+      const len = boxItems.length;
+      setBoxItems((prevItems) => [
+        prevItems[len - 1],
+        ...prevItems.slice(0, len - 1),
+      ]);
+      draggablesState.forEach((item, idx) => {
+        const newIndex = (item.zIndex.value + 1) % len;
+
+        item.zIndex.value = withTiming(newIndex + 1);
+        item.offsetY.value = withTiming(newIndex * BOX_CARD_OFFSET);
+      });
     };
+
     return (
       <TouchableWithoutFeedback onPress={() => onPress()}>
         <View ref={ref} style={[styles.sectionContainer, style]}>
@@ -162,12 +145,8 @@ const BoxSection = forwardRef(
             {boxItems.map((item, index) => (
               <DraggableBoxCard
                 offsetY={10 * index}
-                zIndex={draggable[index].zIndex}
-                isTop={index === boxItems.length - 1}
-                onDraggedSide={() => handleItemDraggedSide(item)}
-                draggableX={draggable[index].draggableX}
-                draggableY={draggable[index].draggableY}
-                pan={createPan(index)}
+                draggableState={draggablesState[index]}
+                onDraggedSide={() => handleItemDraggedSide(index)}
                 key={`boxCar_${index}`}
               >
                 <View style={styles.colNameView}>
@@ -176,46 +155,13 @@ const BoxSection = forwardRef(
                   </Text>
                 </View>
                 <View style={styles.cardCntView}>
-                  <Text style={styles.cardsCntTxt}>Cards: {"1"}</Text>
+                  <Text style={styles.cardsCntTxt}>
+                    Cards: {index + 1} {10 * index}
+                  </Text>
                 </View>
               </DraggableBoxCard>
             ))}
-            {/* <DraggableBoxCard offsetY={0} isTop={false}>
-              <View style={styles.colNameView}>
-                <Text style={styles.colNameTxt} numberOfLines={4}>
-                  {"Test1"}
-                </Text>
-              </View>
-              <View style={styles.cardCntView}>
-                <Text style={styles.cardsCntTxt}>Cards: {"1"}</Text>
-              </View>
-            </DraggableBoxCard>
-
-            <DraggableBoxCard offsetY={10} isTop={false}>
-              <View style={styles.colNameView}>
-                <Text style={styles.colNameTxt} numberOfLines={4}>
-                  {"Test2"}
-                </Text>
-              </View>
-              <View style={styles.cardCntView}>
-                <Text style={styles.cardsCntTxt}>Cards: {"22"}</Text>
-              </View>
-            </DraggableBoxCard>
-
-            <DraggableBoxCard offsetY={20} isTop={true}>
-              <View style={styles.colNameView}>
-                <Text style={styles.colNameTxt} numberOfLines={4}>
-                  {"English -> Chinese"}
-                </Text>
-              </View>
-              <View style={styles.cardCntView}>
-                <Text style={styles.cardsCntTxt}>Cards: {"333"}</Text>
-              </View>
-            </DraggableBoxCard> */}
           </View>
-
-          {/* <View style={[styles.sectionListContainer]}>{children}</View> */}
-          {/* <View style={styles.sectionFooter}></View> */}
         </View>
       </TouchableWithoutFeedback>
     );
