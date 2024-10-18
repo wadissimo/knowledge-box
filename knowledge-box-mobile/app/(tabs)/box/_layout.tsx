@@ -3,6 +3,7 @@ import React from "react";
 import { Stack, useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
+import { Sizes } from "@/constants/Sizes";
 
 const BoxLayout = () => {
   const router = useRouter();
@@ -12,6 +13,7 @@ const BoxLayout = () => {
     color: "white",
     fontSize: 32,
     fontWeight: "bold" as "bold",
+    height: 100,
   };
 
   const defaultHeaderOptions = {
@@ -24,6 +26,7 @@ const BoxLayout = () => {
     headerBackVisible: false,
     headerShadowVisible: false,
     headerStyle: {
+      height: Sizes.headerHieght,
       backgroundColor: colors.primary,
     },
     headerTitleStyle,
@@ -47,6 +50,13 @@ const BoxLayout = () => {
       <Stack.Screen
         name="[boxId]/boxTest"
         options={{ title: "Box", headerShown: false }}
+      />
+      <Stack.Screen
+        name="[boxId]/boxTest2"
+        options={{
+          title: "",
+          ...defaultHeaderOptions,
+        }}
       />
       <Stack.Screen
         name="newBox"

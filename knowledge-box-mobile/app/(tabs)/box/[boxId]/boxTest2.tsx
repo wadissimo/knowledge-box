@@ -27,8 +27,20 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/MaterialIcons";
+
+import { Dimensions } from "react-native";
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { Sizes } from "@/constants/Sizes";
+import { useHeaderHeight } from "@react-navigation/elements";
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
 const OFFSET_SIDE_TRIGGER_SHUFFLE = 40;
 const BOX_CARD_OFFSET = 10;
+const BOX_SECTION_HEADER_SIZE = 40;
 
 const DraggableBoxCard = ({
   offsetY,
@@ -40,7 +52,6 @@ const DraggableBoxCard = ({
   offsetY: number;
   children?: ReactNode;
   onDraggedSide?: Function;
-
   draggableState: any;
 }) => {
   const draggableX = useSharedValue(0);
@@ -58,13 +69,13 @@ const DraggableBoxCard = ({
   const pan = Gesture.Pan()
     .onUpdate((e) => {
       if (Math.abs(e.translationX) > OFFSET_SIDE_TRIGGER_SHUFFLE) {
-        console.log("thr reached", movingBack.value);
+        //console.log("thr reached", movingBack.value);
         if (!movingBack.value) {
           if (onDraggedSide) runOnJS(onDraggedSide as any)();
 
           draggableX.value = withTiming(0);
-          draggableState.zIndex.value = 0;
-          draggableState.offsetY.value = withTiming(0);
+          // draggableState.zIndex.value = 0;
+          // draggableState.offsetY.value = withTiming(0);
           movingBack.value = true;
         }
       } else {
@@ -86,7 +97,7 @@ const DraggableBoxCard = ({
         style={[
           styles.colBox,
           styles.shadowProp,
-          { transform: [{ translateY: 20 }] },
+          { transform: [{ translateY: 20 }], height: 150 },
           styles.elevation,
           draggableAnimatedStyle,
         ]}
@@ -112,24 +123,37 @@ const BoxSection = forwardRef(
     },
     ref: any
   ) => {
-    const [boxItems, setBoxItems] = useState(["Card 1", "Card 2", "Card 3"]);
+    const { colors } = useTheme();
+    const [boxItems, setBoxItems] = useState([
+      "Card 1",
+      "Card 2",
+      "Card 3",
+      "Card 4",
+      "Card 5",
+    ]);
 
     const draggablesState = boxItems.map((item, index) => ({
       zIndex: useSharedValue(index + 1),
       offsetY: useSharedValue(index * BOX_CARD_OFFSET),
     }));
 
-    console.log("draggablesState", draggablesState);
-    const handleItemDraggedSide = (index: number) => {
+    const handleItemDraggedToSide = (index: number) => {
       console.log("handleItemDraggedSide", index);
       const len = boxItems.length;
-      setBoxItems((prevItems) => [
-        prevItems[len - 1],
-        ...prevItems.slice(0, len - 1),
-      ]);
+      // setBoxItems((prevItems) => [
+      //   prevItems[len - 1],
+      //   ...prevItems.slice(0, len - 1),
+      // ]);
       draggablesState.forEach((item, idx) => {
-        const newIndex = (item.zIndex.value + 1) % len;
-
+        const newIndex = item.zIndex.value % len;
+        console.log(
+          "updating ",
+          idx,
+          "zIndex",
+          newIndex + 1,
+          "offset",
+          newIndex * BOX_CARD_OFFSET
+        );
         item.zIndex.value = withTiming(newIndex + 1);
         item.offsetY.value = withTiming(newIndex * BOX_CARD_OFFSET);
       });
@@ -146,21 +170,24 @@ const BoxSection = forwardRef(
               <DraggableBoxCard
                 offsetY={10 * index}
                 draggableState={draggablesState[index]}
-                onDraggedSide={() => handleItemDraggedSide(index)}
+                onDraggedSide={() => handleItemDraggedToSide(index)}
                 key={`boxCar_${index}`}
               >
-                <View style={styles.colNameView}>
-                  <Text style={styles.colNameTxt} numberOfLines={4}>
-                    {item}
-                  </Text>
-                </View>
                 <View style={styles.cardCntView}>
                   <Text style={styles.cardsCntTxt}>
                     Cards: {index + 1} {10 * index}
                   </Text>
                 </View>
+                <View style={styles.colNameView}>
+                  <Text style={styles.colNameTxt} numberOfLines={4}>
+                    {item}
+                  </Text>
+                </View>
               </DraggableBoxCard>
             ))}
+          </View>
+          <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
+            <Icon name="add" size={48} color="white" />
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -172,7 +199,7 @@ const AnimatedBoxSection = Animated.createAnimatedComponent(BoxSection);
 
 const BoxView = () => {
   const [expanded, setExpanded] = useState<string | null>(null);
-
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const router = useRouter();
   const navigation = useNavigation();
@@ -196,91 +223,76 @@ const BoxView = () => {
     if (box !== null) {
       navigation.setOptions({
         title: box.name,
-        headerShown: true,
-        headerLeft: () => (
-          <TouchableOpacity onPress={() => router.back()}>
-            <Icon name="chevron-left" size={42} color="white" />
-          </TouchableOpacity>
-        ),
-        headerBackVisible: false,
-        headerShadowVisible: false,
-
-        headerStyle: {
-          backgroundColor: "#1da422",
-        },
-        headerTitleStyle: {
-          color: "white",
-          fontSize: 32,
-          fontWeight: "bold",
-        },
       });
     }
   }, [box]);
 
-  const collectionOffset = useSharedValue(400);
-  const notesOffset = useSharedValue(200);
+  //console.log("screenHeight", screenHeight);
+  const headerHeight = useHeaderHeight();
+
+  const availableHeight =
+    Dimensions.get("window").height - headerHeight - Sizes.tabBarHeight;
+  const availableWidth =
+    Dimensions.get("window").width - insets.left - insets.right;
+
+  console.log(insets.top, insets.bottom, headerHeight, availableHeight);
+  const sectionSize = availableHeight / 3;
+  const collectionOffset = useSharedValue(sectionSize * 2);
+  const notesOffset = useSharedValue(sectionSize);
   const chatsOffset = useSharedValue(0);
-  const collectionHeight = useSharedValue(300);
-  const notesHeight = useSharedValue(300);
-  const chatsHeight = useSharedValue(300);
+  const collectionHeight = useSharedValue(sectionSize + 5);
+  const notesHeight = useSharedValue(sectionSize + 5);
+  const chatsHeight = useSharedValue(sectionSize + 5);
 
   // Animated styles
   const animatedCollectionStyle = useAnimatedStyle(() => ({
-    zIndex: 3, //expanded === "Collections" ? 3 : 1,
+    zIndex: 3,
     transform: [{ translateY: collectionOffset.value }],
     height: collectionHeight.value,
-    // shadowOpacity: expanded === "Collections" ? 0.4 : 0.2,
-    // shadowRadius: expanded === "Collections" ? 10 : 5,
   }));
 
   const animatedNotesStyle = useAnimatedStyle(() => ({
     zIndex: expanded === "Notes" ? 3 : 2,
     transform: [{ translateY: notesOffset.value }],
     height: notesHeight.value,
-    // shadowOpacity: expanded === "Notes" ? 0.4 : 0.2,
-    // shadowRadius: expanded === "Notes" ? 10 : 5,
   }));
 
   const animatedChatsStyle = useAnimatedStyle(() => ({
-    zIndex: expanded === "Chats" ? 1 : 1,
+    zIndex: 1,
     transform: [{ translateY: chatsOffset.value }],
     height: chatsHeight.value,
-    // shadowOpacity: expanded === "Chats" ? 0.4 : 0.2,
-    // shadowRadius: expanded === "Chats" ? 10 : 5,
   }));
 
-  // Function to handle card expansion
-  const handleExpand = (section: string) => {
-    setExpanded(section);
-    switch (section) {
-      case "Collections":
-        collectionOffset.value = withTiming(
-          section === "Collections" ? 400 : -20
-        );
-    }
-    collectionOffset.value = withTiming(section === "Collections" ? 400 : -20);
-    notesOffset.value = withTiming(section === "Notes" ? 200 : 10);
-    chatsOffset.value = withTiming(section === "Chats" ? 0 : 20);
-  };
-
   const handleExpandCollections = () => {
-    collectionOffset.value = withTiming(80);
-    notesOffset.value = withTiming(40);
+    collectionOffset.value = withTiming(BOX_SECTION_HEADER_SIZE * 2);
+    notesOffset.value = withTiming(BOX_SECTION_HEADER_SIZE);
     chatsOffset.value = withTiming(0);
-    collectionHeight.value = withTiming(600);
+    collectionHeight.value = withTiming(
+      availableHeight - 2 * BOX_SECTION_HEADER_SIZE
+    );
   };
 
   const handleExpandNotes = () => {
-    collectionOffset.value = withTiming(600);
-    notesOffset.value = withTiming(40);
+    collectionOffset.value = withTiming(
+      availableHeight - BOX_SECTION_HEADER_SIZE
+    );
+    notesOffset.value = withTiming(BOX_SECTION_HEADER_SIZE);
     chatsOffset.value = withTiming(0);
-    notesHeight.value = withTiming(600);
+    notesHeight.value = withTiming(
+      availableHeight - 2 * BOX_SECTION_HEADER_SIZE
+    );
   };
   const handleExpandChats = () => {
-    collectionOffset.value = withTiming(600);
-    notesOffset.value = withTiming(560);
+    collectionOffset.value = withTiming(
+      availableHeight - BOX_SECTION_HEADER_SIZE
+    );
+    notesOffset.value = withTiming(
+      availableHeight - 2 * BOX_SECTION_HEADER_SIZE
+    );
     chatsOffset.value = withTiming(0);
-    chatsHeight.value = withTiming(600);
+    chatsHeight.value = withTiming(
+      availableHeight - 2 * BOX_SECTION_HEADER_SIZE
+    );
   };
 
   function handleAddCollection() {
@@ -294,65 +306,31 @@ const BoxView = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <AnimatedBoxSection
-        name="Chats"
-        style={[styles.boxSection, animatedChatsStyle]}
-        onPress={handleExpandChats}
-      >
-        <MyCardCollectionsCarousel collections={collections} />
-        <Button
-          title="Add Collection"
-          onPress={handleAddCollection}
-          color={colors.primary}
-        ></Button>
-      </AnimatedBoxSection>
+    <SafeAreaProvider>
+      <View style={styles.container}>
+        <AnimatedBoxSection
+          name="Chats"
+          style={[styles.boxSection, animatedChatsStyle]}
+          onPress={handleExpandChats}
+        />
 
-      <AnimatedBoxSection
-        name="Notes"
-        style={[styles.boxSection, animatedNotesStyle]}
-        onPress={handleExpandNotes}
-      >
-        <Text>Content</Text>
-      </AnimatedBoxSection>
-
-      <AnimatedBoxSection
-        name="Collections"
-        style={[styles.boxSection, animatedCollectionStyle]}
-        onPress={handleExpandCollections}
-      >
-        <Text>Content</Text>
-      </AnimatedBoxSection>
-
-      {/* <TouchableWithoutFeedback onPress={() => handleExpand("Collections")}>
-        <Animated.View
-          style={[styles.card, styles.collectionCard, animatedCollectionStyle]}
+        <AnimatedBoxSection
+          name="Notes"
+          style={[styles.boxSection, animatedNotesStyle]}
+          onPress={handleExpandNotes}
         >
-          <Text style={styles.cardTitle}>Collections</Text>
-          {expanded === "Collections" && (
-            <Text>Expanded content for Collections...</Text>
-          )}
-        </Animated.View>
-      </TouchableWithoutFeedback> */}
-      {/* 
-      <TouchableWithoutFeedback onPress={() => handleExpand("Notes")}>
-        <Animated.View
-          style={[styles.card, styles.notesCard, animatedNotesStyle]}
-        >
-          <Text style={styles.cardTitle}>Notes</Text>
-          {expanded === "Notes" && <Text>Expanded content for Notes...</Text>}
-        </Animated.View>
-      </TouchableWithoutFeedback> */}
+          <Text>Content</Text>
+        </AnimatedBoxSection>
 
-      {/* <TouchableWithoutFeedback onPress={() => handleExpand("Chats")}>
-        <Animated.View
-          style={[styles.card, styles.chatsCard, animatedChatsStyle]}
+        <AnimatedBoxSection
+          name="Collections"
+          style={[styles.boxSection, animatedCollectionStyle]}
+          onPress={handleExpandCollections}
         >
-          <Text style={styles.cardTitle}>Chats</Text>
-          {expanded === "Chats" && <Text>Expanded content for Chats...</Text>}
-        </Animated.View>
-      </TouchableWithoutFeedback> */}
-    </View>
+          <Text>Content</Text>
+        </AnimatedBoxSection>
+      </View>
+    </SafeAreaProvider>
   );
 };
 
@@ -364,17 +342,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f0f0f0",
   },
-  card: {
-    position: "absolute",
-    width: "90%",
-    height: 150,
-    borderRadius: 8,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 10, height: 10 },
-    backgroundColor: "#fff",
-    elevation: 10,
-  },
+
   collectionCard: {
     backgroundColor: "#f9c2ff",
   },
@@ -408,7 +376,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
     backgroundColor: "#c2fbc4",
-
+    height: BOX_SECTION_HEADER_SIZE,
     // elevation: 2,
   },
   sectionHeaderText: {
@@ -429,16 +397,18 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 7,
     alignItems: "center",
+    // backgroundColor: "orange",
+    flex: 0.95,
   },
   boxSection: {
     position: "absolute",
     width: "100%",
-    height: 300, // Adjust this based on your needs
+    //height: 500,
   },
   colBox: {
     position: "absolute",
     width: "100%",
-    height: 200,
+    height: 150,
     backgroundColor: "#faf8b4",
     borderRadius: 20,
     paddingVertical: 5,
@@ -456,6 +426,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   cardCntView: {
+    padding: 7,
     alignSelf: "flex-end",
   },
   cardsCntTxt: {
@@ -470,6 +441,20 @@ const styles = StyleSheet.create({
   elevation: {
     elevation: 5,
     shadowColor: "#52006A",
+  },
+  addBoxBtn: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    //position: "absolute",
+    //bottom: 40,
+    marginHorizontal: 10,
+    marginVertical: 2,
+    //right: 10,
+    alignSelf: "flex-end", // Center horizontally
   },
 });
 

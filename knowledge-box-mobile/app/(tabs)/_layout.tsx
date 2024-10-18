@@ -2,6 +2,7 @@ import { View, Text } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
 import Icon from "react-native-ionicons";
+import { Sizes } from "@/constants/Sizes";
 
 const _layout = () => {
   return (
@@ -9,6 +10,7 @@ const _layout = () => {
       screenOptions={{
         tabBarStyle: {
           backgroundColor: "#fff",
+          height: Sizes.tabBarHeight,
         },
         tabBarActiveTintColor: "#444",
         tabBarInactiveTintColor: "#aaa",

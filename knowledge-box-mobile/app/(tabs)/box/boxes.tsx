@@ -36,7 +36,7 @@ export default function BoxesPage() {
   };
   const handleBoxPress = (boxId: number) => {
     // router.push(`/(tabs)/box/${boxId}/boxView`);
-    router.push(`/(tabs)/box/${boxId}/boxTest`);
+    router.push(`/(tabs)/box/${boxId}/boxTest2`);
   };
   return (
     <SafeAreaView>
