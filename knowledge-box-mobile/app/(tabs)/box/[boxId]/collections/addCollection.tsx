@@ -68,6 +68,7 @@ const AddCollection = () => {
   const handleTagPress = (tag: string) => {
     setSearchQuery(tag);
   };
+  console.log("rendering addCollections");
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

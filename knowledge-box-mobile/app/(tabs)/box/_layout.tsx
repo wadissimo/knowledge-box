@@ -26,7 +26,7 @@ const BoxLayout = () => {
     headerBackVisible: false,
     headerShadowVisible: false,
     headerStyle: {
-      height: Sizes.headerHieght,
+      height: Sizes.headerHeight,
       backgroundColor: colors.primary,
     },
     headerTitleStyle,
@@ -45,7 +45,10 @@ const BoxLayout = () => {
       />
       <Stack.Screen
         name="[boxId]/boxView"
-        options={{ title: "Box", headerShown: false }}
+        options={{
+          title: "",
+          ...defaultHeaderOptions,
+        }}
       />
       <Stack.Screen
         name="[boxId]/boxTest"

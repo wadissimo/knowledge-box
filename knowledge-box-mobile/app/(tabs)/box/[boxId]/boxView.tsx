@@ -1,27 +1,247 @@
+import MyCardCollectionsCarousel from "@/components/MyCardCollectionsCarousel";
+import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
+import { Box, useBoxModel } from "@/data/BoxModel";
+import { Collection } from "@/data/CollectionModel";
+import { useIsFocused, useTheme } from "@react-navigation/native";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import React, { forwardRef, ReactNode, useEffect, useState } from "react";
 import {
   View,
   Text,
-  Button,
   StyleSheet,
-  SafeAreaView,
+  TouchableWithoutFeedback,
+  ViewStyle,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React, { ReactNode, useEffect, useState } from "react";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Collection } from "@/data/CollectionModel";
-import { useIsFocused, useTheme } from "@react-navigation/native";
-import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-
-import { Box, useBoxModel } from "@/data/BoxModel";
-//import Icon from "react-native-ionicons";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  SharedValue,
+  runOnJS,
+  useDerivedValue,
+} from "react-native-reanimated";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-import MyCardCollectionsCarousel from "@/components/MyCardCollectionsCarousel";
+import { Dimensions } from "react-native";
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { Sizes } from "@/constants/Sizes";
+import { useHeaderHeight } from "@react-navigation/elements";
 
-const ICON_SIZE = 22;
-const BoxViewContent = () => {
+const OFFSET_SIDE_TRIGGER_REORDER = 40;
+const BOX_CARD_OFFSET = 10;
+const BOX_SECTION_HEADER_SIZE = 40;
+
+const DraggableBoxCard = ({
+  name,
+  index,
+  numReorders,
+  numItems,
+
+  onReorder,
+  children,
+}: {
+  name: string;
+  index: number;
+  numReorders: SharedValue<number>;
+  numItems: number;
+
+  children?: ReactNode;
+  onReorder?: Function;
+}) => {
+  const draggableX = useSharedValue(0);
+
+  const initialOffsetY =
+    ((index + numReorders.value) % numItems) * BOX_CARD_OFFSET;
+  const draggableY = useSharedValue(initialOffsetY);
+
+  const isDragged = useSharedValue(false);
+  const movingBack = useSharedValue(false);
+  const posY = useDerivedValue(() => {
+    return isDragged.value
+      ? draggableY.value
+      : ((index + numReorders.value) % numItems) * BOX_CARD_OFFSET;
+  });
+
+  const draggableAnimatedStyle = useAnimatedStyle(() => ({
+    zIndex: (index + numReorders.value) % numItems,
+    transform: [{ translateX: draggableX.value }, { translateY: posY.value }],
+  }));
+
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+      if (Math.abs(e.translationX) > OFFSET_SIDE_TRIGGER_REORDER) {
+        if (!movingBack.value) {
+          isDragged.value = false;
+
+          if (onReorder) runOnJS(onReorder as any)();
+
+          draggableX.value = withTiming(0);
+
+          movingBack.value = true;
+        }
+      } else {
+        isDragged.value = true;
+        movingBack.value = false;
+        draggableX.value = e.translationX;
+        draggableY.value = e.translationY + initialOffsetY;
+      }
+    })
+    .onEnd(() => {
+      isDragged.value = false;
+      if (!movingBack.value) {
+        draggableX.value = withTiming(0);
+        draggableY.value = withTiming(initialOffsetY);
+      }
+    });
+
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        style={[
+          styles.itemBox,
+          styles.shadowProp,
+          { transform: [{ translateY: 20 }], height: 150 },
+          styles.elevation,
+          draggableAnimatedStyle,
+        ]}
+      >
+        {children}
+      </Animated.View>
+    </GestureDetector>
+  );
+};
+
+const BoxSection = ({
+  name,
+  index,
+  numSections,
+  expandedSection,
+  style,
+  onExpand,
+  onAddNew,
+  items,
+  renderItem,
+  renderListItem,
+}: {
+  name: string;
+  index: number;
+  numSections: number;
+  expandedSection: number | null;
+  style?: ViewStyle;
+  onExpand: Function;
+  onAddNew?: Function;
+  items: any[];
+  renderItem: Function;
+  renderListItem: Function;
+}) => {
+  const availableHeight =
+    Dimensions.get("window").height - Sizes.headerHeight - Sizes.tabBarHeight;
+  const sectionSize = availableHeight / numSections;
   const { colors } = useTheme();
+
+  const offset = useSharedValue(sectionSize * index);
+  const height = useSharedValue(sectionSize + 5);
+
+  const isExpanded = expandedSection === index;
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    zIndex: index + 1,
+    transform: [{ translateY: offset.value }],
+    height: height.value,
+  }));
+  const numReorders = useSharedValue(0);
+
+  useEffect(() => {
+    // handle section expansion
+    if (expandedSection !== null) {
+      if (index < expandedSection) {
+        offset.value = withTiming(index * BOX_SECTION_HEADER_SIZE);
+      } else if (expandedSection === index) {
+        offset.value = withTiming(index * BOX_SECTION_HEADER_SIZE);
+        height.value = withTiming(
+          availableHeight - (numSections - 1) * BOX_SECTION_HEADER_SIZE
+        );
+      } else if (expandedSection < index) {
+        offset.value = withTiming(
+          availableHeight - (numSections - index) * BOX_SECTION_HEADER_SIZE
+        );
+      }
+    } else {
+      offset.value = withTiming(sectionSize * index);
+      height.value = withTiming(sectionSize + 5);
+    }
+  }, [expandedSection]);
+
+  // handle items reordering
+  const reorderItems = (index: number) => {
+    numReorders.value = numReorders.value + 1;
+  };
+
+  return (
+    <TouchableWithoutFeedback onPress={() => onExpand(index)}>
+      <Animated.View style={[styles.sectionContainer, style, animatedStyle]}>
+        <View style={[styles.sectionHeader]}>
+          <Text style={[styles.sectionHeaderText]}>{name}</Text>
+        </View>
+        {isExpanded ? (
+          <ScrollView>
+            {items.map((item, index) => (
+              <Animated.View
+                style={[
+                  styles.itemListBox,
+                  styles.shadowProp,
+                  styles.elevation,
+                ]}
+                key={`listitem_${index}`}
+              >
+                {renderListItem(item, index)}
+              </Animated.View>
+            ))}
+          </ScrollView>
+        ) : (
+          <View style={[styles.sectionListContainer]}>
+            {items.map((item, index) => (
+              <DraggableBoxCard
+                name={name}
+                index={index}
+                numItems={items.length}
+                numReorders={numReorders}
+                onReorder={() => reorderItems(index)}
+                key={`boxCar_${index}`}
+              >
+                {renderItem(item, index)}
+              </DraggableBoxCard>
+            ))}
+          </View>
+        )}
+
+        <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
+          <TouchableOpacity onPress={() => (onAddNew ? onAddNew() : "")}>
+            <Icon name="add" size={48} color="white" />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </TouchableWithoutFeedback>
+  );
+};
+
+//const AnimatedBoxSection = Animated.createAnimatedComponent(BoxSection);
+
+const BoxView = () => {
+  const { colors } = useTheme();
+
+  const [expandedSection, setExpandedSection] = useState<number | null>(null);
+  const numSections = 3;
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const insets = useSafeAreaInsets();
+
   const router = useRouter();
   const navigation = useNavigation();
 
@@ -29,41 +249,43 @@ const BoxViewContent = () => {
   const { getBoxById } = useBoxModel();
   const { fetchCollectionsByBoxId } = useBoxCollectionModel();
   const [collections, setCollections] = useState<Collection[]>([]);
-
   const [box, setBox] = useState<Box | null>(null);
+
   const isFocused = useIsFocused();
+  const headerHeight = useHeaderHeight();
 
   useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const box = await getBoxById(Number(boxId));
+        const cols = await fetchCollectionsByBoxId(Number(boxId));
+        setBox(box);
+        setCollections(cols);
+        if (box !== null) {
+          navigation.setOptions({
+            title: box.name,
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
     if (isFocused) {
-      getBoxById(Number(boxId)).then((res) => setBox(res));
-      fetchCollectionsByBoxId(Number(boxId)).then((res) => setCollections(res));
+      loadData();
+      console.log("fetch data");
     }
   }, [isFocused]);
 
-  useEffect(() => {
-    if (box !== null) {
-      navigation.setOptions({
-        title: box.name,
-        headerShown: true,
-        headerLeft: () => (
-          <TouchableOpacity onPress={() => router.back()}>
-            <Icon name="chevron-left" size={42} color="white" />
-          </TouchableOpacity>
-        ),
-        headerBackVisible: false,
-        headerShadowVisible: false,
+  const items = ["Card 1", "Card 2", "Card 3"];
 
-        headerStyle: {
-          backgroundColor: "#1da422",
-        },
-        headerTitleStyle: {
-          color: "white",
-          fontSize: 32,
-          fontWeight: "bold",
-        },
-      });
+  function onExpand(index: number) {
+    if (expandedSection === index) {
+      setExpandedSection(null);
+    } else {
+      setExpandedSection(index);
     }
-  }, [box]);
+  }
 
   function handleAddCollection() {
     router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
@@ -75,90 +297,153 @@ const BoxViewContent = () => {
     router.push(`/(tabs)/box/${boxId}/chats/newChat`);
   }
 
-  if (!box) return null;
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* <View style={[styles.header, { backgroundColor: colors.card }]}>
-        <Text style={styles.headerTxt}>{box.description}</Text>
-      </View> */}
-      <ScrollView style={styles.boxContainer}>
-        <BoxSection name="My Collections">
-          <MyCardCollectionsCarousel collections={collections} />
-        </BoxSection>
-        <BoxSection name="My Notes">
-          <MyCardCollectionsCarousel collections={collections} />
-        </BoxSection>
-        <BoxSection name="My Chats">
-          <MyCardCollectionsCarousel collections={collections} />
-        </BoxSection>
+  function handleCollectionClick(collectionId: number) {
+    console.log("handleCollectionClick");
+    router.push(`/(tabs)/box/manage-collection/${collectionId}`);
+  }
+  //console.log("rendering BoxView");
 
-        <View style={styles.footer}>
-          <Button title="Test" />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
-const BoxSection = ({
-  name,
-  children,
-}: {
-  name: string;
-  children: ReactNode;
-}) => {
   return (
-    <View style={styles.sectionContainer}>
-      <View style={[styles.sectionHeader]}>
-        <Text style={[styles.sectionHeaderText]}>{name}</Text>
-        {/* <View style={styles.sectionIcons}>
-              <Icon name="expand-less" size={ICON_SIZE} color="black" />
-              <Icon name="expand-more" size={ICON_SIZE} color="black" />
-              <Icon name="add-circle-outline" size={ICON_SIZE} color="black" />
-            </View> */}
+    <SafeAreaProvider>
+      <View style={styles.container}>
+        <BoxSection
+          name="Chats"
+          index={0}
+          numSections={3}
+          expandedSection={expandedSection}
+          style={styles.boxSection}
+          onAddNew={handleAddChatPress}
+          onExpand={onExpand}
+          items={items}
+          renderItem={(item: any, index: number) => (
+            <>
+              <View style={styles.cardCntView}>
+                <Text style={styles.cardsCntTxt}>
+                  Cards: {index + 1} {10 * index}
+                </Text>
+              </View>
+              <View style={styles.colNameView}>
+                <Text style={styles.colNameTxt} numberOfLines={4}>
+                  {item}
+                </Text>
+              </View>
+            </>
+          )}
+          renderListItem={(item: any, index: number) => (
+            <View style={styles.colNameView}>
+              <Text style={styles.colNameTxt} numberOfLines={1}>
+                {item}
+              </Text>
+            </View>
+          )}
+        />
+        <BoxSection
+          name="Notes"
+          index={1}
+          numSections={3}
+          expandedSection={expandedSection}
+          style={styles.boxSection}
+          onAddNew={handleAddNotePress}
+          onExpand={onExpand}
+          items={items}
+          renderItem={(item: any, index: number) => (
+            <>
+              <View style={styles.cardCntView}>
+                <Text style={styles.cardsCntTxt}>
+                  Cards: {index + 1} {10 * index}
+                </Text>
+              </View>
+              <View style={styles.colNameView}>
+                <Text style={styles.colNameTxt} numberOfLines={4}>
+                  {item}
+                </Text>
+              </View>
+            </>
+          )}
+          renderListItem={(item: any, index: number) => (
+            <View style={styles.colNameView}>
+              <Text style={styles.colNameTxt} numberOfLines={1}>
+                {item}
+              </Text>
+            </View>
+          )}
+        />
+
+        <BoxSection
+          name="Collections"
+          index={2}
+          numSections={3}
+          expandedSection={expandedSection}
+          style={styles.boxSection}
+          onAddNew={handleAddCollection}
+          onExpand={onExpand}
+          items={collections}
+          renderItem={(item: Collection, index: number) => (
+            <TouchableOpacity
+              onPress={() => handleCollectionClick(item.id)}
+              style={{ flex: 1 }}
+            >
+              <View style={styles.cardCntView}>
+                <Text style={styles.cardsCntTxt}>
+                  Cards: {item.cardsNumber}
+                </Text>
+              </View>
+              <View style={styles.colNameView}>
+                <Text style={styles.colNameTxt} numberOfLines={4}>
+                  {item.name}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          renderListItem={(item: Collection, index: number) => (
+            <TouchableOpacity
+              onPress={() => handleCollectionClick(item.id)}
+              style={{ flex: 1, justifyContent: "center" }}
+            >
+              <View style={styles.colNameView}>
+                <Text style={styles.colNameTxt} numberOfLines={1}>
+                  {item.name}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
       </View>
-      <View style={[styles.colListContainer]}>
-        {children}
-        {/* <MyCardCollectionsCarousel collections={collections} /> */}
-      </View>
-      <View style={styles.sectionFooter}></View>
-      {/* <Button
-            title="Add Collection"
-            onPress={handleAddCollection}
-            color={colors.primary}
-          ></Button> */}
-    </View>
+    </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 10,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
   },
-  header: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    margin: 2,
+
+  collectionCard: {
+    backgroundColor: "#f9c2ff",
   },
-  headerTxt: {
-    fontSize: 16,
+  notesCard: {
+    backgroundColor: "#c2e1ff",
   },
-  boxContainer: {
-    paddingTop: 0,
-    // paddingHorizontal: 10,
-    paddingBottom: 10,
+  chatsCard: {
+    backgroundColor: "#c2ffc2",
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
   sectionContainer: {
-    // borderColor: "#eee",
-    // borderWidth: 1,
+    borderColor: "#ddd",
+    borderWidth: 1,
     borderBottomWidth: 0,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
     marginHorizontal: 10,
-    backgroundColor: "#eee",
-
-    // padding: 5,
+    backgroundColor: "#fff",
+    elevation: 25,
   },
   sectionHeader: {
     paddingHorizontal: 5,
@@ -170,8 +455,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
     backgroundColor: "#c2fbc4",
-
-    elevation: 2,
+    height: BOX_SECTION_HEADER_SIZE,
+    // elevation: 2,
   },
   sectionHeaderText: {
     fontSize: 22,
@@ -187,30 +472,84 @@ const styles = StyleSheet.create({
     backgroundColor: "#cad1ca",
   },
   sectionIcons: { flexDirection: "row", gap: 32 },
-  colListContainer: {
-    padding: 10,
+  sectionListContainer: {
+    paddingVertical: 5,
+    paddingHorizontal: 7,
+    alignItems: "center",
+    // backgroundColor: "orange",
+    flex: 0.95,
   },
-  notesContainer: {
-    // height: 100,
-    padding: 10,
+  boxSection: {
+    position: "absolute",
+    width: "100%",
+    //height: 500,
   },
-  chatsContainer: {
-    // height: 100,
-    padding: 10,
+  itemListBox: {
+    //position: "absolute",
+    //width: "100%",
+    height: 60,
+    backgroundColor: "#faf8b4",
+    borderRadius: 5,
+    //borderWidth: 1,
+    borderColor: "lightgrey",
+    //paddingVertical: 5,
+    //paddingHorizontal: 15,
+    marginHorizontal: 5,
+    marginVertical: 2,
+    justifyContent: "center",
   },
-  addBtn: {
-    color: "#4CAF50",
+  itemBox: {
+    position: "absolute",
+    width: "100%",
+    height: 150,
+    backgroundColor: "#faf8b4",
+    borderRadius: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    //margin: 5,
+    justifyContent: "center",
   },
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "grey",
-    marginVertical: 1,
+  colNameView: {
+    //flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    //alignSelf: "center",
+    //backgroundColor: "orangered",
   },
-  notesView: {},
-
-  footer: {
-    paddingVertical: 10,
+  colNameTxt: {
+    fontSize: 16,
+  },
+  cardCntView: {
+    padding: 7,
+    alignSelf: "flex-end",
+  },
+  cardsCntTxt: {
+    fontSize: 12,
+  },
+  shadowProp: {
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  elevation: {
+    elevation: 5,
+    shadowColor: "#52006A",
+  },
+  addBoxBtn: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 100,
+    position: "absolute",
+    bottom: 10,
+    marginHorizontal: 10,
+    marginVertical: 2,
+    //right: 10,
+    alignSelf: "flex-end", // Center horizontally
   },
 });
 
-export default BoxViewContent;
+export default BoxView;
