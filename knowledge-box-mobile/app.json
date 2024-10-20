@@ -31,6 +31,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-localization",
       "expo-asset",
       ["expo-build-properties", { "ios": { "useFrameworks": "static" } }],
       "@react-native-firebase/app",

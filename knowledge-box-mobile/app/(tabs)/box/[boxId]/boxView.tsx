@@ -32,6 +32,7 @@ import {
 } from "react-native-safe-area-context";
 import { Sizes } from "@/constants/Sizes";
 import { useHeaderHeight } from "@react-navigation/elements";
+import { i18n, t } from "@/lib/i18n";
 
 const OFFSET_SIDE_TRIGGER_REORDER = 40;
 const BOX_CARD_OFFSET = 10;
@@ -330,7 +331,7 @@ const BoxView = () => {
     <SafeAreaProvider>
       <View style={styles.container}>
         <BoxSection
-          name="Conversations"
+          name={i18n.t("boxes.conversations")}
           index={0}
           numSections={3}
           expandedSection={expandedSection}
@@ -338,7 +339,7 @@ const BoxView = () => {
           onAddNew={handleAddChatPress}
           onExpand={onExpand}
           items={items}
-          defaultText={"Start a new conversation"}
+          defaultText={i18n.t("boxes.noConversationsDefault")}
           renderItem={(item: any, index: number) => (
             <>
               <View style={styles.cardCntView}>
@@ -362,7 +363,7 @@ const BoxView = () => {
           )}
         />
         <BoxSection
-          name="Notes"
+          name={i18n.t("boxes.notes")}
           index={1}
           numSections={3}
           expandedSection={expandedSection}
@@ -370,7 +371,7 @@ const BoxView = () => {
           onAddNew={handleAddNotePress}
           onExpand={onExpand}
           items={items}
-          defaultText={"Create your first note"}
+          defaultText={i18n.t("boxes.noNotesDefault")}
           renderItem={(item: any, index: number) => (
             <>
               <View style={styles.cardCntView}>
@@ -395,7 +396,7 @@ const BoxView = () => {
         />
 
         <BoxSection
-          name="Flash Cards"
+          name={i18n.t("boxes.flashCards")}
           index={2}
           numSections={3}
           expandedSection={expandedSection}
@@ -403,7 +404,7 @@ const BoxView = () => {
           onAddNew={handleAddCollection}
           onExpand={onExpand}
           items={collections}
-          defaultText={"Add your first flash cards collection"}
+          defaultText={i18n.t("boxes.noCollectionsDefault")}
           renderItem={(item: Collection, index: number) => (
             <TouchableOpacity
               onPress={() => handleCollectionClick(item.id)}
@@ -411,7 +412,7 @@ const BoxView = () => {
             >
               <View style={styles.cardCntView}>
                 <Text style={styles.cardsCntTxt}>
-                  Cards: {item.cardsNumber}
+                  {i18n.t("boxes.numCards")}: {item.cardsNumber}
                 </Text>
               </View>
               <View style={styles.colNameView}>

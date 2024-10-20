@@ -3,6 +3,7 @@ import React from "react";
 import { Tabs } from "expo-router";
 import Icon from "react-native-ionicons";
 import { Sizes } from "@/constants/Sizes";
+import { i18n } from "@/lib/i18n";
 
 const _layout = () => {
   return (
@@ -26,7 +27,7 @@ const _layout = () => {
         name="box"
         options={{
           headerShown: false,
-          title: "My Boxes",
+          title: i18n.t("menu.boxes"),
           tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="cube" color={color} />
           ),
@@ -35,7 +36,7 @@ const _layout = () => {
       <Tabs.Screen
         name="user"
         options={{
-          title: "Profile",
+          title: i18n.t("menu.profile"),
           tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="person" color={color} />
           ),
@@ -45,7 +46,7 @@ const _layout = () => {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: i18n.t("menu.settings"),
           tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="cog" color={color} />
           ),

@@ -1,0 +1,24 @@
+{
+  "hello": "Hallo %{name}!",
+  "menu": {
+    "boxes": "Meine Boxen",
+    "profile": "Profil",
+    "settings": "Einstellungen"
+  },
+  "boxes": {
+    "myBoxesTitle": "Meine Boxen",
+    "notes": "Notizen",
+    "conversations": "Gespräche",
+    "flashCards": "Karteikarten",
+    "newBox": "Neue Box",
+    "editBox": "Box Bearbeiten",
+    "boxName": "Boxname",
+    "description": "Bescreibung",
+    "create": "Erstellen",
+    "save": "Speichern",
+    "noConversationsDefault": "Neues Gespräch beginnen",
+    "noNotesDefault": "erste Notiz erstellen",
+    "noCollectionsDefault": "Karteikartensammlung hinzufügen",
+    "numCards": "Karten"
+  }
+}

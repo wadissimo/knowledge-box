@@ -1,0 +1,5 @@
+{
+  "hello": "Привет %{name}!",
+  "myBoxes": "My Boxes",
+  "notes": "Заметки"
+}

@@ -10,6 +10,7 @@ import {
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useTheme } from "@react-navigation/native";
 import { Sizes } from "@/constants/Sizes";
+import { i18n } from "@/lib/i18n";
 
 const BoxLayout = () => {
   const router = useRouter();
@@ -43,7 +44,7 @@ const BoxLayout = () => {
       <Stack.Screen
         name="boxes"
         options={{
-          title: "My Boxes",
+          title: i18n.t("boxes.myBoxesTitle"),
 
           ...defaultHeaderOptions,
           headerLeft: () => null,
@@ -59,7 +60,7 @@ const BoxLayout = () => {
       <Stack.Screen
         name="[boxId]/boxManage"
         options={{
-          title: "Edit Box",
+          title: i18n.t("boxes.editBox"),
           ...defaultHeaderOptions,
         }}
       />
@@ -77,7 +78,7 @@ const BoxLayout = () => {
       <Stack.Screen
         name="newBox"
         options={{
-          title: "New Box",
+          title: i18n.t("boxes.newBox"),
           ...defaultHeaderOptions,
         }}
       />

@@ -1,0 +1,24 @@
+{
+  "hello": "Hello %{name}!",
+  "menu": {
+    "boxes": "My Boxes",
+    "profil": "Profile",
+    "settings": "Settings"
+  },
+  "boxes": {
+    "myBoxesTitle": "My Boxes",
+    "notes": "Notes",
+    "conversations": "Conversations",
+    "flashCards": "Flash Cards",
+    "newBox": "New Box",
+    "editBox": "Edit Box",
+    "boxName": "Box Name",
+    "description": "Description",
+    "create": "Create",
+    "save": "Save",
+    "noConversationsDefault": "Start a new conversation",
+    "noNotesDefault": "Create your first note",
+    "noCollectionsDefault": "Add your frist flash cards collection",
+    "numCards": "Cards"
+  }
+}

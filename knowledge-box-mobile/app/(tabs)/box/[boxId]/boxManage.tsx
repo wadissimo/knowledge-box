@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Box, useBoxModel } from "@/data/BoxModel";
 import { useTheme } from "@react-navigation/native";
+import { i18n } from "@/lib/i18n";
 
 const ManageBox = () => {
   const { colors } = useTheme();
@@ -41,26 +42,30 @@ const ManageBox = () => {
         <Text style={styles.boxTitleText}>Create Box</Text>
       </View> */}
       <View>
-        <Text style={styles.formText}>Box Name</Text>
+        <Text style={styles.formText}>{i18n.t("boxes.boxName")}</Text>
         <TextInput
           style={styles.input}
           value={name}
           onChangeText={setName}
-          placeholder="Name"
+          placeholder={i18n.t("boxes.boxName")}
         />
       </View>
       <View>
-        <Text style={styles.formText}>Description</Text>
+        <Text style={styles.formText}>{i18n.t("boxes.description")}</Text>
         <TextInput
           style={[styles.input, { height: 150 }]}
           value={description}
           onChangeText={setDescription}
-          placeholder="Description"
+          placeholder={i18n.t("boxes.description")}
           multiline
           numberOfLines={4}
         />
       </View>
-      <Button title="Save" onPress={handleSave} color={colors.primary} />
+      <Button
+        title={i18n.t("boxes.save")}
+        onPress={handleSave}
+        color={colors.primary}
+      />
     </View>
   );
 };
