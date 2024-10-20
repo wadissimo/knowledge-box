@@ -94,13 +94,14 @@ const styles = StyleSheet.create({
   boxesContainer: {
     alignItems: "center",
     justifyContent: "space-between",
+    paddingTop: 10,
   },
   box: {
     backgroundColor: "#78ca7c",
     alignItems: "center",
     justifyContent: "center",
     padding: 5,
-    borderRadius: 20,
+    borderRadius: 5,
     height: 100,
     width: 280,
     elevation: 10,

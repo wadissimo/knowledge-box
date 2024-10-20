@@ -2,9 +2,16 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Button } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Href,
+  Link,
+  useLocalSearchParams,
+  useNavigation,
+  useRouter,
+} from "expo-router";
 import { StyleSheet } from "react-native";
 import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const CollectionView = () => {
   const { colors } = useTheme();
@@ -12,7 +19,7 @@ const CollectionView = () => {
   const { getCollectionById } = useCollectionModel();
   const [collection, setCollection] = useState<Collection | null>(null);
   const router = useRouter();
-
+  const navigation = useNavigation();
   useEffect(() => {
     if (collectionId) {
       getCollectionById(Number(collectionId)).then((col) => setCollection(col));

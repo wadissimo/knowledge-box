@@ -1,7 +1,13 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import { Stack, useRouter } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import {
+  Href,
+  Link,
+  Stack,
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useTheme } from "@react-navigation/native";
 import { Sizes } from "@/constants/Sizes";
 
@@ -51,6 +57,13 @@ const BoxLayout = () => {
         }}
       />
       <Stack.Screen
+        name="[boxId]/boxManage"
+        options={{
+          title: "Edit Box",
+          ...defaultHeaderOptions,
+        }}
+      />
+      <Stack.Screen
         name="[boxId]/boxTest"
         options={{ title: "Box", headerShown: false }}
       />
@@ -71,7 +84,7 @@ const BoxLayout = () => {
       <Stack.Screen
         name="[boxId]/collections/addCollection"
         options={{
-          title: "Add Collection",
+          title: "Cards Collections",
           ...defaultHeaderOptions,
         }}
       />
@@ -85,8 +98,13 @@ const BoxLayout = () => {
       <Stack.Screen
         name="manage-collection/[collectionId]/index"
         options={{
-          title: "View Collection",
+          title: "Collection",
           ...defaultHeaderOptions,
+          headerRight: () => (
+            <Link href={`./manage` as Href}>
+              <Icon name="pencil-outline" size={32} color="white" />
+            </Link>
+          ),
         }}
       />
       <Stack.Screen

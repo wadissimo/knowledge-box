@@ -1,22 +1,39 @@
 import { View, Text, TextInput, StyleSheet, Button } from "react-native";
-import React, { useState } from "react";
-import { useRouter } from "expo-router";
-import { useBoxModel } from "@/data/BoxModel";
+import React, { useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Box, useBoxModel } from "@/data/BoxModel";
 import { useTheme } from "@react-navigation/native";
 
-const NewBox = () => {
+const ManageBox = () => {
   const { colors } = useTheme();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const { boxId } = useLocalSearchParams();
+  const [box, setBox] = useState<Box | null>(null);
 
-  const { newBox } = useBoxModel();
+  const { newBox, updateBox, getBoxById } = useBoxModel();
 
   const router = useRouter();
 
+  useEffect(() => {
+    getBoxById(Number(boxId)).then((res) => {
+      if (res) {
+        setBox(res);
+        setName(res.name);
+        setDescription(res.description ?? "");
+      }
+    });
+  }, [boxId]);
+
   async function handleSave() {
-    await newBox(name, description, null);
+    if (!box) return;
+    box.name = name;
+    box.description = description;
+    await updateBox(box);
     router.back();
   }
+
+  if (box === null) return null;
 
   return (
     <View style={styles.container}>
@@ -43,7 +60,7 @@ const NewBox = () => {
           numberOfLines={4}
         />
       </View>
-      <Button title="Create" onPress={handleSave} color={colors.primary} />
+      <Button title="Save" onPress={handleSave} color={colors.primary} />
     </View>
   );
 };
@@ -76,4 +93,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewBox;
+export default ManageBox;

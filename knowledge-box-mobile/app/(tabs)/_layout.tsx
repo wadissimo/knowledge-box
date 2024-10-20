@@ -26,7 +26,7 @@ const _layout = () => {
         name="box"
         options={{
           headerShown: false,
-          title: "Boxes",
+          title: "My Boxes",
           tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="cube" color={color} />
           ),

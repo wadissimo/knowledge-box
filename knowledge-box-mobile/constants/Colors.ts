@@ -16,6 +16,7 @@ export const Colors = {
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
     btnBackground: "",
+    deleteBtn: "darkred",
   },
   dark: {
     text: "#ECEDEE",
@@ -25,5 +26,6 @@ export const Colors = {
     icon: "#9BA1A6",
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
+    deleteBtn: "red",
   },
 };

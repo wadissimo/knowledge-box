@@ -80,7 +80,7 @@ const AddCollection = () => {
                 style={styles.input}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder="Search Collections"
+                placeholder="Search Card Collections"
               />
 
               {searchQuery.length > 0 && (

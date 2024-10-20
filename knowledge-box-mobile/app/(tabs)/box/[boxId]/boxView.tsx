@@ -23,7 +23,7 @@ import Animated, {
   runOnJS,
   useDerivedValue,
 } from "react-native-reanimated";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { Dimensions } from "react-native";
 import {
@@ -128,6 +128,7 @@ const BoxSection = ({
   items,
   renderItem,
   renderListItem,
+  defaultText,
 }: {
   name: string;
   index: number;
@@ -139,6 +140,7 @@ const BoxSection = ({
   items: any[];
   renderItem: Function;
   renderListItem: Function;
+  defaultText?: String;
 }) => {
   const availableHeight =
     Dimensions.get("window").height - Sizes.headerHeight - Sizes.tabBarHeight;
@@ -189,6 +191,17 @@ const BoxSection = ({
         <View style={[styles.sectionHeader]}>
           <Text style={[styles.sectionHeaderText]}>{name}</Text>
         </View>
+        {items.length === 0 && defaultText && (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "flex-end",
+              alignItems: "center",
+            }}
+          >
+            <Text style={styles.defaultText}>{defaultText}</Text>
+          </View>
+        )}
         {isExpanded ? (
           <ScrollView>
             {items.map((item, index) => (
@@ -223,7 +236,7 @@ const BoxSection = ({
 
         <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
           <TouchableOpacity onPress={() => (onAddNew ? onAddNew() : "")}>
-            <Icon name="add" size={48} color="white" />
+            <Icon name="plus" size={48} color="white" />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -263,8 +276,15 @@ const BoxView = () => {
         setBox(box);
         setCollections(cols);
         if (box !== null) {
+          var boxName =
+            box.name.length > 14 ? box.name.substring(0, 12) + "..." : box.name;
           navigation.setOptions({
-            title: box.name,
+            title: boxName,
+            headerRight: () => (
+              <TouchableOpacity onPress={handleManageBox}>
+                <Icon name="pencil-outline" size={32} color="white" />
+              </TouchableOpacity>
+            ),
           });
         }
       } finally {
@@ -277,7 +297,7 @@ const BoxView = () => {
     }
   }, [isFocused]);
 
-  const items = ["Card 1", "Card 2", "Card 3"];
+  const items: any[] = [];
 
   function onExpand(index: number) {
     if (expandedSection === index) {
@@ -285,6 +305,9 @@ const BoxView = () => {
     } else {
       setExpandedSection(index);
     }
+  }
+  function handleManageBox() {
+    router.push(`./boxManage`);
   }
 
   function handleAddCollection() {
@@ -307,7 +330,7 @@ const BoxView = () => {
     <SafeAreaProvider>
       <View style={styles.container}>
         <BoxSection
-          name="Chats"
+          name="Conversations"
           index={0}
           numSections={3}
           expandedSection={expandedSection}
@@ -315,6 +338,7 @@ const BoxView = () => {
           onAddNew={handleAddChatPress}
           onExpand={onExpand}
           items={items}
+          defaultText={"Start a new conversation"}
           renderItem={(item: any, index: number) => (
             <>
               <View style={styles.cardCntView}>
@@ -346,6 +370,7 @@ const BoxView = () => {
           onAddNew={handleAddNotePress}
           onExpand={onExpand}
           items={items}
+          defaultText={"Create your first note"}
           renderItem={(item: any, index: number) => (
             <>
               <View style={styles.cardCntView}>
@@ -370,7 +395,7 @@ const BoxView = () => {
         />
 
         <BoxSection
-          name="Collections"
+          name="Flash Cards"
           index={2}
           numSections={3}
           expandedSection={expandedSection}
@@ -378,6 +403,7 @@ const BoxView = () => {
           onAddNew={handleAddCollection}
           onExpand={onExpand}
           items={collections}
+          defaultText={"Add your first flash cards collection"}
           renderItem={(item: Collection, index: number) => (
             <TouchableOpacity
               onPress={() => handleCollectionClick(item.id)}
@@ -510,7 +536,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   colNameView: {
-    //flex: 1,
+    flex: 0.6,
     justifyContent: "center",
     alignItems: "center",
     //alignSelf: "center",
@@ -549,6 +575,10 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     //right: 10,
     alignSelf: "flex-end", // Center horizontally
+  },
+  defaultText: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

@@ -2,10 +2,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 
 const predefinedTags = [
-  "#geography",
   "#language",
+  "#geography",
+  "#sport",
   "#math",
-  "#spanish",
   "#biology",
   "#history",
 ];

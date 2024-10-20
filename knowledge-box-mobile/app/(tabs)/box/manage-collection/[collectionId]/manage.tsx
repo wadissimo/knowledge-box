@@ -16,6 +16,7 @@ import {
 import { Collection, useCollectionModel } from "@/data/CollectionModel";
 import { Card, useCardModel } from "@/data/CardModel";
 import { useTheme } from "@react-navigation/native";
+import { Colors } from "@/constants/Colors";
 
 export default function ManageCollectionScreen() {
   const { colors } = useTheme();
@@ -266,7 +267,7 @@ export default function ManageCollectionScreen() {
               <Button
                 title="Delete Card"
                 onPress={handleDeleteCardPress}
-                color={styles.deleteCardBtn.color}
+                color={Colors.light.deleteBtn}
               />
             </View>
           </>
@@ -285,7 +286,7 @@ export default function ManageCollectionScreen() {
           <Button
             title="Delete Collection"
             onPress={handleDeleteCollection}
-            color={styles.deleteCollectionBtn.color}
+            color={Colors.light.deleteBtn}
           />
         </View>
       </View>
@@ -395,7 +396,6 @@ const styles = StyleSheet.create({
   },
   deleteCardBtn: {
     paddingTop: 5,
-    color: "darkred",
   },
   spacer: {
     flex: 1,
