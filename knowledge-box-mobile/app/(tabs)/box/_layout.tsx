@@ -85,21 +85,21 @@ const BoxLayout = () => {
       <Stack.Screen
         name="[boxId]/collections/addCollection"
         options={{
-          title: "Cards Collections",
+          title: i18n.t("cards.cardsCollections"),
           ...defaultHeaderOptions,
         }}
       />
       <Stack.Screen
         name="[boxId]/collections/previewCollection/[previewColId]"
         options={{
-          title: "Add Collection",
+          title: i18n.t("cards.addCollection"),
           ...defaultHeaderOptions,
         }}
       />
       <Stack.Screen
         name="manage-collection/[collectionId]/index"
         options={{
-          title: "Collection",
+          title: i18n.t("cards.collection"),
           ...defaultHeaderOptions,
           headerRight: () => (
             <Link href={`./manage` as Href}>
@@ -111,42 +111,42 @@ const BoxLayout = () => {
       <Stack.Screen
         name="manage-collection/[collectionId]/manage"
         options={{
-          title: "Manage Collection",
+          title: i18n.t("cards.manageCollection"),
           ...defaultHeaderOptions,
         }}
       />
       <Stack.Screen
         name="manage-collection/[collectionId]/edit"
         options={{
-          title: "Edit Collection",
+          title: i18n.t("cards.editCollection"),
           ...defaultHeaderOptions,
         }}
       />
       <Stack.Screen
         name="manage-collection/[collectionId]/[cardId]"
         options={{
-          title: "Edit Card",
+          title: i18n.t("cards.editCard"),
           ...defaultHeaderOptions,
         }}
       />
       <Stack.Screen
         name="manage-collection/[collectionId]/train"
         options={{
-          title: "Train",
+          title: i18n.t("cards.trainHeader"),
           ...defaultHeaderOptions,
         }}
       />
       <Stack.Screen
         name="[boxId]/notes/newNote"
         options={{
-          title: "New Note",
+          title: i18n.t("notes.newNote"),
           ...defaultHeaderOptions,
         }}
       />
       <Stack.Screen
         name="[boxId]/chats/newChat"
         options={{
-          title: "Chat",
+          title: i18n.t("chats.chatHeader"),
           ...defaultHeaderOptions,
         }}
       />

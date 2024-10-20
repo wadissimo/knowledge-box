@@ -10,11 +10,10 @@ import {
 import React, { useCallback, useRef } from "react";
 import {
   actions,
-  FONT_SIZE,
-  getContentCSS,
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
+import { i18n } from "@/lib/i18n";
 
 const EditTextNote = () => {
   const richText = useRef<RichEditor>(null);
@@ -41,7 +40,7 @@ const EditTextNote = () => {
           style={{ flex: 1 }}
         >
           <View>
-            <Text>Title</Text>
+            <Text>{i18n.t("notes.title")}</Text>
           </View>
           <View style={styles.notesView}>
             <RichToolbar

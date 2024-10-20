@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TextInput, Alert, Button } from "react-native";
 import React, { useState } from "react";
 import { useTheme } from "@react-navigation/native";
+import { i18n } from "@/lib/i18n";
 
 const CreateCollectionForm: React.FC<{
   onCreate: Function;
@@ -17,16 +18,20 @@ const CreateCollectionForm: React.FC<{
 
   return (
     <View style={styles.newColContainer}>
-      <Text style={styles.label}>Create Collection</Text>
+      <Text style={styles.label}>{i18n.t("cards.createCollection")}</Text>
 
       <TextInput
         style={styles.input}
         value={name}
         onChangeText={setName}
-        placeholder="Name"
+        placeholder={i18n.t("cards.collectionName")}
       />
 
-      <Button title="Create" onPress={handleSave} color={colors.primary} />
+      <Button
+        title={i18n.t("common.create")}
+        onPress={handleSave}
+        color={colors.primary}
+      />
     </View>
   );
 };

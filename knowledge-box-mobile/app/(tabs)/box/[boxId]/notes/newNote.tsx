@@ -1,24 +1,10 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import React, { useCallback, useRef } from "react";
-import {
-  actions,
-  FONT_SIZE,
-  getContentCSS,
-  RichEditor,
-  RichToolbar,
-} from "react-native-pell-rich-editor";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React from "react";
+
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Href } from "expo-router";
+import { i18n } from "@/lib/i18n";
 
 const NewNote = () => {
   const router = useRouter();
@@ -35,7 +21,7 @@ const NewNote = () => {
               <View style={styles.btnIcon}>
                 <Icon name="note-text-outline" size={48} color="white" />
               </View>
-              <Text style={styles.btnText}>Text</Text>
+              <Text style={styles.btnText}>{i18n.t("notes.text")}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -45,7 +31,7 @@ const NewNote = () => {
               <View style={styles.btnIcon}>
                 <Icon name="camera" size={48} color="white" />
               </View>
-              <Text style={styles.btnText}>Photo</Text>
+              <Text style={styles.btnText}>{i18n.t("notes.photo")}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -57,7 +43,7 @@ const NewNote = () => {
               <View style={styles.btnIcon}>
                 <Icon name="record-rec" size={48} color="white" />
               </View>
-              <Text style={styles.btnText}>Audio</Text>
+              <Text style={styles.btnText}>{i18n.t("notes.audio")}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -67,7 +53,7 @@ const NewNote = () => {
               <View style={styles.btnIcon}>
                 <Icon name="upload" size={48} color="white" />
               </View>
-              <Text style={styles.btnText}>Upload</Text>
+              <Text style={styles.btnText}>{i18n.t("notes.upload")}</Text>
             </View>
           </TouchableOpacity>
         </View>

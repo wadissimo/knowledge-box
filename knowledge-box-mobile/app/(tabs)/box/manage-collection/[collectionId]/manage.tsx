@@ -17,6 +17,7 @@ import { Collection, useCollectionModel } from "@/data/CollectionModel";
 import { Card, useCardModel } from "@/data/CardModel";
 import { useTheme } from "@react-navigation/native";
 import { Colors } from "@/constants/Colors";
+import { i18n } from "@/lib/i18n";
 
 export default function ManageCollectionScreen() {
   const { colors } = useTheme();
@@ -108,16 +109,16 @@ export default function ManageCollectionScreen() {
   const handleDeleteCardPress = () => {
     if (!selectedCard) return;
     Alert.alert(
-      "Confirm Deletion",
-      `Are you sure you want to delete the card?`,
+      i18n.t("common.confirm.deletion"),
+      i18n.t("cards.confirmDeletionText"),
       [
         {
-          text: "Cancel",
+          text: i18n.t("common.cancel"),
           onPress: () => console.log("Deletion cancelled"),
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: i18n.t("common.delete"),
           onPress: () => {
             console.log("Deleting card...");
             async function onDeleteCard() {
@@ -145,16 +146,16 @@ export default function ManageCollectionScreen() {
 
   const handleDeleteCollection = () => {
     Alert.alert(
-      "Confirm Deletion",
-      `Are you sure you want to delete the collection?`,
+      i18n.t("common.confirm.deletion"),
+      i18n.t("cards.collectionConfirmDeletionText"),
       [
         {
-          text: "Cancel",
+          text: i18n.t("common.cancel"),
           onPress: () => console.log("Deletion cancelled"),
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: i18n.t("common.delete"),
           onPress: () => {
             console.log("Deleting collection...");
             deleteCollection(Number(collectionId));
@@ -175,8 +176,8 @@ export default function ManageCollectionScreen() {
       </View>
       <View style={styles.cardTable}>
         <View style={styles.header}>
-          <Text style={styles.headerItem}>Front</Text>
-          <Text style={styles.headerItem}>Back</Text>
+          <Text style={styles.headerItem}>{i18n.t("cards.front")}</Text>
+          <Text style={styles.headerItem}>{i18n.t("cards.back")}</Text>
         </View>
 
         <FlatList
@@ -225,7 +226,7 @@ export default function ManageCollectionScreen() {
           </View>
           <View style={styles.cardTableFootMid}>
             <Text style={styles.cardTableFootMidTxt}>
-              Cards: {cards.length}
+              {i18n.t("cards.numCards")}: {cards.length}
             </Text>
           </View>
           <View style={styles.navBtn}>
@@ -249,7 +250,7 @@ export default function ManageCollectionScreen() {
       <View style={styles.cardEditBtns}>
         <View style={styles.addCardBtn}>
           <Button
-            title="Add Card"
+            title={i18n.t("cards.addCard")}
             onPress={handleAddCardPress}
             color={colors.primary}
           />
@@ -258,14 +259,14 @@ export default function ManageCollectionScreen() {
           <>
             <View style={styles.addCardBtn}>
               <Button
-                title="Edit Card"
+                title={i18n.t("cards.editCard")}
                 onPress={handleEditCardPress}
                 color={colors.primary}
               />
             </View>
             <View style={styles.deleteCardBtn}>
               <Button
-                title="Delete Card"
+                title={i18n.t("cards.deleteCard")}
                 onPress={handleDeleteCardPress}
                 color={Colors.light.deleteBtn}
               />
@@ -277,14 +278,14 @@ export default function ManageCollectionScreen() {
       <View style={styles.collectionEditBtns}>
         <View style={styles.editColBtn}>
           <Button
-            title="Edit Collection"
+            title={i18n.t("cards.editCollection")}
             onPress={handleEditCollection}
             color={colors.primary}
           />
         </View>
         <View style={styles.deleteCollectionBtn}>
           <Button
-            title="Delete Collection"
+            title={i18n.t("cards.deleteCollection")}
             onPress={handleDeleteCollection}
             color={Colors.light.deleteBtn}
           />

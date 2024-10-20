@@ -8,6 +8,7 @@ import { Collection, useCollectionModel } from "@/data/CollectionModel";
 import { Card, useCardModel } from "@/data/CardModel";
 import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
 import useSyncService from "@/service/CollectionRemoteService";
+import { i18n } from "@/lib/i18n";
 
 const CollectionPreview = () => {
   const { colors } = useTheme();
@@ -46,7 +47,9 @@ const CollectionPreview = () => {
   return (
     <View style={styles.container}>
       <View>
-        <Text style={styles.sectionHeaderText}>Collection:</Text>
+        <Text style={styles.sectionHeaderText}>
+          {i18n.t("cards.collection")}:
+        </Text>
       </View>
       <View style={[styles.collectionBox, styles.elevation, styles.shadowProp]}>
         <Text style={styles.collectionNameTxt}>{collection.name}</Text>
@@ -54,7 +57,7 @@ const CollectionPreview = () => {
         <Text>Cards: {collection.cardsNumber}</Text>
       </View>
       <View>
-        <Text style={styles.sectionHeaderText}>Cards Sample:</Text>
+        <Text style={styles.sectionHeaderText}>{i18n.t("cards.sample")}:</Text>
       </View>
       <View style={styles.cardPreviewList}>
         <FlatList
@@ -77,7 +80,7 @@ const CollectionPreview = () => {
         />
       </View>
       <Button
-        title="Add Collection"
+        title={i18n.t("cards.addCollection")}
         onPress={handleAddCollection}
         color={colors.primary}
       ></Button>

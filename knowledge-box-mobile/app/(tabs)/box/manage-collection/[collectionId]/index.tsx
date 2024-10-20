@@ -2,16 +2,10 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Button } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import {
-  Href,
-  Link,
-  useLocalSearchParams,
-  useNavigation,
-  useRouter,
-} from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { StyleSheet } from "react-native";
 import { Collection, useCollectionModel } from "@/data/CollectionModel";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { i18n } from "@/lib/i18n";
 
 const CollectionView = () => {
   const { colors } = useTheme();
@@ -40,9 +34,9 @@ const CollectionView = () => {
         <Text style={styles.colNameTxt}>{collection.name}</Text>
       </View>
       <View style={styles.trainBtnContainer}>
-        <Text>Train Stats:</Text>
+        <Text>{i18n.t("cards.train.stats")}:</Text>
         <Button
-          title="Train"
+          title={i18n.t("cards.train.trainBtn")}
           color={colors.primary}
           onPress={handleTrainPress}
         />
@@ -50,7 +44,7 @@ const CollectionView = () => {
 
       <View style={styles.mngBtnContainer}>
         <Button
-          title="Manage Collection"
+          title={i18n.t("cards.manageCollection")}
           color={colors.primary}
           onPress={handleManageCollectionPress}
         />

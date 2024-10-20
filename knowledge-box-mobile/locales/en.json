@@ -5,6 +5,17 @@
     "profil": "Profile",
     "settings": "Settings"
   },
+  "common": {
+    "create": "Create",
+    "or": "or",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "error": "Error",
+    "confirm": {
+      "deletion": "Confirm Deletion"
+    }
+  },
   "boxes": {
     "myBoxesTitle": "My Boxes",
     "notes": "Notes",
@@ -20,5 +31,51 @@
     "noNotesDefault": "Create your first note",
     "noCollectionsDefault": "Add your frist flash cards collection",
     "numCards": "Cards"
+  },
+  "cards": {
+    "cardsCollections": "Cards Collections",
+    "createCollection": "Create Collection",
+    "addCollection": "Add Collection",
+    "collection": "Collection",
+    "manageCollection": "Manage Collection",
+    "editCollection": "Edit Collection",
+    "deleteCollection": "Delete Collection",
+
+    "trainHeader": "Train",
+    "train": {
+      "stats": "Train Stats",
+      "trainBtn": "Train"
+    },
+    "search": "Search",
+    "searchPlaceholder": "Search Card Collections",
+    "searchNoResults": "No results",
+    "numCards": "Cards",
+    "collectionName": "Name",
+    "sample": "Cards Sample",
+
+    "confirmDeletionText": "Are you sure you want to delete the card?",
+    "collectionConfirmDeletionText": "Are you sure you want to delete the collection?",
+    "front": "Front",
+    "back": "Back",
+    "frontSide": "Front Side",
+    "backSide": "Back Side",
+    "newCard": "New Card",
+    "addCard": "Add Card",
+    "editCard": "Edit Card",
+    "deleteCard": "Delete Card",
+    "error": {
+      "emptySides": "Both front and back sides must be filled."
+    }
+  },
+  "notes": {
+    "newNote": "New Note",
+    "text": "Text",
+    "photo": "Photo",
+    "audio": "Audio",
+    "upload": "Upload",
+    "title": "Title"
+  },
+  "chats": {
+    "chatHeader": "Chat"
   }
 }

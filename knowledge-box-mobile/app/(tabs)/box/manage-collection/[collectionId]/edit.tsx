@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 
 import { Collection, useCollectionModel } from "@/data/CollectionModel";
 import { useTheme } from "@react-navigation/native";
+import { i18n } from "@/lib/i18n";
 
 const EditCollection = () => {
   const { colors } = useTheme();
@@ -43,16 +44,20 @@ const EditCollection = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Name</Text>
+      <Text style={styles.label}>{i18n.t("cards.collectionName")}</Text>
 
       <TextInput
         style={styles.input}
         value={name}
         onChangeText={setName}
-        placeholder="Collection Name"
+        placeholder={i18n.t("cards.collectionName")}
       />
 
-      <Button title="Save" onPress={handleSave} color={colors.primary} />
+      <Button
+        title={i18n.t("common.save")}
+        onPress={handleSave}
+        color={colors.primary}
+      />
     </View>
   );
 };

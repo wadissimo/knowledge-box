@@ -18,6 +18,7 @@ import CreateCollectionForm from "@/components/collections/CreateCollectionForm"
 import Icon from "react-native-ionicons";
 import useCollectionRemoteService from "@/service/CollectionRemoteService";
 import SearchTags from "@/components/collections/SearchTags";
+import { i18n } from "@/lib/i18n";
 
 const AddCollection = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -74,13 +75,13 @@ const AddCollection = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.searchContainer}>
-            <Text style={styles.searchText}>Search</Text>
+            <Text style={styles.searchText}>{i18n.t("cards.search")}</Text>
             <View style={styles.searchBar}>
               <TextInput
                 style={styles.input}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder="Search Card Collections"
+                placeholder={i18n.t("cards.searchPlaceholder")}
               />
 
               {searchQuery.length > 0 && (
@@ -99,7 +100,7 @@ const AddCollection = () => {
             <View style={styles.searchResult}>
               {noResults ? (
                 <View>
-                  <Text>No results</Text>
+                  <Text>{i18n.t("cards.searchNoResults")}</Text>
                 </View>
               ) : (
                 searchResults.map((searchResult) => (
@@ -126,14 +127,16 @@ const AddCollection = () => {
                       >
                         {searchResult.description}
                       </Text>
-                      <Text>Cards: {searchResult.cardsNumber}</Text>
+                      <Text>
+                        {i18n.t("cards.numCards")}: {searchResult.cardsNumber}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 ))
               )}
             </View>
           </ScrollView>
-          <SeparatorWithText text="or" />
+          <SeparatorWithText text={i18n.t("common.or")} />
           <CreateCollectionForm onCreate={handleCollectionCreate} />
         </View>
       </TouchableWithoutFeedback>
@@ -157,7 +160,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: "#F5F5F5",
+    //backgroundColor: "#F5F5F5",
   },
   searchContainer: {
     flex: 0,

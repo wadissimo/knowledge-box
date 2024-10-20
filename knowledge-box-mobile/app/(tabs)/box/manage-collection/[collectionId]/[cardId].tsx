@@ -6,17 +6,16 @@ import {
   Button,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   TouchableOpacity,
 } from "react-native";
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
 
 import { Card, useCardModel } from "@/data/CardModel";
 import { useTheme } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 import useMediaDataService from "@/service/MediaDataService";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { Audio } from "expo-av";
+import { i18n } from "@/lib/i18n";
 
 const EditFlashcard = () => {
   const router = useRouter();
@@ -41,23 +40,17 @@ const EditFlashcard = () => {
         setFrontSide("");
         setBackSide("");
         navigation.setOptions({
-          title: "New Card",
+          title: i18n.t("cards.newCard"),
         });
       } else {
         const card = await getCardById(Number(cardId));
         if (card === null) throw Error("Can't find a card:" + cardId);
-        // console.log("card.backSound", card.backSound);
-        // if (card.backSound !== null && card.backSound < 0) {
-        //   importGlobalSoundIfNotExists(-card.backSound); //async
-        // }
-        // if (card.frontSound !== null && card.frontSound < 0) {
-        //   importGlobalSoundIfNotExists(-card.frontSound); //async
-        // }
+
         setCard(card);
         setFrontSide(card.front);
         setBackSide(card.back);
         navigation.setOptions({
-          title: "Edit Card",
+          title: i18n.t("cards.editCard"),
         });
       }
     }
@@ -66,7 +59,7 @@ const EditFlashcard = () => {
 
   const handleSave = () => {
     if (!frontSide || !backSide) {
-      Alert.alert("Error", "Both front and back sides must be filled.");
+      Alert.alert(i18n.t("common.error"), i18n.t("cards.error.emptySides"));
       return;
     }
     if (cardId === "new") {
@@ -98,7 +91,7 @@ const EditFlashcard = () => {
         style={styles.input}
         value={frontSide}
         onChangeText={setFrontSide}
-        placeholder="Front side"
+        placeholder={i18n.t("cards.frontSide")}
         multiline
         numberOfLines={3}
       />
@@ -114,7 +107,7 @@ const EditFlashcard = () => {
         style={styles.input}
         value={backSide}
         onChangeText={setBackSide}
-        placeholder="Back side"
+        placeholder={i18n.t("cards.backSide")}
         multiline
         numberOfLines={3}
       />
@@ -126,7 +119,11 @@ const EditFlashcard = () => {
         </View>
       )}
 
-      <Button title="Save" onPress={handleSave} color={colors.primary} />
+      <Button
+        title={i18n.t("common.save")}
+        onPress={handleSave}
+        color={colors.primary}
+      />
     </View>
   );
 };

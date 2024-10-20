@@ -298,7 +298,7 @@ const BoxView = () => {
     }
   }, [isFocused]);
 
-  const items: any[] = [];
+  const items: any[] = ["c 1", "3", "5"];
 
   function onExpand(index: number) {
     if (expandedSection === index) {
@@ -517,8 +517,10 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: "#faf8b4",
     borderRadius: 5,
-    //borderWidth: 1,
-    borderColor: "lightgrey",
+
+    //borderColor: "lightgrey",
+    borderWidth: 1,
+    borderColor: "#dd8",
     //paddingVertical: 5,
     //paddingHorizontal: 15,
     marginHorizontal: 5,
@@ -533,6 +535,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: "#dd8",
     //margin: 5,
     justifyContent: "center",
   },

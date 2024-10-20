@@ -5,6 +5,17 @@
     "profile": "Profil",
     "settings": "Einstellungen"
   },
+  "common": {
+    "create": "Erstellen",
+    "or": "oder",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "error": "Fehler",
+    "confirm": {
+      "deletion": "Löschvorgang Bestätigen"
+    }
+  },
   "boxes": {
     "myBoxesTitle": "Meine Boxen",
     "notes": "Notizen",
@@ -20,5 +31,51 @@
     "noNotesDefault": "erste Notiz erstellen",
     "noCollectionsDefault": "Karteikartensammlung hinzufügen",
     "numCards": "Karten"
+  },
+  "cards": {
+    "cardsCollections": "Karteikartensammlung",
+    "createCollection": "Sammlung Herstellen",
+    "addCollection": "Sammlung Hinzufügen",
+    "collection": "Sammlung",
+    "manageCollection": "Sammlung Verwalten",
+    "editCollection": "Sammlung Bearbeiten",
+    "deleteCollection": "Sammlung Löschen",
+
+    "trainHeader": "Trainieren",
+    "train": {
+      "stats": "Trainingsstatistiken",
+      "trainBtn": "Trainieren"
+    },
+    "search": "Suche",
+    "searchPlaceholder": "Kartensammlungen durchsuchen",
+    "searchNoResults": "Keine Ergebnisse",
+    "numCards": "Karten",
+    "collectionName": "Name",
+    "sample": "Kartenbeispiel",
+
+    "confirmDeletionText": "Sind Sie sicher, dass Sie die Karte löschen möchten?",
+    "collectionConfirmDeletionText": "Sind Sie sicher, dass Sie die Sammlung löschen möchten?",
+    "front": "Vorderseite",
+    "back": "Rückseite",
+    "frontSide": "Vorderseite",
+    "backSide": "Rückseite",
+    "newCard": "Neue Karteikarte",
+    "addCard": "Karte Hinzufügen",
+    "editCard": "Karteikarte bearbeiten",
+    "deleteCard": "Karteikarte Löschen",
+    "error": {
+      "emptySides": "Sowohl die Vorder- als auch die Rückseite müssen gefüllt sein."
+    }
+  },
+  "notes": {
+    "newNote": "Neue Notiz",
+    "text": "Text",
+    "photo": "Foto",
+    "audio": "Audio",
+    "upload": "Hochladen",
+    "title": "Titel"
+  },
+  "chats": {
+    "chatHeader": "Chat"
   }
 }
