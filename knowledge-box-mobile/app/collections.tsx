@@ -2,9 +2,9 @@
 import { useRouter } from "expo-router";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-import MyCardCollections from "@/components/MyCardCollections";
+import MyCardCollections from "@/src/components/MyCardCollections";
 import { useEffect, useState } from "react";
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
 import { useIsFocused } from "@react-navigation/native";
 
 export default function CollectionsScreen() {

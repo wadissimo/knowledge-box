@@ -13,11 +13,11 @@ import {
   Alert,
 } from "react-native";
 
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
-import { Card, useCardModel } from "@/data/CardModel";
+import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
+import { Card, useCardModel } from "@/src/data/CardModel";
 import { useTheme } from "@react-navigation/native";
-import { Colors } from "@/constants/Colors";
-import { i18n } from "@/lib/i18n";
+import { Colors } from "@/src/constants/Colors";
+import { i18n } from "@/src/lib/i18n";
 
 export default function ManageCollectionScreen() {
   const { colors } = useTheme();

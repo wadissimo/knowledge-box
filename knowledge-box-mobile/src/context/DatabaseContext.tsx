@@ -6,8 +6,8 @@ import React, {
   useEffect,
 } from "react";
 import * as SQLite from "expo-sqlite";
-import { Collection } from "@/data/CollectionModel";
-import { Card } from "@/data/CardModel";
+import { Collection } from "@/src/data/CollectionModel";
+import { Card } from "@/src/data/CardModel";
 
 interface CollectionContextProps {
   collections: Collection[];

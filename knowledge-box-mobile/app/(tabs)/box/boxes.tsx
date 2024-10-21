@@ -11,7 +11,7 @@ import {
 
 import { useEffect, useState } from "react";
 import Icon from "react-native-ionicons";
-import { Box, useBoxModel } from "@/data/BoxModel";
+import { Box, useBoxModel } from "@/src/data/BoxModel";
 import { useIsFocused, useTheme } from "@react-navigation/native";
 
 export default function BoxesPage() {

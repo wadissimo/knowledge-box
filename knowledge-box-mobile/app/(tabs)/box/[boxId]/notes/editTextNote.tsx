@@ -13,7 +13,7 @@ import {
   RichEditor,
   RichToolbar,
 } from "react-native-pell-rich-editor";
-import { i18n } from "@/lib/i18n";
+import { i18n } from "@/src/lib/i18n";
 
 const EditTextNote = () => {
   const richText = useRef<RichEditor>(null);

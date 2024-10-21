@@ -1,7 +1,7 @@
-import MyCardCollectionsCarousel from "@/components/MyCardCollectionsCarousel";
-import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-import { Box, useBoxModel } from "@/data/BoxModel";
-import { Collection } from "@/data/CollectionModel";
+import MyCardCollectionsCarousel from "@/src/components/MyCardCollectionsCarousel";
+import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
+import { Box, useBoxModel } from "@/src/data/BoxModel";
+import { Collection } from "@/src/data/CollectionModel";
 import { useIsFocused, useTheme } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { forwardRef, ReactNode, useEffect, useState } from "react";
@@ -30,7 +30,7 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { Sizes } from "@/constants/Sizes";
+import { Sizes } from "@/src/constants/Sizes";
 import { useHeaderHeight } from "@react-navigation/elements";
 
 const OFFSET_SIDE_TRIGGER_REORDER = 40;

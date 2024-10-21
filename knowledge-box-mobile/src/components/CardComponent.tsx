@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
-import { SessionCard } from "@/data/SessionCardModel";
+import { SessionCard } from "@/src/data/SessionCardModel";
 import useMediaDataService from "@/service/MediaDataService";
-import { Card } from "@/data/CardModel";
+import { Card } from "@/src/data/CardModel";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import * as FileSystem from "expo-file-system";

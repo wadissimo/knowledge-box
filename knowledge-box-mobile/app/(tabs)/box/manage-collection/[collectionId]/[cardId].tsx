@@ -10,12 +10,12 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
 
-import { Card, useCardModel } from "@/data/CardModel";
+import { Card, useCardModel } from "@/src/data/CardModel";
 import { useTheme } from "@react-navigation/native";
 
-import useMediaDataService from "@/service/MediaDataService";
+import useMediaDataService from "@/src/service/MediaDataService";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { i18n } from "@/lib/i18n";
+import { i18n } from "@/src/lib/i18n";
 
 const EditFlashcard = () => {
   const router = useRouter();

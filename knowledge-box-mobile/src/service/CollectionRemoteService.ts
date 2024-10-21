@@ -1,6 +1,6 @@
-import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-import { Card, useCardModel } from "@/data/CardModel";
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
+import { Card, useCardModel } from "@/src/data/CardModel";
+import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
 import * as SQLite from "expo-sqlite";
 import { useState } from "react";
 

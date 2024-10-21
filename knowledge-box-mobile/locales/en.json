@@ -77,5 +77,9 @@
   },
   "chats": {
     "chatHeader": "Chat"
+  },
+  "trainer": {
+    "defaultTrainerName": "Long Term Memory",
+    "defaultTrainerDescription": "Build your long term memory using spaced repetition and regular training"
   }
 }

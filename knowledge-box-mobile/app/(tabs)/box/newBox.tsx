@@ -1,9 +1,9 @@
 import { View, Text, TextInput, StyleSheet, Button } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { useBoxModel } from "@/data/BoxModel";
+import { useBoxModel } from "@/src/data/BoxModel";
 import { useTheme } from "@react-navigation/native";
-import { i18n } from "@/lib/i18n";
+import { i18n } from "@/src/lib/i18n";
 
 const NewBox = () => {
   const { colors } = useTheme();

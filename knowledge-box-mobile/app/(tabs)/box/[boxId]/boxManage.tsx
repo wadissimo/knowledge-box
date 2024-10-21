@@ -1,9 +1,9 @@
 import { View, Text, TextInput, StyleSheet, Button } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Box, useBoxModel } from "@/data/BoxModel";
+import { Box, useBoxModel } from "@/src/data/BoxModel";
 import { useTheme } from "@react-navigation/native";
-import { i18n } from "@/lib/i18n";
+import { i18n } from "@/src/lib/i18n";
 
 const ManageBox = () => {
   const { colors } = useTheme();

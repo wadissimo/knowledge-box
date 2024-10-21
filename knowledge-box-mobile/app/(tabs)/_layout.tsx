@@ -2,8 +2,8 @@ import { View, Text } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
 import Icon from "react-native-ionicons";
-import { Sizes } from "@/constants/Sizes";
-import { i18n } from "@/lib/i18n";
+import { Sizes } from "@/src/constants/Sizes";
+import { i18n } from "@/src/lib/i18n";
 
 const _layout = () => {
   return (

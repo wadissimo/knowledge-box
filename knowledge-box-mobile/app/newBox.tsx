@@ -1,7 +1,7 @@
 import { View, Text, TextInput, StyleSheet, Button, Image } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { useBoxModel } from "@/data/BoxModel";
+import { useBoxModel } from "@/src/data/BoxModel";
 import { SvgXml } from "react-native-svg";
 
 const ManageBox = () => {

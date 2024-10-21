@@ -4,7 +4,7 @@ import React from "react";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Href } from "expo-router";
-import { i18n } from "@/lib/i18n";
+import { i18n } from "@/src/lib/i18n";
 
 const NewNote = () => {
   const router = useRouter();

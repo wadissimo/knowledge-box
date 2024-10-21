@@ -1,12 +1,12 @@
-import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-import { Card, useCardModel } from "@/data/CardModel";
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
-import { SoundData, useSoundModel } from "@/data/SoundModel";
+import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
+import { Card, useCardModel } from "@/src/data/CardModel";
+import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
+import { SoundData, useSoundModel } from "@/src/data/SoundModel";
 import * as SQLite from "expo-sqlite";
 import { useEffect, useState } from "react";
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
-import { useImageModel } from "@/data/ImageModel";
+import { useImageModel } from "@/src/data/ImageModel";
 
 const getMediaUriByName = (name: string) => {
   return FileSystem.documentDirectory + name;

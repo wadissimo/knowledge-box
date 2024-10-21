@@ -10,15 +10,15 @@ import {
   SafeAreaView,
 } from "react-native";
 import React, { useState } from "react";
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-import SeparatorWithText from "@/components/utils/SeparatorWithText";
-import CreateCollectionForm from "@/components/collections/CreateCollectionForm";
+import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
+import SeparatorWithText from "@/src/components/utils/SeparatorWithText";
+import CreateCollectionForm from "@/src/components/collections/CreateCollectionForm";
 import Icon from "react-native-ionicons";
-import useCollectionRemoteService from "@/service/CollectionRemoteService";
-import SearchTags from "@/components/collections/SearchTags";
-import { i18n } from "@/lib/i18n";
+import useCollectionRemoteService from "@/src/service/CollectionRemoteService";
+import SearchTags from "@/src/components/collections/SearchTags";
+import { i18n } from "@/src/lib/i18n";
 
 const AddCollection = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");

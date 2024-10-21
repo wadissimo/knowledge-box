@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TextInput, Alert, Button } from "react-native";
 import React, { useState } from "react";
 import { useTheme } from "@react-navigation/native";
-import { i18n } from "@/lib/i18n";
+import { i18n } from "@/src/lib/i18n";
 
 const CreateCollectionForm: React.FC<{
   onCreate: Function;

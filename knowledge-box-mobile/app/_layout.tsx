@@ -6,11 +6,11 @@ import "react-native-reanimated";
 
 import { SQLiteProvider } from "expo-sqlite";
 import { Text } from "react-native";
-import { CollectionProvider } from "@/context/DatabaseContext";
+import { CollectionProvider } from "@/src/context/DatabaseContext";
 import {
   DATABASE_NAME,
   useDatabaseFromAsset,
-} from "@/hooks/useDatabaseFromAsset";
+} from "@/src/hooks/useDatabaseFromAsset";
 import {
   DefaultTheme,
   NavigationContainer,

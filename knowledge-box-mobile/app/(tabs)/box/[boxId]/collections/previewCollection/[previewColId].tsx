@@ -4,11 +4,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { useTheme } from "@react-navigation/native";
 import { Button } from "react-native";
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
-import { Card, useCardModel } from "@/data/CardModel";
-import { useBoxCollectionModel } from "@/data/BoxCollectionModel";
-import useSyncService from "@/service/CollectionRemoteService";
-import { i18n } from "@/lib/i18n";
+import { Collection } from "@/src/data/CollectionModel";
+import { Card } from "@/src/data/CardModel";
+
+import useSyncService from "@/src/service/CollectionRemoteService";
+import { i18n } from "@/src/lib/i18n";
 
 const CollectionPreview = () => {
   const { colors } = useTheme();

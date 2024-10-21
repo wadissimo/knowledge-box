@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
+import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
 import { useTheme } from "@react-navigation/native";
-import { i18n } from "@/lib/i18n";
+import { i18n } from "@/src/lib/i18n";
 
 const EditCollection = () => {
   const { colors } = useTheme();

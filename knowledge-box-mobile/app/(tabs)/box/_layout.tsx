@@ -9,8 +9,8 @@ import {
 } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useTheme } from "@react-navigation/native";
-import { Sizes } from "@/constants/Sizes";
-import { i18n } from "@/lib/i18n";
+import { Sizes } from "@/src/constants/Sizes";
+import { i18n } from "@/src/lib/i18n";
 
 const BoxLayout = () => {
   const router = useRouter();

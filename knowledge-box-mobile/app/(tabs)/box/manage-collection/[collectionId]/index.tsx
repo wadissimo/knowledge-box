@@ -4,8 +4,8 @@ import { Button } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { StyleSheet } from "react-native";
-import { Collection, useCollectionModel } from "@/data/CollectionModel";
-import { i18n } from "@/lib/i18n";
+import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
+import { i18n } from "@/src/lib/i18n";
 
 const CollectionView = () => {
   const { colors } = useTheme();

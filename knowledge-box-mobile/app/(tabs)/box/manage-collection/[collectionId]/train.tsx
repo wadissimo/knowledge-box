@@ -2,12 +2,12 @@ import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 
 import { useLocalSearchParams } from "expo-router";
-import CardComponent from "@/components/CardComponent";
-import { Card, useCardModel } from "@/data/CardModel";
+import CardComponent from "@/src/components/CardComponent";
+import { Card, useCardModel } from "@/src/data/CardModel";
 import { useTheme } from "@react-navigation/native";
-import { Session, useSessionModel } from "@/data/SessionModel";
-import { SessionCard, useSessionCardModel } from "@/data/SessionCardModel";
-import { useCardTrainingService } from "@/service/CardTrainingService";
+import { Session, useSessionModel } from "@/src/data/SessionModel";
+import { SessionCard, useSessionCardModel } from "@/src/data/SessionCardModel";
+import { useCardTrainingService } from "@/src/service/CardTrainingService";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
