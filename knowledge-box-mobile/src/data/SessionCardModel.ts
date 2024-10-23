@@ -1,44 +1,70 @@
 import * as SQLite from "expo-sqlite";
 import { Card } from "./CardModel";
 
+enum SessionCardStatus {
+  New = 0, // unseen in the session
+  Learning = 1, // learning in progress
+  Complete = 2, // learning done
+}
 type SessionCard = {
   sessionId: number;
   cardId: number;
-  type: string;
-  status: string;
-  sessionOrder: number | null;
+  status: SessionCardStatus;
   successfulRepeats: number;
-  createdAt?: number | null;
-  card?: Card | null;
+  failedRepeats: number;
 };
 
 function useSessionCardModel() {
   const db = SQLite.useSQLiteContext();
 
   // Create
-  const newSessionCard = async (sessionId: number, cardId: number) => {
+  const newSessionCard = async (
+    sessionId: number,
+    cardId: number,
+    status: SessionCardStatus = SessionCardStatus.New,
+    successfulRepeats: number = 0,
+    failedRepeats: number = 0
+  ): Promise<void> => {
     await db.runAsync(
-      "INSERT INTO sessionCards (sessionId, cardId) VALUES (?, ?)",
+      `INSERT INTO sessionCards (sessionId, cardId, status,successfulRepeats, failedRepeats) 
+      VALUES (?, ?, ?, ?, ?)`,
+      sessionId,
+      cardId,
+      status,
+      successfulRepeats,
+      failedRepeats
+    );
+  };
+
+  // Update
+  const updateSessionCard = async (sessionCard: SessionCard): Promise<void> => {
+    await db.runAsync(
+      "UPDATE sessionCards SET status = ?, successfulRepeats = ?, failedRepeats = ? where sessionId = ? and cardId = ?",
+      sessionCard.status,
+      sessionCard.successfulRepeats,
+      sessionCard.failedRepeats,
+      sessionCard.sessionId,
+      sessionCard.cardId
+    );
+  };
+  // Mark SessionCard as completed
+  const completeSessionCard = async (
+    sessionId: number,
+    cardId: number
+  ): Promise<void> => {
+    await db.runAsync(
+      "UPDATE sessionCards SET status = ? where sessionId = ? and cardId = ?",
+      SessionCardStatus.Complete,
       sessionId,
       cardId
     );
   };
 
-  // Update
-  const updateSessionCard = async (sessionCard: SessionCard) => {
-    await db.runAsync(
-      "UPDATE sessionCards SET type = ?, status = ?, sessionOrder = ?, successfulRepeats = ? where sessionId = ? and cardId = ?",
-      sessionCard.type,
-      sessionCard.status,
-      sessionCard.sessionOrder,
-      sessionCard.successfulRepeats,
-      sessionCard.sessionId,
-      sessionCard.cardId
-    );
-  };
-
   // Delete
-  const deleteSessionCard = async (sessionId: number, cardId: number) => {
+  const deleteSessionCard = async (
+    sessionId: number,
+    cardId: number
+  ): Promise<void> => {
     await db.runAsync(
       "DELETE FROM sessionCards where sessionId = ? and cardId = ?",
       sessionId,
@@ -47,32 +73,25 @@ function useSessionCardModel() {
   };
 
   // Read
-  const getSessionCards = async (sessionId: number) => {
-    const cards = await db.getAllAsync<Card>(
-      "SELECT * FROM cards inner join sessionCards on cards.id = sessionCards.cardId where sessionCards.sessionId=? order by cards.repeatTime",
-      sessionId
-    );
-    const cardMap = new Map();
-    cards.forEach((card) => {
-      cardMap.set(card.id, card);
-    });
 
-    const sessionCards = await db.getAllAsync<SessionCard>(
-      "SELECT * FROM sessionCards inner join cards on cards.id = sessionCards.cardId where sessionCards.sessionId=? order by cards.repeatTime",
-      sessionId
+  const getSessionCard = async (
+    sessionId: number,
+    cardId: number
+  ): Promise<SessionCard | null> => {
+    return await db.getFirstAsync(
+      "SELECT * FROM sessionCards where sessionId = ? and cardId = ?",
+      sessionId,
+      cardId
     );
-    sessionCards.forEach((sessionCard) => {
-      sessionCard.card = cardMap.get(sessionCard.cardId);
-    });
-    return sessionCards;
   };
 
   return {
     newSessionCard,
     updateSessionCard,
-    deleteSessionCard,
-    getSessionCards,
+    completeSessionCard,
+    // deleteSessionCard,
+    getSessionCard,
   };
 }
 
-export { SessionCard, useSessionCardModel };
+export { SessionCardStatus, SessionCard, useSessionCardModel };

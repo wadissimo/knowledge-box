@@ -1,6 +1,10 @@
 import * as SQLite from "expo-sqlite";
 import { Card, CardStatus } from "../data/CardModel";
-import { useSessionCardModel } from "../data/SessionCardModel";
+import {
+  SessionCard,
+  SessionCardStatus,
+  useSessionCardModel,
+} from "../data/SessionCardModel";
 
 function useCardTrainingService() {
   const db = SQLite.useSQLiteContext();
@@ -73,12 +77,11 @@ function useCardTrainingService() {
     );
   };
 
-  const getNextSessionCard = async (
-    sessionId: number
-  ): Promise<Card | null> => {
+  const getNextCard = async (sessionId: number): Promise<Card | null> => {
     return await db.getFirstAsync(
-      "SELECT cards.* from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.sessionId = ? order by cards.repeatTime, cards.id",
-      sessionId
+      "SELECT cards.* from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.sessionId = ? and sessionCards.status <> ? order by cards.repeatTime, cards.id",
+      sessionId,
+      SessionCardStatus.Complete
     );
   };
 
@@ -89,6 +92,34 @@ function useCardTrainingService() {
     );
   };
 
+  const countSessionCards = async (sessionId: number): Promise<number> => {
+    const res = await db.getFirstAsync<number>(
+      "SELECT COUNT(*) from sessionCards where sessionId = ?",
+      sessionId
+    );
+    return res ?? 0;
+  };
+
+  const getCurrentSessionCards = async (
+    sessionId: number
+  ): Promise<SessionCard[]> => {
+    const sessionCards = await db.getAllAsync<SessionCard>(
+      "SELECT * FROM sessionCards inner join cards on cards.id = sessionCards.cardId where sessionCards.sessionId=? and sessionCards.status <> ? order by cards.repeatTime",
+      sessionId,
+      SessionCardStatus.Complete
+    );
+
+    return sessionCards;
+  };
+
+  const getCurrentCards = async (sessionId: number): Promise<Card[]> => {
+    return await db.getAllAsync<Card>(
+      "SELECT cards.* from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.sessionId = ? and sessionCards.status <> ? order by cards.repeatTime, cards.id",
+      sessionId,
+      SessionCardStatus.Complete
+    );
+  };
+
   return {
     updateCardRepeatTime,
     selectNewTrainingCards,
@@ -96,8 +127,11 @@ function useCardTrainingService() {
     selectLearningCards,
     bulkUpdateRepeatTime,
     bulkInsertTrainingCards,
-    getNextSessionCard,
+    getNextCard,
     getAllSessionCards,
+    countSessionCards,
+    getCurrentSessionCards,
+    getCurrentCards,
   };
 }
 

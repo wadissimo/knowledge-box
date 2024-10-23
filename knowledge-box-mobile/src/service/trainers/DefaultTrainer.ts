@@ -4,7 +4,11 @@ import { i18n } from "@/src/lib/i18n";
 import { Session, useSessionModel } from "@/src/data/SessionModel";
 import { useCardTrainingService } from "../CardTrainingService";
 import { getTomorrowAsNumber, truncateTime } from "@/src/lib/TimeUtils";
-import { useSessionCardModel } from "@/src/data/SessionCardModel";
+import {
+  SessionCard,
+  SessionCardStatus,
+  useSessionCardModel,
+} from "@/src/data/SessionCardModel";
 
 const ONE_SEC: number = 1000;
 const ONE_MIN: number = 60 * 1000;
@@ -33,19 +37,15 @@ export default function useDefaultTrainer(
   maxLearningCards: number
 ): Trainer {
   const { updateCard } = useCardModel();
-  const {
-    getSession: getSesionFromDb,
-    newSession,
-    getSessionById,
-  } = useSessionModel();
-  const { deleteSessionCard } = useSessionCardModel();
+  const { getStartedSession, newSession, getSessionById } = useSessionModel();
+  const { getSessionCard, updateSessionCard } = useSessionCardModel();
   const {
     selectNewTrainingCards,
     selectReviewCards,
     selectLearningCards,
     bulkInsertTrainingCards,
     bulkUpdateRepeatTime,
-    getNextSessionCard,
+    getNextCard: getNextCardDb,
     getAllSessionCards,
   } = useCardTrainingService();
 
@@ -57,10 +57,10 @@ export default function useDefaultTrainer(
   }
 
   async function getSession(key: string): Promise<Session | null> {
-    const session = await getSesionFromDb(collectionId, key);
+    const session = await getStartedSession(collectionId, key);
     if (session === null) return null;
 
-    const nextCard = await getNextSessionCard(session.id);
+    const nextCard = await getNextCard(session.id);
     if (nextCard !== null && nextCard.repeatTime !== null) {
       // check if cards need to adjust time
       const curTime = new Date().getTime();
@@ -86,20 +86,6 @@ export default function useDefaultTrainer(
     learningCards: Card[],
     reviewCards: Card[]
   ): Card[] {
-    const seen = new Set<number>();
-    // Filter out duplicate cards based on 'id'
-    const uniqueCards = (cards: Card[]) => {
-      return cards.filter((card) => {
-        if (seen.has(card.id)) return false;
-        seen.add(card.id);
-        return true;
-      });
-    };
-
-    newCards = uniqueCards(newCards);
-    learningCards = uniqueCards(learningCards);
-    reviewCards = uniqueCards(reviewCards);
-
     const totalCards =
       newCards.length + learningCards.length + reviewCards.length;
 
@@ -155,24 +141,37 @@ export default function useDefaultTrainer(
   async function createSession(key: string): Promise<Session> {
     // Select new cards
     console.log("select new cards");
-    const newCards = await selectNewTrainingCards(collectionId, maxNewCards);
+    var newCards = await selectNewTrainingCards(collectionId, maxNewCards);
     // Select review cards
     const cutOffTime = getTomorrowAsNumber() - 1;
     console.log("select review cards");
-    const cardsToReview = await selectReviewCards(
+    var cardsToReview = await selectReviewCards(
       collectionId,
       cutOffTime,
       maxReviewCards
     );
     // Select learning cards
     console.log("select learning cards");
-    const cardsToLearn = await selectLearningCards(
+    var cardsToLearn = await selectLearningCards(
       collectionId,
       maxLearningCards
     );
 
+    const seen = new Set<number>();
+    // Filter out duplicate cards based on 'id'
+    const uniqueCards = (cards: Card[]) => {
+      return cards.filter((card) => {
+        if (seen.has(card.id)) return false;
+        seen.add(card.id);
+        return true;
+      });
+    };
+
+    newCards = uniqueCards(newCards);
+    cardsToLearn = uniqueCards(cardsToLearn);
+    cardsToReview = uniqueCards(cardsToReview);
+
     // interleave cards
-    console.log("merge cards");
     const allCards = mergeCards(newCards, cardsToLearn, cardsToReview);
     const curTime = new Date().getTime();
 
@@ -191,8 +190,9 @@ export default function useDefaultTrainer(
     const sessionId = await newSession(
       collectionId,
       key,
-      maxNewCards,
-      maxReviewCards
+      newCards.length,
+      cardsToReview.length,
+      cardsToLearn.length
     );
     const session = await getSessionById(sessionId);
     if (session === null) {
@@ -208,7 +208,7 @@ export default function useDefaultTrainer(
     return session;
   }
   async function getNextCard(sessionId: number): Promise<Card | null> {
-    return await getNextSessionCard(sessionId);
+    return await getNextCardDb(sessionId);
   }
   async function processUserResponse(
     sessionId: number,
@@ -216,7 +216,6 @@ export default function useDefaultTrainer(
     response: string,
     sessionCards?: Card[]
   ): Promise<void> {
-    const today = truncateTime(new Date());
     const curTime = new Date().getTime();
 
     let easeFactor = card.easeFactor ? card.easeFactor : INITIAL_EASE_FACTOR;
@@ -227,6 +226,16 @@ export default function useDefaultTrainer(
       card.status = CardStatus.Learning;
 
     card.repeatTime = card.repeatTime ?? curTime;
+
+    const sessionCard: SessionCard | null = await getSessionCard(
+      sessionId,
+      card.id
+    );
+    if (sessionCard === null) {
+      throw new Error("can't find session card");
+    }
+    if (sessionCard.status === SessionCardStatus.New)
+      sessionCard.status = SessionCardStatus.Learning;
 
     switch (response) {
       case "again":
@@ -248,6 +257,9 @@ export default function useDefaultTrainer(
         }
 
         card.repeatTime += card.interval;
+
+        sessionCard.failedRepeats += 1;
+
         break;
 
       case "good":
@@ -265,9 +277,10 @@ export default function useDefaultTrainer(
           card.interval = Math.max(ONE_DAY, card.interval);
           card.repeatTime = curTime;
           card.prevRepeatTime = curTime;
-          await deleteSessionCard(sessionId, card.id);
+          sessionCard.status = SessionCardStatus.Complete;
         }
         card.repeatTime += card.interval;
+        sessionCard.successfulRepeats += 1;
         break;
 
       case "easy":
@@ -283,7 +296,8 @@ export default function useDefaultTrainer(
         card.prevRepeatTime = curTime;
         card.repeatTime = curTime + card.interval;
 
-        await deleteSessionCard(sessionId, card.id);
+        sessionCard.status = SessionCardStatus.Complete;
+        sessionCard.successfulRepeats += 1;
         break;
       default:
         throw new Error("incorrect user response");
@@ -301,8 +315,7 @@ export default function useDefaultTrainer(
         card.repeatTime = (sessionCards[1].repeatTime ?? 0) + 1;
       }
     }
-
-    await updateCard(card);
+    await Promise.all([updateSessionCard(sessionCard), updateCard(card)]);
   }
 
   return {

@@ -1,11 +1,22 @@
 import * as SQLite from "expo-sqlite";
 
+enum SessionStatus {
+  Started = 0,
+  Completed = 1,
+  Abandoned = -1,
+}
 type Session = {
   id: number;
   collectionId: number;
   trainingDate: string;
   newCards: number;
-  repeatCards: number;
+  reviewCards: number;
+  learningCards: number;
+  totalViews: number;
+  successResponses: number;
+  failedResponses: number;
+  score: number;
+  status: SessionStatus;
   createdAt?: number | null;
 };
 
@@ -18,16 +29,50 @@ function useSessionModel() {
     collectionId: number,
     trainingDate: string,
     newCards: number,
-    repeatCards: number
+    reviewCards: number,
+    learningCards: number = 0,
+    totalViews: number = 0,
+    successResponses: number = 0,
+    failedResponses: number = 0,
+    score: number = 0,
+    status: number = 0
   ): Promise<number> => {
     const result = await db.runAsync(
-      "INSERT INTO sessions (collectionId, trainingDate, newCards, repeatCards) VALUES (?, ?, ?, ?)",
+      `INSERT INTO sessions (collectionId, trainingDate, newCards, reviewCards,
+       learningCards, totalViews, successResponses, failedResponses, score, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       collectionId,
       trainingDate,
       newCards,
-      repeatCards
+      reviewCards,
+      learningCards,
+      totalViews,
+      successResponses,
+      failedResponses,
+      score,
+      status
     );
     return result.lastInsertRowId;
+  };
+
+  //Update
+  const updateSession = async (session: Session): Promise<void> => {
+    await db.runAsync(
+      `UPDATE sessions SET collectionId = ?, trainingDate = ?, newCards = ?,
+       reviewCards = ?, learningCards = ?, totalViews = ?, successResponses= ?, 
+       failedResponses = ?, score = ?, status = ? where id = ?`,
+      session.collectionId,
+      session.trainingDate,
+      session.newCards,
+      session.reviewCards,
+      session.learningCards,
+      session.totalViews,
+      session.successResponses,
+      session.failedResponses,
+      session.score,
+      session.status,
+      session.id
+    );
   };
 
   // Delete
@@ -36,11 +81,15 @@ function useSessionModel() {
   };
 
   // Read
-  const getSession = async (collectionId: number, dateString: string) => {
+  const getStartedSession = async (
+    collectionId: number,
+    dateString: string
+  ) => {
     const result = await db.getFirstAsync<Session | null>(
-      "SELECT * FROM sessions where collectionId=? and trainingDate = ?",
+      "SELECT * FROM sessions where collectionId=? and trainingDate = ? and status = ?",
       collectionId,
-      dateString
+      dateString,
+      SessionStatus.Started
     );
     return result;
   };
@@ -54,10 +103,11 @@ function useSessionModel() {
 
   return {
     newSession,
+    updateSession,
     deleteSession,
-    getSession,
+    getStartedSession,
     getSessionById,
   };
 }
 
-export { Session, useSessionModel };
+export { SessionStatus, Session, useSessionModel };

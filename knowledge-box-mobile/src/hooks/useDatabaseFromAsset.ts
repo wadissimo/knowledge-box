@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import * as FileSystem from "expo-file-system";
 import { useAssets } from "expo-asset";
-import * as SQLite from "expo-sqlite";
 
 const copyDatabaseAsync = async (assetDbName: string, dbName: string) => {
   const dbDir = FileSystem.documentDirectory + "SQLite/" + dbName;

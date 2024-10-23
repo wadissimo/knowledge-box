@@ -5,7 +5,11 @@ import { useLocalSearchParams } from "expo-router";
 import CardComponent from "@/src/components/CardComponent";
 import { Card, useCardModel } from "@/src/data/CardModel";
 import { useTheme } from "@react-navigation/native";
-import { Session, useSessionModel } from "@/src/data/SessionModel";
+import {
+  Session,
+  SessionStatus,
+  useSessionModel,
+} from "@/src/data/SessionModel";
 import { SessionCard, useSessionCardModel } from "@/src/data/SessionCardModel";
 import { useCardTrainingService } from "@/src/service/CardTrainingService";
 import useDefaultTrainer from "@/src/service/trainers/DefaultTrainer";
@@ -15,19 +19,6 @@ import useMediaDataService from "@/src/service/MediaDataService";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
-};
-const getTomorrowAsNumber = (): number => {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  return tomorrow.getTime();
-};
-
-const truncateTime = (date: Date): number => {
-  const newDate = new Date(date);
-  newDate.setHours(0, 0, 0, 0);
-  return newDate.getTime();
 };
 
 const NEW_CARDS_PER_DAY = 10;
@@ -47,8 +38,9 @@ const TrainCollection = () => {
     LEARNING_CARDS_PER_DAY
   );
 
-  const { deleteSession, getSession } = useSessionModel();
-  const { getAllSessionCards } = useCardTrainingService();
+  const { updateSession: updateSessionDb, getStartedSession } =
+    useSessionModel();
+  const { getCurrentCards } = useCardTrainingService();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [session, setSession] = useState<Session | null>(null);
@@ -81,7 +73,7 @@ const TrainCollection = () => {
       existingSession = false;
       session = await trainer.createSession(curDateStripped);
     }
-    const sessionCards = await getAllSessionCards(session.id);
+    const sessionCards = await getCurrentCards(session.id);
 
     setSession(session);
     setSessionCards(sessionCards);
@@ -99,9 +91,13 @@ const TrainCollection = () => {
   const resetTraining = async () => {
     console.log("training reset");
     const curDateStripped = stripTimeFromDate(new Date());
-    var session = await getSession(Number(collectionId), curDateStripped);
+    var session = await getStartedSession(
+      Number(collectionId),
+      curDateStripped
+    );
     if (session === null) throw Error("can't find session");
-    await deleteSession(session.id);
+    session.status = SessionStatus.Abandoned;
+    await updateSessionDb(session);
     console.log("session removed: ", session.id);
     await updateSession();
   };
@@ -110,6 +106,18 @@ const TrainCollection = () => {
     userResponse: "again" | "hard" | "good" | "easy"
   ) {
     if (session === null || currentCard === null) return;
+    //increase view count
+    session.totalViews += 1;
+    switch (userResponse) {
+      case "again":
+        session.failedResponses += 1;
+        break;
+      case "good":
+      case "easy":
+        session.successResponses += 1;
+        break;
+    }
+    await updateSessionDb(session);
 
     await trainer.processUserResponse(
       session.id,
@@ -118,12 +126,13 @@ const TrainCollection = () => {
       sessionCards
     );
 
-    const newSessionCards = await getAllSessionCards(session.id);
+    const newSessionCards = await getCurrentCards(session.id);
     setSessionCards(newSessionCards);
     selectNextCard();
   }
 
   if (loading) return null;
+  if (session === null) return null;
   return (
     <View style={styles.container}>
       {currentCard ? (
@@ -139,6 +148,14 @@ const TrainCollection = () => {
           <Text style={styles.noMoreCardsText}>
             Well done. Training complete!
           </Text>
+          <Text>Total Card Views: {session.totalViews}</Text>
+          <Text>New Cards: {session.newCards}</Text>
+          <Text>
+            Review Cards: {session.reviewCards + session.learningCards}
+          </Text>
+          <Text>Successful Responses: {session.successResponses}</Text>
+          <Text>Failed Responses: {session.failedResponses}</Text>
+
           <Text style={styles.scoreText}>Your score: XXX</Text>
           <View>
             <Button
