@@ -49,7 +49,7 @@ function useSessionCardModel() {
   // Read
   const getSessionCards = async (sessionId: number) => {
     const cards = await db.getAllAsync<Card>(
-      "SELECT * FROM cards inner join sessionCards on cards.id = sessionCards.cardId where sessionCards.sessionId=?",
+      "SELECT * FROM cards inner join sessionCards on cards.id = sessionCards.cardId where sessionCards.sessionId=? order by cards.repeatTime",
       sessionId
     );
     const cardMap = new Map();
@@ -58,7 +58,7 @@ function useSessionCardModel() {
     });
 
     const sessionCards = await db.getAllAsync<SessionCard>(
-      "SELECT * FROM sessionCards where sessionId=? order by sessionOrder",
+      "SELECT * FROM sessionCards inner join cards on cards.id = sessionCards.cardId where sessionCards.sessionId=? order by cards.repeatTime",
       sessionId
     );
     sessionCards.forEach((sessionCard) => {

@@ -14,6 +14,10 @@
     "error": "Error",
     "confirm": {
       "deletion": "Confirm Deletion"
+    },
+    "time": {
+      "mins": "m",
+      "days": "d"
     }
   },
   "boxes": {

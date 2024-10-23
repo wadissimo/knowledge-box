@@ -17,7 +17,8 @@ export interface Trainer {
   processUserResponse(
     sessionId: number,
     card: Card,
-    response: string
+    response: string,
+    sessionCards?: Card[]
   ): Promise<void>;
 
   //   // Additional methods or properties

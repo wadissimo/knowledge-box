@@ -10,6 +10,8 @@ import { SessionCard, useSessionCardModel } from "@/src/data/SessionCardModel";
 import { useCardTrainingService } from "@/src/service/CardTrainingService";
 import useDefaultTrainer from "@/src/service/trainers/DefaultTrainer";
 import { Trainer } from "@/src/service/trainers/Trainer";
+import { formatInterval } from "@/src/lib/TimeUtils";
+import useMediaDataService from "@/src/service/MediaDataService";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
@@ -32,22 +34,6 @@ const NEW_CARDS_PER_DAY = 10;
 const LEARNING_CARDS_PER_DAY = 50;
 const REPEAT_CARDS_PER_DAY = 200;
 
-const ONE_DAY: number = 24 * 60 * 60 * 1000;
-const AGAIN_ORDER_INCREASE = 5;
-const AGAIN_ORDER_INCREASE_PROC = 0.1;
-const HARD_ORDER_INCREASE = 6; // todo: % ?
-const HARD_ORDER_INCREASE_PROC = 0.25;
-const GOOD_ORDER_INCREASE = 7;
-const GOOD_ORDER_INCREASE_PROC = 0.7;
-const INTERVAL_GROW_FACTOR = 1.2;
-const EASY_INTERVAL_GROW_FACTOR = 1.3;
-const INITIAL_INTERVAL = 1;
-const SESSION_MAX_SUCCESSFUL_REPEATS = 2;
-const INITIAL_EASE_FACTOR = 2.5;
-const MIN_EASE_FACTOR = 1.3;
-const AGAIN_DELTA_EASE_FACTOR = 0.2;
-const HARD_DELTA_EASE_FACTOR = 0.1;
-
 const DEBUG = true;
 
 const TrainCollection = () => {
@@ -61,49 +47,54 @@ const TrainCollection = () => {
     LEARNING_CARDS_PER_DAY
   );
 
-  const { updateCard } = useCardModel();
-
   const { deleteSession, getSession } = useSessionModel();
-  const { updateSessionCard, deleteSessionCard, getSessionCards } =
-    useSessionCardModel();
+  const { getAllSessionCards } = useCardTrainingService();
 
+  const [loading, setLoading] = useState<boolean>(true);
   const [session, setSession] = useState<Session | null>(null);
   const [currentCard, setCurrentCard] = useState<Card | null>(null);
-  const [sessionCards, setSessionCards] = useState<SessionCard[]>([]);
+  const [sessionCards, setSessionCards] = useState<Card[]>([]);
+  const { playSound, getImageSource } = useMediaDataService();
 
   function selectNextCard() {
-    if (
-      session === null ||
-      sessionCards === null ||
-      sessionCards.length === 0
-    ) {
+    if (session === null) {
       setCurrentCard(null);
       return;
     }
+    setLoading(true);
     trainer.getNextCard(session.id).then((card) => {
+      console.log("curent card", card);
       setCurrentCard(card);
+      setLoading(false);
     });
   }
 
   async function updateSession() {
+    console.log("updateSession");
     if (!collectionId) return;
     const curDateStripped = stripTimeFromDate(new Date());
 
     var session = await trainer.getSession(curDateStripped);
+    var existingSession = true;
     if (session === null) {
       console.log("Creating a training session");
+      existingSession = false;
       session = await trainer.createSession(curDateStripped);
     }
-    const sessionCards = await getSessionCards(session.id);
+    const sessionCards = await getAllSessionCards(session.id);
 
     setSession(session);
     setSessionCards(sessionCards);
-    selectNextCard();
+    setLoading(true);
   }
 
   useEffect(() => {
     updateSession();
   }, [collectionId]);
+
+  useEffect(() => {
+    selectNextCard();
+  }, [session]);
 
   const resetTraining = async () => {
     console.log("training reset");
@@ -120,13 +111,19 @@ const TrainCollection = () => {
   ) {
     if (session === null || currentCard === null) return;
 
-    await trainer.processUserResponse(session.id, currentCard, userResponse);
+    await trainer.processUserResponse(
+      session.id,
+      currentCard,
+      userResponse,
+      sessionCards
+    );
 
-    const sessionCards = await getSessionCards(session.id);
-    setSessionCards(sessionCards);
+    const newSessionCards = await getAllSessionCards(session.id);
+    setSessionCards(newSessionCards);
     selectNextCard();
   }
 
+  if (loading) return null;
   return (
     <View style={styles.container}>
       {currentCard ? (
@@ -134,6 +131,8 @@ const TrainCollection = () => {
           currentCard={currentCard}
           onUserResponse={handleUserResponse}
           cardDimensions={{ height: 200, width: 100 }}
+          playSound={playSound}
+          getImageSource={getImageSource}
         />
       ) : (
         <View style={styles.noMoreCardsTextView}>
@@ -153,25 +152,29 @@ const TrainCollection = () => {
       {DEBUG && (
         <>
           <ScrollView style={styles.scrollView}>
-            {sessionCards.map((sessionCard: SessionCard) => {
+            {sessionCards.map((card: Card) => {
               return (
-                sessionCard.card && (
-                  <View
-                    style={{ flexDirection: "row", gap: 2 }}
-                    key={`card-${sessionCard.card.id}`}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text>{sessionCard.card?.front}</Text>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      {/* <Text>Back: {sessionCard.card?.back}</Text> */}
-                    </View>
-
-                    <View style={{ flex: 1 }}>
-                      <Text>{sessionCard.sessionOrder}</Text>
-                    </View>
+                <View
+                  style={{ flexDirection: "row", gap: 1 }}
+                  key={`card-${card.id}`}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text>{card?.front}</Text>
                   </View>
-                )
+                  <View style={{ flex: 1 }}>
+                    <Text>{card?.status}</Text>
+                  </View>
+
+                  <View style={{ flex: 1 }}>
+                    <Text>{card?.repeatTime}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text>{formatInterval(card?.interval ?? 0)}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text>{card?.easeFactor?.toFixed(2)}</Text>
+                  </View>
+                </View>
               );
             })}
           </ScrollView>

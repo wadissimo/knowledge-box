@@ -6,8 +6,10 @@ import { useCardTrainingService } from "../CardTrainingService";
 import { getTomorrowAsNumber, truncateTime } from "@/src/lib/TimeUtils";
 import { useSessionCardModel } from "@/src/data/SessionCardModel";
 
-const ONE_DAY: number = 24 * 60 * 60 * 1000;
+const ONE_SEC: number = 1000;
 const ONE_MIN: number = 60 * 1000;
+const ONE_DAY: number = 24 * 60 * 60 * 1000;
+
 const SESSION_DURATION_DEFAULT = 20 * ONE_MIN; // 20 mins
 
 const INITIAL_EASE_FACTOR = 2.5;
@@ -44,6 +46,7 @@ export default function useDefaultTrainer(
     bulkInsertTrainingCards,
     bulkUpdateRepeatTime,
     getNextSessionCard,
+    getAllSessionCards,
   } = useCardTrainingService();
 
   function getName(): string {
@@ -54,7 +57,28 @@ export default function useDefaultTrainer(
   }
 
   async function getSession(key: string): Promise<Session | null> {
-    return await getSesionFromDb(collectionId, key);
+    const session = await getSesionFromDb(collectionId, key);
+    if (session === null) return null;
+
+    const nextCard = await getNextSessionCard(session.id);
+    if (nextCard !== null && nextCard.repeatTime !== null) {
+      // check if cards need to adjust time
+      const curTime = new Date().getTime();
+      const deltaTime = nextCard.repeatTime - curTime;
+      if (Math.abs(deltaTime) > 5 * ONE_MIN) {
+        // > 5 min, then adjust time
+        const sessionCards = await getAllSessionCards(session.id);
+
+        sessionCards.forEach((card) => {
+          if (card.repeatTime) {
+            card.repeatTime -= deltaTime;
+          }
+        });
+        await bulkUpdateRepeatTime(sessionCards);
+      }
+    }
+
+    return session;
   }
 
   function mergeCards(
@@ -150,12 +174,15 @@ export default function useDefaultTrainer(
     // interleave cards
     console.log("merge cards");
     const allCards = mergeCards(newCards, cardsToLearn, cardsToReview);
-    const curTime = new Date().getDate();
+    const curTime = new Date().getTime();
 
     // update cards reviewTime
+    const deltaTime = Math.min(
+      20 * ONE_SEC,
+      Math.ceil(SESSION_DURATION_DEFAULT / allCards.length)
+    );
     allCards.forEach((card, index) => {
-      card.repeatTime =
-        curTime + index * Math.ceil(SESSION_DURATION_DEFAULT / allCards.length);
+      card.repeatTime = curTime + index * deltaTime;
     });
 
     // update DB
@@ -186,16 +213,20 @@ export default function useDefaultTrainer(
   async function processUserResponse(
     sessionId: number,
     card: Card,
-    response: string
+    response: string,
+    sessionCards?: Card[]
   ): Promise<void> {
     const today = truncateTime(new Date());
-    const curTime = new Date().getDate();
+    const curTime = new Date().getTime();
 
-    let easeFactor = card.easeFactor ?? INITIAL_EASE_FACTOR;
-    let interval = card.interval ?? INITIAL_INTERVAL;
+    let easeFactor = card.easeFactor ? card.easeFactor : INITIAL_EASE_FACTOR;
+    let interval = card.interval ? card.interval : INITIAL_INTERVAL;
 
     // update new card to learning
-    if (card.status === CardStatus.New) card.status = CardStatus.Learning;
+    if (card.status === CardStatus.New || card.status === null)
+      card.status = CardStatus.Learning;
+
+    card.repeatTime = card.repeatTime ?? curTime;
 
     switch (response) {
       case "again":
@@ -216,10 +247,7 @@ export default function useDefaultTrainer(
           card.interval = INITIAL_INTERVAL; // TODO: reduce interval instead?
         }
 
-        card.repeatTime = curTime + card.interval;
-
-        // set a new order in the session
-        await updateCard(card);
+        card.repeatTime += card.interval;
         break;
 
       case "good":
@@ -235,11 +263,11 @@ export default function useDefaultTrainer(
           card.status = CardStatus.Review;
           // push into the next day
           card.interval = Math.max(ONE_DAY, card.interval);
-          card.prevRepeatTime = today;
+          card.repeatTime = curTime;
+          card.prevRepeatTime = curTime;
           await deleteSessionCard(sessionId, card.id);
         }
-        card.repeatTime = today + card.interval;
-        await updateCard(card);
+        card.repeatTime += card.interval;
         break;
 
       case "easy":
@@ -252,16 +280,29 @@ export default function useDefaultTrainer(
           Math.max(ONE_DAY, Math.round(interval * card.easeFactor)) *
           EASY_INTERVAL_GROW_FACTOR;
         card.status = CardStatus.Review;
-        card.prevRepeatTime = today;
-        card.repeatTime = today + card.interval;
+        card.prevRepeatTime = curTime;
+        card.repeatTime = curTime + card.interval;
 
-        await Promise.all([
-          deleteSessionCard(sessionId, card.id),
-          updateCard(card),
-        ]);
-
+        await deleteSessionCard(sessionId, card.id);
         break;
+      default:
+        throw new Error("incorrect user response");
     }
+
+    if (sessionCards) {
+      // now check that we pushed at least 2 cards ahead if possible (or 1 card if array is too small)
+      if (sessionCards.length > 2) {
+        if ((sessionCards[2].repeatTime ?? 0) > card.repeatTime)
+          card.repeatTime = (sessionCards[2].repeatTime ?? 0) + 1;
+      } else if (
+        sessionCards.length > 1 &&
+        (sessionCards[1].repeatTime ?? 0) > card.repeatTime
+      ) {
+        card.repeatTime = (sessionCards[1].repeatTime ?? 0) + 1;
+      }
+    }
+
+    await updateCard(card);
   }
 
   return {

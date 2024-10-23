@@ -1,3 +1,8 @@
+import { i18n } from "./i18n";
+
+const ONE_DAY: number = 24 * 60 * 60 * 1000;
+const ONE_MIN: number = 60 * 1000;
+
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
 };
@@ -15,4 +20,23 @@ const truncateTime = (date: Date): number => {
   return newDate.getTime();
 };
 
-export { stripTimeFromDate, getTomorrowAsNumber, truncateTime };
+const getDaysInInterval = (interval: number): number => {
+  return Math.floor(interval / ONE_DAY);
+};
+
+const getMinsInInterval = (interval: number): number => {
+  return Math.floor(interval / ONE_MIN);
+};
+
+const formatInterval = (interval: number): string => {
+  const days = getDaysInInterval(interval);
+  if (days !== 0) return `${days} ${i18n.t("common.time.days")}`;
+  const mins = getMinsInInterval(interval);
+  if (mins > 0) {
+    return `${mins} ${i18n.t("common.time.mins")}`;
+  } else {
+    return " < 1 " + i18n.t("common.time.mins");
+  }
+};
+
+export { stripTimeFromDate, getTomorrowAsNumber, truncateTime, formatInterval };

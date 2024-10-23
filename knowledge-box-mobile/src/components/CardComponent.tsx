@@ -15,13 +15,20 @@ const CardComponent: React.FC<{
   currentCard: Card;
   onUserResponse: Function;
   cardDimensions?: { height: number; width: number };
-}> = ({ currentCard, onUserResponse, cardDimensions }) => {
+  playSound: Function;
+  getImageSource: Function;
+}> = ({
+  currentCard,
+  onUserResponse,
+  cardDimensions,
+  playSound,
+  getImageSource,
+}) => {
   const [cardFlip, setCardFlip] = useState(false);
   const [answerShown, setAnswerShown] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [frontImgSrc, setFrontImgSrc] = useState<string | null>(null);
   const [backImgSrc, setBackImgSrc] = useState<string | null>(null);
-  const { playSound, getImageSource } = useMediaDataService();
 
   async function loadImages(card: Card) {
     if (card.backImg !== null) {

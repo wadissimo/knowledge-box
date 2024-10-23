@@ -22,8 +22,9 @@ function useCardTrainingService() {
     maxCards: number
   ) => {
     const result = await db.getAllAsync<Card>( // TODO: is it better to use status = 0?
-      "SELECT * FROM cards where collectionId=? and repeatTime is null order by priority, id asc limit ?",
+      "SELECT * FROM cards where collectionId=? and (status = ? or status is null) order by priority, id asc limit ?",
       collectionId,
+      CardStatus.New,
       maxCards
     );
     return result;
@@ -76,7 +77,14 @@ function useCardTrainingService() {
     sessionId: number
   ): Promise<Card | null> => {
     return await db.getFirstAsync(
-      "SELECT cards.* from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.id = ? order by cards.repeatTime, cards.id",
+      "SELECT cards.* from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.sessionId = ? order by cards.repeatTime, cards.id",
+      sessionId
+    );
+  };
+
+  const getAllSessionCards = async (sessionId: number): Promise<Card[]> => {
+    return await db.getAllAsync<Card>(
+      "SELECT cards.* from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.sessionId = ? order by cards.repeatTime, cards.id",
       sessionId
     );
   };
@@ -89,6 +97,7 @@ function useCardTrainingService() {
     bulkUpdateRepeatTime,
     bulkInsertTrainingCards,
     getNextSessionCard,
+    getAllSessionCards,
   };
 }
 

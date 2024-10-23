@@ -31,7 +31,7 @@ const copyDatabaseAsync = async (assetDbName: string, dbName: string) => {
   // await db.closeAsync();
 };
 
-const FORCE_COPY_DATABASE = true; // TODO: Set True only to reimport initial database, wipes out all user data!
+const FORCE_COPY_DATABASE = false; // TODO: Set True only to reimport initial database, wipes out all user data!
 const DATABASE_NAME: string = "userdata.db";
 const DATABASE_ASSET: string = "@/assets/userdata.db";
 
