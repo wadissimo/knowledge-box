@@ -14,14 +14,20 @@ function useSessionModel() {
 
   // Create
 
-  const newSession = async (session: Session) => {
-    await db.runAsync(
+  const newSession = async (
+    collectionId: number,
+    trainingDate: string,
+    newCards: number,
+    repeatCards: number
+  ): Promise<number> => {
+    const result = await db.runAsync(
       "INSERT INTO sessions (collectionId, trainingDate, newCards, repeatCards) VALUES (?, ?, ?, ?)",
-      session.collectionId,
-      session.trainingDate,
-      session.newCards,
-      session.repeatCards
+      collectionId,
+      trainingDate,
+      newCards,
+      repeatCards
     );
+    return result.lastInsertRowId;
   };
 
   // Delete
@@ -38,11 +44,19 @@ function useSessionModel() {
     );
     return result;
   };
+  const getSessionById = async (sessionId: number) => {
+    const result = await db.getFirstAsync<Session | null>(
+      "SELECT * FROM sessions where id=?",
+      sessionId
+    );
+    return result;
+  };
 
   return {
     newSession,
     deleteSession,
     getSession,
+    getSessionById,
   };
 }
 

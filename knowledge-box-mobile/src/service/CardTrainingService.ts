@@ -1,10 +1,15 @@
 import * as SQLite from "expo-sqlite";
-import { Card } from "../data/CardModel";
+import { Card, CardStatus } from "../data/CardModel";
+import { useSessionCardModel } from "../data/SessionCardModel";
 
 function useCardTrainingService() {
   const db = SQLite.useSQLiteContext();
+  const sessionCardModel = useSessionCardModel();
 
-  const updateCardRepeatTime = async (cardId: number, repeatTime: string) => {
+  const updateCardRepeatTime = async (
+    cardId: number,
+    repeatTime: number | null
+  ) => {
     await db.runAsync(
       "UPDATE cards SET repeatTime = ? where id=?",
       repeatTime,
@@ -14,32 +19,76 @@ function useCardTrainingService() {
 
   const selectNewTrainingCards = async (
     collectionId: number,
-    numberOfCards: number
+    maxCards: number
   ) => {
-    const result = await db.getAllAsync<Card>(
-      "SELECT * FROM cards where collectionId=? and repeatTime is null order by id asc limit ?",
+    const result = await db.getAllAsync<Card>( // TODO: is it better to use status = 0?
+      "SELECT * FROM cards where collectionId=? and repeatTime is null order by priority, id asc limit ?",
       collectionId,
-      numberOfCards
+      maxCards
     );
     return result;
   };
 
-  const selectToRepeatTrainingCards = async (
+  const selectReviewCards = async (
     collectionId: number,
-    time: number
+    time: number, // time as ms number
+    maxCards: number
   ) => {
     const result = await db.getAllAsync<Card>(
-      "SELECT * FROM cards where collectionId = ? and repeatTime <= ?",
+      "SELECT * FROM cards where collectionId = ? and repeatTime <= ? and status = ? order by repeatTime limit ?",
       collectionId,
-      time
+      time,
+      CardStatus.Review,
+      maxCards
     );
     return result;
+  };
+
+  const selectLearningCards = async (
+    collectionId: number,
+    maxCards: number
+  ) => {
+    const result = await db.getAllAsync<Card>(
+      "SELECT * FROM cards where collectionId = ? and status = ? order by repeatTime limit ?",
+      collectionId,
+      CardStatus.Learning,
+      maxCards
+    );
+    return result;
+  };
+
+  const bulkUpdateRepeatTime = async (cards: Card[]): Promise<void> => {
+    await Promise.all(
+      cards.map((card) => updateCardRepeatTime(card.id, card.repeatTime))
+    );
+  };
+
+  const bulkInsertTrainingCards = async (
+    sessionId: number,
+    cards: Card[]
+  ): Promise<void> => {
+    await Promise.all(
+      cards.map((card) => sessionCardModel.newSessionCard(sessionId, card.id))
+    );
+  };
+
+  const getNextSessionCard = async (
+    sessionId: number
+  ): Promise<Card | null> => {
+    return await db.getFirstAsync(
+      "SELECT cards.* from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.id = ? order by cards.repeatTime, cards.id",
+      sessionId
+    );
   };
 
   return {
     updateCardRepeatTime,
     selectNewTrainingCards,
-    selectToRepeatTrainingCards,
+    selectReviewCards,
+    selectLearningCards,
+    bulkUpdateRepeatTime,
+    bulkInsertTrainingCards,
+    getNextSessionCard,
   };
 }
 

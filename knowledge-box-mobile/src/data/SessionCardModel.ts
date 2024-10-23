@@ -16,14 +16,11 @@ function useSessionCardModel() {
   const db = SQLite.useSQLiteContext();
 
   // Create
-  const newSessionCard = async (sessionCard: SessionCard) => {
+  const newSessionCard = async (sessionId: number, cardId: number) => {
     await db.runAsync(
-      "INSERT INTO sessionCards (sessionId, cardId, type, status, sessionOrder) VALUES (?, ?, ?, ?, ?)",
-      sessionCard.sessionId,
-      sessionCard.cardId,
-      sessionCard.type,
-      sessionCard.status,
-      sessionCard.sessionOrder
+      "INSERT INTO sessionCards (sessionId, cardId) VALUES (?, ?)",
+      sessionId,
+      cardId
     );
   };
 

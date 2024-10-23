@@ -1,19 +1,21 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SessionCard } from "@/src/data/SessionCardModel";
-import useMediaDataService from "@/service/MediaDataService";
+
 import { Card } from "@/src/data/CardModel";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import * as FileSystem from "expo-file-system";
+import useMediaDataService from "../service/MediaDataService";
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 const CardComponent: React.FC<{
-  currentCard: SessionCard;
+  currentCard: Card;
   onUserResponse: Function;
-}> = ({ currentCard, onUserResponse }) => {
+  cardDimensions?: { height: number; width: number };
+}> = ({ currentCard, onUserResponse, cardDimensions }) => {
   const [cardFlip, setCardFlip] = useState(false);
   const [answerShown, setAnswerShown] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -45,11 +47,10 @@ const CardComponent: React.FC<{
   useEffect(() => {
     setCardFlip(false);
     setAnswerShown(false);
-    if (currentCard && currentCard.card) {
-      const card = currentCard.card;
-      if (card.backImg !== null || card.frontImg !== null) {
+    if (currentCard) {
+      if (currentCard.backImg !== null || currentCard.frontImg !== null) {
         setLoading(true);
-        loadImages(card).then(() => {
+        loadImages(currentCard).then(() => {
           setLoading(false);
         });
       }
@@ -60,13 +61,8 @@ const CardComponent: React.FC<{
   if (loading) return;
 
   function handleCardFlip() {
-    if (
-      !cardFlip &&
-      currentCard &&
-      currentCard.card &&
-      currentCard.card.backSound
-    ) {
-      handlePlay(currentCard.card.backSound);
+    if (!cardFlip && currentCard && currentCard.backSound) {
+      handlePlay(currentCard.backSound);
     }
     setCardFlip((flip) => !flip);
     setAnswerShown(true);
@@ -80,7 +76,16 @@ const CardComponent: React.FC<{
 
   return (
     <View style={styles.cardContainer}>
-      <TouchableOpacity style={styles.card} onPress={handleCardFlip}>
+      <TouchableOpacity
+        style={[
+          styles.card,
+          {
+            height: cardDimensions?.height ?? styles.card.height,
+            width: cardDimensions?.width ?? styles.card.width,
+          },
+        ]}
+        onPress={handleCardFlip}
+      >
         {cardFlip ? (
           <CardBackSide
             currentCard={currentCard}
@@ -137,11 +142,10 @@ const CardFrontSide = ({
   onSoundPlay,
   imgSrc,
 }: {
-  currentCard: SessionCard;
+  currentCard: Card;
   onSoundPlay: Function;
   imgSrc: string | null;
 }) => {
-  const card: Card | null | undefined = currentCard.card;
   return (
     <>
       <View style={styles.frontBackTextView}>
@@ -158,12 +162,12 @@ const CardFrontSide = ({
         </View>
       )}
       <View style={styles.cardTextView}>
-        <Text style={styles.cardText}>{currentCard.card?.front}</Text>
+        <Text style={styles.cardText}>{currentCard?.front}</Text>
       </View>
 
-      {card && card.frontSound && (
+      {currentCard && currentCard.frontSound && (
         <View style={styles.soundContainer}>
-          <TouchableOpacity onPress={() => onSoundPlay(card.frontSound)}>
+          <TouchableOpacity onPress={() => onSoundPlay(currentCard.frontSound)}>
             <Icon name="play-circle-outline" size={48} color="black" />
           </TouchableOpacity>
         </View>
@@ -177,11 +181,10 @@ const CardBackSide = ({
   onSoundPlay,
   imgSrc,
 }: {
-  currentCard: SessionCard;
+  currentCard: Card;
   onSoundPlay: Function;
   imgSrc: string | null;
 }) => {
-  const card: Card | null | undefined = currentCard.card;
   return (
     <>
       <View style={styles.frontBackTextView}>
@@ -198,12 +201,12 @@ const CardBackSide = ({
         </View>
       )}
       <View style={styles.cardTextView}>
-        <Text style={styles.cardText}>{card?.back}</Text>
+        <Text style={styles.cardText}>{currentCard?.back}</Text>
       </View>
 
-      {card && card.backSound && (
+      {currentCard && currentCard.backSound && (
         <View style={styles.soundContainer}>
-          <TouchableOpacity onPress={() => onSoundPlay(card.backSound)}>
+          <TouchableOpacity onPress={() => onSoundPlay(currentCard.backSound)}>
             <Icon name="play-circle-outline" size={48} color="black" />
           </TouchableOpacity>
         </View>

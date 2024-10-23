@@ -1,21 +1,24 @@
 import { Card } from "@/src/data/CardModel";
+import { Session } from "@/src/data/SessionModel";
 
 export interface Trainer {
   getName(): string;
 
   getDescription(): string;
 
-  // Initializes a new training session
-  initSession(): void;
+  getSession(key: string): Promise<Session | null>;
 
-  // Loads an existing session (e.g., for resuming progress)
-  loadSession(sessionData: any): void;
+  createSession(key: string): Promise<Session>;
 
   // Retrieves the next card to show to the user
-  getNextCard(): Card | null;
+  getNextCard(sessionId: number): Promise<Card | null>;
 
   // Processes the user's response for a card
-  processUserResponse(response: string): void;
+  processUserResponse(
+    sessionId: number,
+    card: Card,
+    response: string
+  ): Promise<void>;
 
   //   // Additional methods or properties
   //   getSessionStatus?(): SessionStatus;

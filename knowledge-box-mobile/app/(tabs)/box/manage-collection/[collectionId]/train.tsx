@@ -59,7 +59,7 @@ const TrainCollection = () => {
     deleteSessionCard,
     getSessionCards,
   } = useSessionCardModel();
-  const { selectNewTrainingCards, selectToRepeatTrainingCards } =
+  const { selectNewTrainingCards, selectReviewCards } =
     useCardTrainingService();
 
   const [currentCard, setCurrentCard] = useState<SessionCard | null>(null);
@@ -103,14 +103,14 @@ const TrainCollection = () => {
     // Check if there is a session for the current date (today)
     if (session === null) {
       console.log("Creating a training session");
-      session = {
-        id: 0,
-        collectionId: Number(collectionId),
-        trainingDate: curDateStripped,
-        newCards: NEW_CARDS_PER_DAY,
-        repeatCards: REPEAT_CARDS_PER_DAY,
-      };
-      await newSession(session);
+      // session = {
+      //   id: 0,
+      //   collectionId: Number(collectionId),
+      //   trainingDate: curDateStripped,
+      //   newCards: NEW_CARDS_PER_DAY,
+      //   repeatCards: REPEAT_CARDS_PER_DAY,
+      // };
+      // await newSession(session);
       // fetch created session
       session = await getSession(Number(collectionId), curDateStripped);
       if (session === null) throw Error("Can't create a session");
@@ -125,18 +125,20 @@ const TrainCollection = () => {
 
       const curTime: number = Date.now();
       console.log("curTime: ", curTime.toString());
-      let cardsToRepeat = await selectToRepeatTrainingCards(
+      let cardsToRepeat = await selectReviewCards(
         Number(collectionId),
-        curTime
+        curTime,
+        200
       );
 
       console.log("cardsToRepeat");
       //console.log(cardsToRepeat);
       if (cardsToRepeat.length < session.repeatCards) {
         // get extra cards from tomorrow
-        let extraCardsToRepeat = await selectToRepeatTrainingCards(
+        let extraCardsToRepeat = await selectReviewCards(
           Number(collectionId),
-          getTomorrowAsNumber()
+          getTomorrowAsNumber(),
+          200
         );
         const cardsToRepeatIds = cardsToRepeat.map((card: Card) => card.id);
         // remove repeating cards.
@@ -184,7 +186,7 @@ const TrainCollection = () => {
           successfulRepeats: card.successfulRepeats ?? 0,
         };
 
-        await newSessionCard(nsc); // TODO: parallel
+        await newSessionCard(nsc.sessionId, nsc.cardId); // TODO: parallel
       }
     } else {
       console.log("training session already exists");

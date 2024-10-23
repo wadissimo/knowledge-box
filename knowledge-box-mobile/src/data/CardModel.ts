@@ -1,5 +1,11 @@
 import * as SQLite from "expo-sqlite";
 
+enum CardStatus {
+  New = 0,
+  Learning = 1,
+  Review = 2,
+}
+
 type Card = {
   id: number;
   front: string;
@@ -18,6 +24,8 @@ type Card = {
   interval: number | null;
   easeFactor: number | null;
   createdAt?: number | null;
+  status: CardStatus | null;
+  priority: number | null;
 };
 
 function useCardModel() {
@@ -91,7 +99,7 @@ function useCardModel() {
       `UPDATE cards SET front = ?, back = ?, collectionId = ?, frontImg = ?, backImg = ?, 
            frontSound=?, backSound = ?, initialEaseFactor = ?, hide = ?, repeatTime = ?,
             prevRepeatTime = ?, successfulRepeats = ?, failedRepeats = ?, interval=?,
-           easeFactor = ?
+           easeFactor = ?, status = ?, priority = ?
            where id = ?`,
       card.front,
       card.back,
@@ -108,6 +116,8 @@ function useCardModel() {
       card.failedRepeats,
       card.interval,
       card.easeFactor,
+      card.status,
+      card.priority,
       card.id
     );
   };
@@ -169,4 +179,4 @@ function useCardModel() {
   };
 }
 
-export { Card, useCardModel };
+export { CardStatus, Card, useCardModel };

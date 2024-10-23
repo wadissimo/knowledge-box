@@ -24,7 +24,7 @@ const CollectionView = () => {
     router.push(`/(tabs)/box/manage-collection/${collectionId}/manage`);
   }
   function handleTrainPress() {
-    router.push(`/(tabs)/box/manage-collection/${collectionId}/train`);
+    router.push(`/(tabs)/box/manage-collection/${collectionId}/train2`);
   }
 
   if (collection === null) return null;
