@@ -84,6 +84,10 @@
   },
   "trainer": {
     "defaultTrainerName": "Langzeitgedächtnis",
-    "defaultTrainerDescription": "Bauen Sie Ihr Langzeitgedächtnis durch räumliche Wiederholungen und regelmäßiges Training auf"
+    "defaultTrainerDescription": "Bauen Sie Ihr Langzeitgedächtnis durch räumliche Wiederholungen und regelmäßiges Training auf",
+    "responses": {
+      "good": "Gut",
+      "dontknow": "Weiß nicht"
+    }
   }
 }

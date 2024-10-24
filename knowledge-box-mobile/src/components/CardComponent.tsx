@@ -7,6 +7,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import * as FileSystem from "expo-file-system";
 import useMediaDataService from "../service/MediaDataService";
+import { i18n } from "../lib/i18n";
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -90,6 +91,9 @@ const CardComponent: React.FC<{
             height: cardDimensions?.height ?? styles.card.height,
             width: cardDimensions?.width ?? styles.card.width,
           },
+          ,
+          styles.elevation,
+          styles.shadowProp,
         ]}
         onPress={handleCardFlip}
       >
@@ -110,32 +114,46 @@ const CardComponent: React.FC<{
       {answerShown && (
         <View style={styles.cardBtnsContainer}>
           <TouchableOpacity
-            style={[styles.cardBtn, styles.redCardBtn]}
+            style={[
+              styles.cardBtn,
+              styles.redCardBtn,
+              styles.elevation,
+              styles.shadowProp,
+            ]}
             onPress={() => onUserResponse("again")}
           >
-            <Text style={[styles.cardBtnText]}>Don't know</Text>
+            <Text style={[styles.cardBtnText]}>
+              {i18n.t("trainer.responses.dontknow")}
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.cardBtn, styles.lightGreenCardBtn]}
             onPress={() => onUserResponse("hard")}
           >
             <Text style={[styles.cardBtnText]}>Hard</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
-            style={[styles.cardBtn, styles.greenCardBtn]}
+            style={[
+              styles.cardBtn,
+              styles.greenCardBtn,
+              styles.elevation,
+              styles.shadowProp,
+            ]}
             onPress={() => onUserResponse("good")}
           >
-            <Text style={[styles.cardBtnText]}>Good</Text>
+            <Text style={[styles.cardBtnText]}>
+              {i18n.t("trainer.responses.good")}
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.cardBtn, styles.greenCardBtn]}
             onPress={() => onUserResponse("easy")}
           >
             <Text style={[styles.cardBtnText]}>Too Easy</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       )}
 
@@ -244,7 +262,8 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 500,
     width: 300,
-    backgroundColor: "lightgreen",
+    backgroundColor: "#c2fbc4",
+    //backgroundColor: "white",
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
@@ -270,15 +289,15 @@ const styles = StyleSheet.create({
     color: "white",
   },
   greenCardBtn: {
-    backgroundColor: "blue",
+    backgroundColor: "#4b82fa",
     color: "white",
   },
   redCardBtn: {
-    backgroundColor: "darkred",
+    backgroundColor: "#fa4b4b",
     color: "white",
   },
   blueCardBtn: {
-    backgroundColor: "blue",
+    backgroundColor: "#6192fa",
     color: "white",
   },
   greyCardBtn: {
@@ -308,6 +327,21 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
     marginBottom: 20,
+  },
+  shadowProp: {
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  elevation: {
+    elevation: 5,
+    shadowColor: "#52006A",
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: 10,
+    right: 5,
   },
 });
 

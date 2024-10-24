@@ -25,7 +25,7 @@ const NEW_CARDS_PER_DAY = 10;
 const LEARNING_CARDS_PER_DAY = 50;
 const REPEAT_CARDS_PER_DAY = 200;
 
-const DEBUG = true;
+const DEBUG = false;
 
 const TrainCollection = () => {
   const { colors } = useTheme();
@@ -139,7 +139,7 @@ const TrainCollection = () => {
         <CardComponent
           currentCard={currentCard}
           onUserResponse={handleUserResponse}
-          cardDimensions={{ height: 200, width: 100 }}
+          cardDimensions={{ height: 500, width: 300 }}
           playSound={playSound}
           getImageSource={getImageSource}
         />

@@ -84,6 +84,10 @@
   },
   "trainer": {
     "defaultTrainerName": "Long Term Memory",
-    "defaultTrainerDescription": "Build your long term memory using spaced repetition and regular training"
+    "defaultTrainerDescription": "Build your long term memory using spaced repetition and regular training",
+    "responses": {
+      "good": "Good",
+      "dontknow": "Don't know"
+    }
   }
 }
