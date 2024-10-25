@@ -168,6 +168,24 @@ function useCardModel() {
     );
     return result;
   };
+
+  const getCardCountByStatus = async (
+    collectionId: number,
+    status: CardStatus
+  ): Promise<number> => {
+    const res = await db.getFirstAsync<{ cnt: number }>(
+      "SELECT COUNT(*) as cnt FROM cards where collectionId=? and status=?",
+      collectionId,
+      status
+    );
+
+    if (res === null || res?.cnt === null) {
+      console.error("getCardCountByStatus, res", res);
+      throw new Error("getCardCountByStatus unexpected null result");
+    }
+
+    return res.cnt;
+  };
   return {
     newCard,
     newCards,
@@ -176,6 +194,7 @@ function useCardModel() {
     deleteCard,
     getCards,
     getCardById,
+    getCardCountByStatus,
   };
 }
 

@@ -151,4 +151,4 @@ function useCollectionModel() {
   };
 }
 
-export { Collection, useCollectionModel };
+export { Collection, useCollectionModel, CollectionTrainingData };

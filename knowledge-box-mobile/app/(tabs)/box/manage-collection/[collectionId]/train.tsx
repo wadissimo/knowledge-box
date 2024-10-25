@@ -1,7 +1,7 @@
 import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import CardComponent from "@/src/components/CardComponent";
 import { Card, useCardModel } from "@/src/data/CardModel";
 import { useTheme } from "@react-navigation/native";
@@ -23,6 +23,7 @@ import useMediaDataService from "@/src/service/MediaDataService";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
 import TrainingResults from "@/src/components/TrainingResults";
+import { i18n } from "@/src/lib/i18n";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
@@ -54,6 +55,7 @@ const TrainCollection = () => {
     getCollectionTrainingData,
     updateCollectionTrainingData,
   } = useCollectionModel();
+  const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [session, setSession] = useState<Session | null>(null);
@@ -107,7 +109,10 @@ const TrainCollection = () => {
     return score;
   }
   async function completeTraining() {
-    if (session === null) return;
+    if (session === null || session.status != SessionStatus.Started) return;
+
+    console.log("completeTraining calc stats");
+    session.status = SessionStatus.Completed;
     const score = calcScore(session);
     session.score = score;
     const trainingData = await getCollectionTrainingData(Number(collectionId));
@@ -120,6 +125,11 @@ const TrainCollection = () => {
       }
       trainingData.lastTrainingDate = getTodayAsNumber();
       trainingData.totalScore = (trainingData.totalScore ?? 0) + score;
+      trainingData.totalCardViews += session.totalViews;
+      trainingData.totalFailedResponses += session.failedResponses;
+      trainingData.totalSuccessResponses += session.successResponses;
+
+      await updateCollectionTrainingData(trainingData);
     }
 
     await updateSessionDb(session);
@@ -223,7 +233,21 @@ const TrainCollection = () => {
           getImageSource={getImageSource}
         />
       ) : (
-        <TrainingResults session={session} onResetTraining={resetTraining} />
+        <View style={{ flex: 1 }}>
+          <View style={{ flex: 0.9 }}>
+            <TrainingResults
+              session={session}
+              onResetTraining={resetTraining}
+            />
+          </View>
+          <View>
+            <Button
+              title={i18n.t("common.navBack")}
+              onPress={() => router.back()}
+              color={colors.primary}
+            />
+          </View>
+        </View>
       )}
       {DEBUG && (
         <>

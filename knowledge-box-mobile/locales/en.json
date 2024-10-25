@@ -18,7 +18,8 @@
     "time": {
       "mins": "m",
       "days": "d"
-    }
+    },
+    "navBack": "Back"
   },
   "boxes": {
     "myBoxesTitle": "My Boxes",
@@ -48,10 +49,7 @@
     "deleteCollection": "Delete Collection",
 
     "trainHeader": "Train",
-    "train": {
-      "stats": "Train Stats",
-      "trainBtn": "Train"
-    },
+
     "search": "Search",
     "searchPlaceholder": "Search Card Collections",
     "searchNoResults": "No results",
@@ -74,6 +72,20 @@
       "emptySides": "Both front and back sides must be filled."
     }
   },
+  "collection": {
+    "train": {
+      "stats": "Train Stats",
+      "streak": "Streak:",
+      "cardViews": "Card Views:",
+      "score": "Score",
+      "trainBtn": "Train"
+    },
+    "stats": {
+      "newCards": "New Cards:",
+      "reviewCards": "Review Cards:",
+      "learningCards": "Learning Cards:"
+    }
+  },
   "notes": {
     "newNote": "New Note",
     "text": "Text",
@@ -92,5 +104,15 @@
       "good": "Good",
       "dontknow": "Don't know"
     }
+  },
+  "completeTraining": {
+    "message": "Well done. Training complete!",
+    "totalViews": "Card Views:",
+    "newCards": "New Cards:",
+    "reviewCards": "Review Cards:",
+    "successful": "Successful:",
+    "again": "Again:",
+    "score": "Your Score:",
+    "newTraining": "New Training"
   }
 }

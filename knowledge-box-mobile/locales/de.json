@@ -18,7 +18,8 @@
     "time": {
       "mins": "M",
       "days": "T"
-    }
+    },
+    "navBack": "Zurück"
   },
   "boxes": {
     "myBoxesTitle": "Meine Boxen",
@@ -74,6 +75,21 @@
       "emptySides": "Sowohl die Vorder- als auch die Rückseite müssen gefüllt sein."
     }
   },
+  "collection": {
+    "train": {
+      "stats": "Trainingsstatistik",
+      "streak": "Streak:",
+      "cardViews": "Kartenansichten:",
+      "score": "Punktzahl:",
+      "trainBtn": "Trainieren"
+    },
+    "stats": {
+      "newCards": "Neue Karten:",
+      "reviewCards": "Wiederholungskarten:",
+      "learningCards": "Lernkarten:"
+    }
+  },
+
   "notes": {
     "newNote": "Neue Notiz",
     "text": "Text",
@@ -92,5 +108,15 @@
       "good": "Gut",
       "dontknow": "Weiß nicht"
     }
+  },
+  "completeTraining": {
+    "message": "Gut gemacht. Training abgeschlossen!",
+    "totalViews": "Kartenansichten:",
+    "newCards": "Neue Karten:",
+    "reviewCards": "Wiederholungskarten:",
+    "successful": "Erfolgreich:",
+    "again": "Nochmal:",
+    "score": "Deine Punktzahl:",
+    "newTraining": "Neues Training"
   }
 }

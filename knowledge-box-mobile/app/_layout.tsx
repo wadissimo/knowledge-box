@@ -21,20 +21,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Colors } from "@/src/constants/Colors";
 import { darkTheme, lightTheme } from "@/src/hooks/useAppTheme";
 
-const MyCustomTheme = {
-  ...DefaultTheme, // or DarkTheme
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#1da422", // primary button , header background
-    background: "#ddd", // screen background
-    text: "black",
-    card: "#c2fbc4", // cards default background
-    //card: "white",
-    border: "gray",
-    notification: "black",
-  },
-};
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -62,11 +48,9 @@ export default function RootLayout() {
             useSuspense={true}
             // assetSource={{ assetId: require("@/assets/userdata.db") }}
           >
-            <CollectionProvider>
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              </Stack>
-            </CollectionProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
           </SQLiteProvider>
         </Suspense>
       </ThemeProvider>

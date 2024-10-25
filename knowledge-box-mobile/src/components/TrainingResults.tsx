@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import React from "react";
 import { Session } from "../data/SessionModel";
 import { useAppTheme } from "../hooks/useAppTheme";
+import { i18n } from "../lib/i18n";
+import { useCollectionModel } from "../data/CollectionModel";
 
 const TrainingResults = ({
   session,
@@ -11,19 +13,35 @@ const TrainingResults = ({
   onResetTraining: Function;
 }) => {
   const { colors } = useAppTheme();
+  //const {} = useCollectionModel();
   return (
     <View style={styles.noMoreCardsTextView}>
-      <Text style={styles.noMoreCardsText}>Well done. Training complete!</Text>
-      <Text>Total Card Views: {session.totalViews}</Text>
-      <Text>New Cards: {session.newCards}</Text>
-      <Text>Review Cards: {session.reviewCards + session.learningCards}</Text>
-      <Text>Successful Responses: {session.successResponses}</Text>
-      <Text>Failed Responses: {session.failedResponses}</Text>
+      <Text style={styles.noMoreCardsText}>
+        {i18n.t("completeTraining.message")}
+      </Text>
+      <Text>
+        {i18n.t("completeTraining.totalViews")} {session.totalViews}
+      </Text>
+      <Text>
+        {i18n.t("completeTraining.newCards")} {session.newCards}
+      </Text>
+      <Text>
+        {i18n.t("completeTraining.reviewCards")}{" "}
+        {session.reviewCards + session.learningCards}
+      </Text>
+      <Text>
+        {i18n.t("completeTraining.successful")} {session.successResponses}
+      </Text>
+      <Text>
+        {i18n.t("completeTraining.again")} {session.failedResponses}
+      </Text>
 
-      <Text style={styles.scoreText}>Your score: {session.score}</Text>
+      <Text style={styles.scoreText}>
+        {i18n.t("completeTraining.score")} {session.score}
+      </Text>
       <View>
         <Button
-          title="New Training"
+          title={i18n.t("completeTraining.newTraining")}
           onPress={() => onResetTraining()}
           color={colors.primary}
         />
