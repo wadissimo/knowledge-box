@@ -6,12 +6,26 @@ const ONE_MIN: number = 60 * 1000;
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
 };
+const getTodayAsNumber = (): number => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today.getTime();
+};
+
 const getTomorrowAsNumber = (): number => {
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
   return tomorrow.getTime();
+};
+
+const getYesterdayAsNumber = (): number => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  yesterday.setHours(0, 0, 0, 0);
+  return yesterday.getTime();
 };
 
 const truncateTime = (date: Date): number => {
@@ -39,4 +53,11 @@ const formatInterval = (interval: number): string => {
   }
 };
 
-export { stripTimeFromDate, getTomorrowAsNumber, truncateTime, formatInterval };
+export {
+  stripTimeFromDate,
+  getTodayAsNumber,
+  getYesterdayAsNumber,
+  getTomorrowAsNumber,
+  truncateTime,
+  formatInterval,
+};

@@ -14,16 +14,21 @@ import { SessionCard, useSessionCardModel } from "@/src/data/SessionCardModel";
 import { useCardTrainingService } from "@/src/service/CardTrainingService";
 import useDefaultTrainer from "@/src/service/trainers/DefaultTrainer";
 import { Trainer } from "@/src/service/trainers/Trainer";
-import { formatInterval } from "@/src/lib/TimeUtils";
+import {
+  formatInterval,
+  getTodayAsNumber,
+  getYesterdayAsNumber,
+} from "@/src/lib/TimeUtils";
 import useMediaDataService from "@/src/service/MediaDataService";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
+import TrainingResults from "@/src/components/TrainingResults";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
 };
 
-const NEW_CARDS_PER_DAY = 10;
+const NEW_CARDS_PER_DAY = 2;
 const LEARNING_CARDS_PER_DAY = 50;
 const REPEAT_CARDS_PER_DAY = 200;
 
@@ -44,13 +49,18 @@ const TrainCollection = () => {
     useSessionModel();
   const { getCurrentCards } = useCardTrainingService();
   const { playSound, getImageSource } = useMediaDataService();
-  const { getCollectionById } = useCollectionModel();
+  const {
+    getCollectionById,
+    getCollectionTrainingData,
+    updateCollectionTrainingData,
+  } = useCollectionModel();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [session, setSession] = useState<Session | null>(null);
   const [currentCard, setCurrentCard] = useState<Card | null>(null);
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
   const [collection, setCollection] = useState<Collection | null>(null);
+  const [error, setError] = useState<string>("");
 
   const totalCards = session
     ? session.newCards + session.reviewCards + session.learningCards
@@ -62,12 +72,57 @@ const TrainCollection = () => {
       setCurrentCard(null);
       return;
     }
+
     setLoading(true);
-    trainer.getNextCard(session.id).then((card) => {
-      console.log("curent card", card);
-      setCurrentCard(card);
-      setLoading(false);
-    });
+    trainer
+      .getNextCard(session.id)
+      .then((card) => {
+        console.log("curent card", card);
+        if (card === null) {
+          completeTraining()
+            .then(() => {
+              setCurrentCard(null);
+              setLoading(false);
+            })
+            .catch((e) => {
+              setError("Error in completing training"); // todo:
+              console.error("Error in completing training", e);
+              setLoading(false);
+            });
+        } else {
+          setCurrentCard(card);
+          setLoading(false);
+        }
+      })
+      .catch((e) => {
+        setError("Error in fetching next card");
+        console.error("Error in fetching next card", e);
+        setLoading(false);
+      });
+  }
+
+  function calcScore(session: Session) {
+    const score =
+      session.newCards * 10 + session.reviewCards * 3 + session.totalViews;
+    return score;
+  }
+  async function completeTraining() {
+    if (session === null) return;
+    const score = calcScore(session);
+    session.score = score;
+    const trainingData = await getCollectionTrainingData(Number(collectionId));
+    if (trainingData !== null) {
+      const yesterday = getYesterdayAsNumber();
+      if (trainingData.lastTrainingDate === yesterday) {
+        trainingData.streak += 1;
+      } else {
+        trainingData.streak = 1;
+      }
+      trainingData.lastTrainingDate = getTodayAsNumber();
+      trainingData.totalScore = (trainingData.totalScore ?? 0) + score;
+    }
+
+    await updateSessionDb(session);
   }
 
   async function updateSession() {
@@ -168,27 +223,7 @@ const TrainCollection = () => {
           getImageSource={getImageSource}
         />
       ) : (
-        <View style={styles.noMoreCardsTextView}>
-          <Text style={styles.noMoreCardsText}>
-            Well done. Training complete!
-          </Text>
-          <Text>Total Card Views: {session.totalViews}</Text>
-          <Text>New Cards: {session.newCards}</Text>
-          <Text>
-            Review Cards: {session.reviewCards + session.learningCards}
-          </Text>
-          <Text>Successful Responses: {session.successResponses}</Text>
-          <Text>Failed Responses: {session.failedResponses}</Text>
-
-          <Text style={styles.scoreText}>Your score: XXX</Text>
-          <View>
-            <Button
-              title="New Training"
-              onPress={resetTraining}
-              color={colors.primary}
-            />
-          </View>
-        </View>
+        <TrainingResults session={session} onResetTraining={resetTraining} />
       )}
       {DEBUG && (
         <>

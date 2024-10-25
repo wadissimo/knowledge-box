@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,19 +7,21 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
 
 import { Card, useCardModel } from "@/src/data/CardModel";
-import { useTheme } from "@react-navigation/native";
 
 import useMediaDataService from "@/src/service/MediaDataService";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { i18n } from "@/src/lib/i18n";
+import { useAppTheme } from "@/src/hooks/useAppTheme";
 
 const EditFlashcard = () => {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
 
   const { collectionId, cardId } = useLocalSearchParams();
 
@@ -27,7 +29,6 @@ const EditFlashcard = () => {
   const [backSide, setBackSide] = useState<string>("");
   const { getCardById, newCard, updateCardFrontBack } = useCardModel();
 
-  //console.log("cardId", cardId);
   const navigation = useNavigation();
 
   // Media
@@ -40,7 +41,7 @@ const EditFlashcard = () => {
         setFrontSide("");
         setBackSide("");
         navigation.setOptions({
-          title: i18n.t("cards.newCard"),
+          title: i18n.t("cards.newCardTitle"),
         });
       } else {
         const card = await getCardById(Number(cardId));
@@ -50,7 +51,7 @@ const EditFlashcard = () => {
         setFrontSide(card.front);
         setBackSide(card.back);
         navigation.setOptions({
-          title: i18n.t("cards.editCard"),
+          title: i18n.t("cards.editCardTitle"),
         });
       }
     }
@@ -79,52 +80,54 @@ const EditFlashcard = () => {
 
   async function handlePlay(soundId: number | null) {
     if (soundId !== null) {
-      await playSound(soundId); //TODO: remove -
+      await playSound(soundId);
     }
   }
 
   return (
-    <View style={styles.container}>
-      {/* <Text style={styles.label}>Edit Flashcard</Text> */}
-
-      <TextInput
-        style={styles.input}
-        value={frontSide}
-        onChangeText={setFrontSide}
-        placeholder={i18n.t("cards.frontSide")}
-        multiline
-        numberOfLines={3}
-      />
-      {card !== null && card.frontSound && (
-        <View style={styles.soundContainer}>
-          <TouchableOpacity onPress={() => handlePlay(card.frontSound)}>
-            <Icon name="play-circle-outline" size={42} color="black" />
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <TextInput
-        style={styles.input}
-        value={backSide}
-        onChangeText={setBackSide}
-        placeholder={i18n.t("cards.backSide")}
-        multiline
-        numberOfLines={3}
-      />
-      {card !== null && card.backSound && (
-        <View style={styles.soundContainer}>
-          <TouchableOpacity onPress={() => handlePlay(card.backSound)}>
-            <Icon name="play-circle-outline" size={42} color="black" />
-          </TouchableOpacity>
-        </View>
-      )}
+    // <KeyboardAwareScrollView style={styles.container} enableOnAndroid={true}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 0.8 }}>
+        <Text style={styles.label}>{i18n.t("cards.frontSide")}</Text>
+        <TextInput
+          style={styles.input}
+          value={frontSide}
+          onChangeText={setFrontSide}
+          placeholder={i18n.t("cards.frontSide")}
+          multiline
+          numberOfLines={3}
+        />
+        {card !== null && card.frontSound && (
+          <View style={styles.soundContainer}>
+            <TouchableOpacity onPress={() => handlePlay(card.frontSound)}>
+              <Icon name="play-circle-outline" size={42} color="black" />
+            </TouchableOpacity>
+          </View>
+        )}
+        <Text style={styles.label}>{i18n.t("cards.backSide")}</Text>
+        <TextInput
+          style={styles.input}
+          value={backSide}
+          onChangeText={setBackSide}
+          placeholder={i18n.t("cards.backSide")}
+          multiline
+          numberOfLines={3}
+        />
+        {card !== null && card.backSound && (
+          <View style={styles.soundContainer}>
+            <TouchableOpacity onPress={() => handlePlay(card.backSound)}>
+              <Icon name="play-circle-outline" size={42} color="black" />
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
 
       <Button
         title={i18n.t("common.save")}
         onPress={handleSave}
         color={colors.primary}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -132,25 +135,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#F5F5F5",
+    //backgroundColor: "#F5F5F5",
   },
   label: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 10,
     //textAlign: "center",
-    color: "#333",
   },
   multilineInput: {},
   input: {
     backgroundColor: "#FFF",
-    borderColor: "#DDD",
+    borderColor: "#ccc",
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
     marginBottom: 20,
     fontSize: 16,
-    color: "#333",
+    color: "#555",
     textAlignVertical: "top",
     height: 120,
   },

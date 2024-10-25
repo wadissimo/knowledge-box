@@ -5,7 +5,7 @@ import { useFonts } from "expo-font";
 import "react-native-reanimated";
 
 import { SQLiteProvider } from "expo-sqlite";
-import { Text } from "react-native";
+import { Text, useColorScheme } from "react-native";
 import { CollectionProvider } from "@/src/context/DatabaseContext";
 import {
   DATABASE_NAME,
@@ -18,6 +18,8 @@ import {
   useTheme,
 } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Colors } from "@/src/constants/Colors";
+import { darkTheme, lightTheme } from "@/src/hooks/useAppTheme";
 
 const MyCustomTheme = {
   ...DefaultTheme, // or DarkTheme
@@ -40,6 +42,7 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
   const [database, dbLoaded] = useDatabaseFromAsset();
+  const currentTheme = useColorScheme() === "dark" ? darkTheme : lightTheme;
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -52,7 +55,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <ThemeProvider value={MyCustomTheme}>
+      <ThemeProvider value={currentTheme}>
         <Suspense fallback={<Text>Loading...</Text>}>
           <SQLiteProvider
             databaseName={DATABASE_NAME}

@@ -1,18 +1,19 @@
-import { View, Text, TextInput, StyleSheet, Button } from "react-native";
+import { View, Text, TextInput, StyleSheet, Button, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Box, useBoxModel } from "@/src/data/BoxModel";
 import { useTheme } from "@react-navigation/native";
 import { i18n } from "@/src/lib/i18n";
+import { useAppTheme } from "@/src/hooks/useAppTheme";
 
 const ManageBox = () => {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const { boxId } = useLocalSearchParams();
   const [box, setBox] = useState<Box | null>(null);
 
-  const { newBox, updateBox, getBoxById } = useBoxModel();
+  const { newBox, updateBox, getBoxById, deleteBox } = useBoxModel();
 
   const router = useRouter();
 
@@ -32,6 +33,32 @@ const ManageBox = () => {
     box.description = description;
     await updateBox(box);
     router.back();
+  }
+  async function handleDelete() {
+    if (!box) return;
+    Alert.alert(
+      i18n.t("common.confirm.deletion"),
+      i18n.t("boxes.confirmDeletionText"),
+      [
+        {
+          text: i18n.t("common.cancel"),
+          onPress: () => console.log("Deletion cancelled"),
+          style: "cancel",
+        },
+        {
+          text: i18n.t("common.delete"),
+          onPress: () => {
+            console.log("Deleting box...");
+            deleteBox(box.id).then(() => {
+              router.back();
+              router.replace("../boxes");
+            });
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: true }
+    );
   }
 
   if (box === null) return null;
@@ -61,11 +88,20 @@ const ManageBox = () => {
           numberOfLines={4}
         />
       </View>
-      <Button
-        title={i18n.t("boxes.save")}
-        onPress={handleSave}
-        color={colors.primary}
-      />
+      <View style={styles.btn}>
+        <Button
+          title={i18n.t("boxes.save")}
+          onPress={handleSave}
+          color={colors.primary}
+        />
+      </View>
+      <View style={styles.btn}>
+        <Button
+          title={i18n.t("boxes.delete")}
+          onPress={handleDelete}
+          color={colors.deleteBtn}
+        />
+      </View>
     </View>
   );
 };
@@ -95,6 +131,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     textAlignVertical: "top",
+  },
+  btn: {
+    marginVertical: 2,
   },
 });
 

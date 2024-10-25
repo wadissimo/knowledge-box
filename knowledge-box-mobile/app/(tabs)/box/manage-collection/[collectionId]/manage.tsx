@@ -18,9 +18,11 @@ import { Card, useCardModel } from "@/src/data/CardModel";
 import { useTheme } from "@react-navigation/native";
 import { Colors } from "@/src/constants/Colors";
 import { i18n } from "@/src/lib/i18n";
+import { useAppTheme } from "@/src/hooks/useAppTheme";
 
 export default function ManageCollectionScreen() {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
+
   const router = useRouter();
   const { collectionId, affectedCardId } = useLocalSearchParams<{
     collectionId?: string;
@@ -171,7 +173,7 @@ export default function ManageCollectionScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.colNameContainer}>
+      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}>
         <Text style={styles.colNameTxt}>{collection.name}</Text>
       </View>
       <View style={styles.cardTable}>
@@ -188,8 +190,21 @@ export default function ManageCollectionScreen() {
               <View
                 style={
                   item.id !== selectedCard
-                    ? [styles.row]
-                    : [styles.row, styles.selectedRow]
+                    ? [
+                        styles.row,
+                        {
+                          backgroundColor: colors.card,
+                          borderColor: colors.primary,
+                        },
+                      ]
+                    : [
+                        styles.row,
+                        {
+                          backgroundColor: colors.card,
+                          borderColor: colors.primary,
+                        },
+                        styles.selectedRow,
+                      ]
                 }
                 //onTouchEnd={() => setSelectedCard(item.id)}
               >
@@ -211,15 +226,9 @@ export default function ManageCollectionScreen() {
             {prevPageDisabled ? (
               <></>
             ) : (
-              // <View style={styles.spacer}>
-              //   <Text> </Text>
-              // </View>
-
               <Button
                 title="<<"
-                //onPress={prevPage}
                 onPress={() => (prevPageDisabled ? {} : prevPage())}
-                //disabled={prevPageDisabled}
                 color={colors.primary}
               />
             )}
@@ -231,15 +240,11 @@ export default function ManageCollectionScreen() {
           </View>
           <View style={styles.navBtn}>
             {nextPageDisabled ? (
-              // <View style={styles.spacer}>
-              //   <Text> </Text>
-              // </View>
               <></>
             ) : (
               <Button
                 title=">>"
                 onPress={() => (nextPageDisabled ? {} : nextPage())}
-                //disabled={nextPageDisabled}
                 color={colors.primary}
               />
             )}
@@ -250,7 +255,7 @@ export default function ManageCollectionScreen() {
       <View style={styles.cardEditBtns}>
         <View style={styles.addCardBtn}>
           <Button
-            title={i18n.t("cards.addCard")}
+            title={i18n.t("cards.addCardBtn")}
             onPress={handleAddCardPress}
             color={colors.primary}
           />
@@ -259,16 +264,16 @@ export default function ManageCollectionScreen() {
           <>
             <View style={styles.addCardBtn}>
               <Button
-                title={i18n.t("cards.editCard")}
+                title={i18n.t("cards.editCardBtn")}
                 onPress={handleEditCardPress}
                 color={colors.primary}
               />
             </View>
             <View style={styles.deleteCardBtn}>
               <Button
-                title={i18n.t("cards.deleteCard")}
+                title={i18n.t("cards.deleteCardBtn")}
                 onPress={handleDeleteCardPress}
-                color={Colors.light.deleteBtn}
+                color={colors.deleteBtn}
               />
             </View>
           </>
@@ -287,7 +292,7 @@ export default function ManageCollectionScreen() {
           <Button
             title={i18n.t("cards.deleteCollection")}
             onPress={handleDeleteCollection}
-            color={Colors.light.deleteBtn}
+            color={colors.deleteBtn}
           />
         </View>
       </View>
@@ -308,7 +313,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#c2fbc4",
+    //backgroundColor: "#c2fbc4",
     marginBottom: 10,
   },
   colNameTxt: {
@@ -331,13 +336,13 @@ const styles = StyleSheet.create({
     //flex: 1,
     flexDirection: "row",
 
-    backgroundColor: "#1da422",
+    //backgroundColor: "#1da422",
   },
   headerItem: { flex: 1, padding: 5, color: "white", fontWeight: "bold" },
   row: {
     flexDirection: "row",
-    backgroundColor: "#c2fbc4",
-    borderColor: "#57b75a",
+    //backgroundColor: "#c2fbc4",
+    //borderColor: "#57b75a",
     borderWidth: 1,
   },
   selectedRow: {
@@ -369,15 +374,9 @@ const styles = StyleSheet.create({
   addCardBtn: {
     paddingTop: 5,
   },
-  btn: {
-    color: "#4CAF50",
-  },
-  btnDisabled: {
-    color: "#849184",
-  },
+
   deleteCollectionBtn: {
     paddingTop: 5,
-    color: "darkred",
   },
   cardEditBtns: {
     flexDirection: "row",

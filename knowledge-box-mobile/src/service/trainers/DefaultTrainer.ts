@@ -28,7 +28,7 @@ const EASY_INTERVAL_GROW_FACTOR = 3;
 const INITIAL_INTERVAL = ONE_MIN;
 const AGAIN_INTERVAL_FAILED_REVIEW = 5 * ONE_MIN;
 
-const STOP_LEARNING_INTERVAL = 15 * ONE_MIN;
+const STOP_LEARNING_INTERVAL = 2 * ONE_MIN;
 
 export default function useDefaultTrainer(
   collectionId: number,

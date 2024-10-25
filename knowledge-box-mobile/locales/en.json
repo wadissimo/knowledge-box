@@ -31,6 +31,8 @@
     "description": "Description",
     "create": "Create",
     "save": "Save",
+    "delete": "Delete",
+    "confirmDeletionText": "Are you sure you want to delete the box?",
     "noConversationsDefault": "Start a new conversation",
     "noNotesDefault": "Create your first note",
     "noCollectionsDefault": "Add your frist flash cards collection",
@@ -63,10 +65,11 @@
     "back": "Back",
     "frontSide": "Front Side",
     "backSide": "Back Side",
-    "newCard": "New Card",
-    "addCard": "Add Card",
-    "editCard": "Edit Card",
-    "deleteCard": "Delete Card",
+    "newCardTitle": "New Card",
+    "editCardTitle": "Edit Card",
+    "addCardBtn": "Add Card",
+    "editCardBtn": "Edit Card",
+    "deleteCardBtn": "Delete Card",
     "error": {
       "emptySides": "Both front and back sides must be filled."
     }

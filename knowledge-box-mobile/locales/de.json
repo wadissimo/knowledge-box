@@ -31,6 +31,8 @@
     "description": "Bescreibung",
     "create": "Erstellen",
     "save": "Speichern",
+    "delete": "Löschen",
+    "confirmDeletionText": "Sind Sie sicher, dass Sie die Box löschen möchten?",
     "noConversationsDefault": "Neues Gespräch beginnen",
     "noNotesDefault": "erste Notiz erstellen",
     "noCollectionsDefault": "Karteikartensammlung hinzufügen",
@@ -63,10 +65,11 @@
     "back": "Rückseite",
     "frontSide": "Vorderseite",
     "backSide": "Rückseite",
-    "newCard": "Neue Karteikarte",
-    "addCard": "Karte Hinzufügen",
-    "editCard": "Karteikarte bearbeiten",
-    "deleteCard": "Karteikarte Löschen",
+    "newCardTitle": "Neue Karteikarte",
+    "editCardTitle": "Karteikarte bearbeiten",
+    "addCardBtn": "Karte\nHinzufügen",
+    "editCardBtn": "Karte\nbearbeiten",
+    "deleteCardBtn": "Karte\nLöschen",
     "error": {
       "emptySides": "Sowohl die Vorder- als auch die Rückseite müssen gefüllt sein."
     }
