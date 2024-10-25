@@ -186,6 +186,18 @@ function useCardModel() {
 
     return res.cnt;
   };
+
+  const learnCardLater = async (card: Card): Promise<void> => {
+    await db.runAsync(
+      `UPDATE cards SET status=?, repeatTime=?,
+       priority=(SELECT MAX(priority) from cards where collectionId=?)+1
+       WHERE id = ?`,
+      CardStatus.New,
+      null,
+      card.collectionId,
+      card.id
+    );
+  };
   return {
     newCard,
     newCards,
@@ -195,6 +207,7 @@ function useCardModel() {
     getCards,
     getCardById,
     getCardCountByStatus,
+    learnCardLater,
   };
 }
 

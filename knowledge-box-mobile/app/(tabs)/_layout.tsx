@@ -46,6 +46,7 @@ const _layout = () => {
       <Tabs.Screen
         name="settings"
         options={{
+          headerShown: false,
           title: i18n.t("menu.settings"),
           tabBarIcon: ({ color }: { color: string }) => (
             <Icon size={28} name="cog" color={color} />

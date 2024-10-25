@@ -89,7 +89,7 @@ function useSessionCardModel() {
     newSessionCard,
     updateSessionCard,
     completeSessionCard,
-    // deleteSessionCard,
+    deleteSessionCard,
     getSessionCard,
   };
 }

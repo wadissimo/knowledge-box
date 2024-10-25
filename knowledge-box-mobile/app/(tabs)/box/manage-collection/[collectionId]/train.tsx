@@ -53,6 +53,7 @@ const TrainCollection = () => {
     LEARNING_CARDS_PER_DAY
   );
 
+  const { learnCardLater } = useCardModel();
   const { updateSession: updateSessionDb, getStartedSession } =
     useSessionModel();
   const { getCurrentCards } = useCardTrainingService();
@@ -62,6 +63,8 @@ const TrainCollection = () => {
     getCollectionTrainingData,
     updateCollectionTrainingData,
   } = useCollectionModel();
+  const { deleteSessionCard } = useSessionCardModel();
+
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -177,10 +180,11 @@ const TrainCollection = () => {
       Number(collectionId),
       curDateStripped
     );
-    if (session === null) throw Error("can't find session");
-    session.status = SessionStatus.Abandoned;
-    await updateSessionDb(session);
-    console.log("session removed: ", session.id);
+    if (session !== null) {
+      session.status = SessionStatus.Abandoned;
+      await updateSessionDb(session);
+    }
+
     await updateSession();
   };
 
@@ -216,8 +220,15 @@ const TrainCollection = () => {
   function handleEditMenu() {
     if (currentCard !== null) router.push(`./${currentCard.id}`);
   }
+
   function handlePostponeMenu() {
-    alert("not implemented");
+    if (currentCard !== null && session !== null)
+      Promise.all([
+        learnCardLater(currentCard),
+        deleteSessionCard(session.id, currentCard.id),
+      ]).then(() => {
+        selectNextCard();
+      });
   }
   function handleTooEasyMenu() {
     handleUserResponse("easy");
