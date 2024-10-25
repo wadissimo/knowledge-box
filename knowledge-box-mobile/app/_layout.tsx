@@ -6,20 +6,16 @@ import "react-native-reanimated";
 
 import { SQLiteProvider } from "expo-sqlite";
 import { Text, useColorScheme } from "react-native";
-import { CollectionProvider } from "@/src/context/DatabaseContext";
+
 import {
   DATABASE_NAME,
   useDatabaseFromAsset,
 } from "@/src/hooks/useDatabaseFromAsset";
-import {
-  DefaultTheme,
-  NavigationContainer,
-  ThemeProvider,
-  useTheme,
-} from "@react-navigation/native";
+import { ThemeProvider } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Colors } from "@/src/constants/Colors";
+
 import { darkTheme, lightTheme } from "@/src/hooks/useAppTheme";
+import { MenuProvider } from "react-native-popup-menu";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -42,17 +38,19 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView>
       <ThemeProvider value={currentTheme}>
-        <Suspense fallback={<Text>Loading...</Text>}>
-          <SQLiteProvider
-            databaseName={DATABASE_NAME}
-            useSuspense={true}
-            // assetSource={{ assetId: require("@/assets/userdata.db") }}
-          >
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            </Stack>
-          </SQLiteProvider>
-        </Suspense>
+        <MenuProvider>
+          <Suspense fallback={<Text>Loading...</Text>}>
+            <SQLiteProvider
+              databaseName={DATABASE_NAME}
+              useSuspense={true}
+              // assetSource={{ assetId: require("@/assets/userdata.db") }}
+            >
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              </Stack>
+            </SQLiteProvider>
+          </Suspense>
+        </MenuProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

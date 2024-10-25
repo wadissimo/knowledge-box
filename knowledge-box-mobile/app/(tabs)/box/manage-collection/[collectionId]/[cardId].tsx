@@ -66,15 +66,15 @@ const EditFlashcard = () => {
     if (cardId === "new") {
       newCard(Number(collectionId), frontSide, backSide);
       router.back();
-      router.replace(
-        `/(tabs)/box/manage-collection/${collectionId}/manage?affectedCardId=-1`
-      );
+      // router.replace(
+      //   `/(tabs)/box/manage-collection/${collectionId}/manage?affectedCardId=-1`
+      // );
     } else {
       updateCardFrontBack(Number(cardId), frontSide, backSide);
       router.back();
-      router.replace(
-        `/(tabs)/box/manage-collection/${collectionId}/manage?affectedCardId=${cardId}`
-      );
+      // router.replace(
+      //   `/(tabs)/box/manage-collection/${collectionId}/manage?affectedCardId=${cardId}`
+      // );
     }
   };
 

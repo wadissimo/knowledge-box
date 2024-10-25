@@ -17,6 +17,7 @@ export type AppTheme = {
     button: string;
     cardDefault: string;
     header: string;
+    popup: string;
   };
 };
 
@@ -36,6 +37,7 @@ export const lightTheme: AppTheme = {
     button: "#6200ee",
     cardDefault: "#f8f8f8",
     header: "#6200ee",
+    popup: "white",
   },
 };
 
@@ -55,6 +57,7 @@ export const darkTheme: AppTheme = {
     button: "#bb86fc",
     cardDefault: "#2e2e2e",
     header: "#bb86fc",
+    popup: "#eee",
   },
 };
 

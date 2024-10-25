@@ -73,6 +73,11 @@
     "deleteCardBtn": "Karte\nLöschen",
     "error": {
       "emptySides": "Sowohl die Vorder- als auch die Rückseite müssen gefüllt sein."
+    },
+    "popupMenu": {
+      "editCard": "Karte bearbeiten",
+      "postpone": "Verschieben",
+      "tooEasy": "Zu einfach"
     }
   },
   "collection": {

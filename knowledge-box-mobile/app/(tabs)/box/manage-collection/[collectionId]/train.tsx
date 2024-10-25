@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import CardComponent from "@/src/components/CardComponent";
 import { Card, useCardModel } from "@/src/data/CardModel";
-import { useTheme } from "@react-navigation/native";
+import { useIsFocused, useTheme } from "@react-navigation/native";
 import {
   Session,
   SessionStatus,
@@ -24,6 +24,13 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
 import TrainingResults from "@/src/components/TrainingResults";
 import { i18n } from "@/src/lib/i18n";
+import {
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuTrigger,
+} from "react-native-popup-menu";
+import { useAppTheme } from "@/src/hooks/useAppTheme";
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
@@ -36,7 +43,7 @@ const REPEAT_CARDS_PER_DAY = 200;
 const DEBUG = false;
 
 const TrainCollection = () => {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
   const { collectionId } = useLocalSearchParams();
 
   const trainer: Trainer = useDefaultTrainer(
@@ -63,7 +70,7 @@ const TrainCollection = () => {
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
   const [collection, setCollection] = useState<Collection | null>(null);
   const [error, setError] = useState<string>("");
-
+  const isFocused = useIsFocused();
   const totalCards = session
     ? session.newCards + session.reviewCards + session.learningCards
     : null;
@@ -160,8 +167,8 @@ const TrainCollection = () => {
   }, [collectionId]);
 
   useEffect(() => {
-    selectNextCard();
-  }, [session]);
+    if (isFocused) selectNextCard();
+  }, [session, isFocused]);
 
   const resetTraining = async () => {
     console.log("training reset");
@@ -206,6 +213,15 @@ const TrainCollection = () => {
     selectNextCard();
   }
 
+  function handleEditMenu() {
+    if (currentCard !== null) router.push(`./${currentCard.id}`);
+  }
+  function handlePostponeMenu() {
+    alert("not implemented");
+  }
+  function handleTooEasyMenu() {
+    handleUserResponse("easy");
+  }
   if (loading) return null;
   if (session === null) return null;
   return (
@@ -217,12 +233,13 @@ const TrainCollection = () => {
         <Text>
           {totalCards !== null ? `${remainingCards} / ${totalCards}` : ""}
         </Text>
-        <Icon
-          name="dots-vertical"
-          color={"black"}
-          size={32}
-          style={styles.topPanelMenuIcon}
-        />
+        {currentCard && (
+          <CardMenu
+            onEdit={handleEditMenu}
+            onPostpone={handlePostponeMenu}
+            onMarkEasy={handleTooEasyMenu}
+          />
+        )}
       </View>
       {currentCard ? (
         <CardComponent
@@ -288,6 +305,51 @@ const TrainCollection = () => {
   );
 };
 
+const CardMenu = ({
+  onEdit,
+  onPostpone,
+  onMarkEasy,
+}: {
+  onEdit: Function;
+  onPostpone: Function;
+  onMarkEasy: Function;
+}) => {
+  const { colors } = useAppTheme();
+
+  return (
+    <Menu>
+      <MenuTrigger>
+        <Icon
+          name="dots-vertical"
+          color={"black"}
+          size={32}
+          style={styles.topPanelMenuIcon}
+        />
+      </MenuTrigger>
+      <MenuOptions>
+        <MenuOption
+          style={{ backgroundColor: colors.popup }}
+          onSelect={() => onEdit()}
+        >
+          <Text>{i18n.t("cards.popupMenu.editCard")}</Text>
+        </MenuOption>
+
+        <MenuOption
+          style={{ backgroundColor: colors.popup }}
+          onSelect={() => onPostpone()}
+        >
+          <Text>{i18n.t("cards.popupMenu.postpone")}</Text>
+        </MenuOption>
+        <MenuOption
+          style={{ backgroundColor: colors.popup }}
+          onSelect={() => onMarkEasy()}
+        >
+          <Text>{i18n.t("cards.popupMenu.tooEasy")}</Text>
+        </MenuOption>
+      </MenuOptions>
+    </Menu>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
