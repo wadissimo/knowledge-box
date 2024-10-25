@@ -81,6 +81,7 @@ const TrainCollection = () => {
 
   function selectNextCard() {
     if (session === null) {
+      console.log("current card is null");
       setCurrentCard(null);
       return;
     }
@@ -221,14 +222,19 @@ const TrainCollection = () => {
     if (currentCard !== null) router.push(`./${currentCard.id}`);
   }
 
-  function handlePostponeMenu() {
-    if (currentCard !== null && session !== null)
-      Promise.all([
+  async function handlePostponeMenu() {
+    if (currentCard !== null && session !== null) {
+      console.log("deleting session card", session.id, currentCard.id);
+
+      await Promise.all([
         learnCardLater(currentCard),
+
         deleteSessionCard(session.id, currentCard.id),
-      ]).then(() => {
-        selectNextCard();
-      });
+      ]);
+      const newSessionCards = await getCurrentCards(session.id);
+      setSessionCards(newSessionCards);
+      selectNextCard();
+    }
   }
   function handleTooEasyMenu() {
     handleUserResponse("easy");
