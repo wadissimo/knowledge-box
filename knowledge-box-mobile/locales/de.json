@@ -20,7 +20,11 @@
       "days": "T"
     },
     "navBack": "Zurück",
-    "text": "Text"
+    "text": "Text",
+    "image": "Bild",
+    "sound": "Audio",
+    "clear": "Löschen",
+    "remove": "Löschen"
   },
   "boxes": {
     "myBoxesTitle": "Meine Boxen",
@@ -79,7 +83,9 @@
       "editCard": "Karte bearbeiten",
       "postpone": "Verschieben",
       "tooEasy": "Zu einfach"
-    }
+    },
+    "noImage": "No image uploaded",
+    "noSound": "No sound uploaded"
   },
   "collection": {
     "train": {

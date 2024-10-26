@@ -22,6 +22,7 @@ import { useAppTheme } from "@/src/hooks/useAppTheme";
 import * as ImagePicker from "expo-image-picker";
 import { useImageModel } from "@/src/data/ImageModel";
 import LocalImage from "@/src/components/utils/LocalImage";
+import * as DocumentPicker from "expo-document-picker";
 
 const EditFlashcard = () => {
   const router = useRouter();
@@ -43,17 +44,27 @@ const EditFlashcard = () => {
     playSoundFromUri,
   } = useMediaDataService();
 
-  const [uplImgUriFront, setUplImgUriFront] = useState<string | null>(null);
-  const [uplImgUriBack, setUplImgUriBack] = useState<string | null>(null);
-  const [cardImgUriFront, setCardImgUriFront] = useState<string | null>(null);
-  const [cardImgUriBack, setCardImgUriBack] = useState<string | null>(null);
+  const [updateImgFront, setUpdateImgFront] = useState<boolean>(false);
+  const [updateImgBack, setUpdateImgBack] = useState<boolean>(false);
+  const [updateSoundFront, setUpdateSoundFront] = useState<boolean>(false);
+  const [updateSoundBack, setUpdateSoundBack] = useState<boolean>(false);
 
-  const [uplSoundUriFront, setUplSoundUriFront] = useState<string | null>(null);
-  const [uplSoundUriBack, setUplSoundUriBack] = useState<string | null>(null);
-  const [cardSoundUriFront, setCardSoundUriFront] = useState<string | null>(
-    null
-  );
-  const [cardSoundUriBack, setCardSoundUriBack] = useState<string | null>(null);
+  const [imageUriFront, setImageUriFront] = useState<string | null>(null);
+  const [imageUriBack, setImageUriBack] = useState<string | null>(null);
+  const [soundUriFront, setSoundUriFront] = useState<string | null>(null);
+  const [soundUriBack, setSoundUriBack] = useState<string | null>(null);
+
+  // const [uplImgUriFront, setUplImgUriFront] = useState<string | null>(null);
+  // const [uplImgUriBack, setUplImgUriBack] = useState<string | null>(null);
+  // const [cardImgUriFront, setCardImgUriFront] = useState<string | null>(null);
+  // const [cardImgUriBack, setCardImgUriBack] = useState<string | null>(null);
+
+  // const [uplSoundUriFront, setUplSoundUriFront] = useState<string | null>(null);
+  // const [uplSoundUriBack, setUplSoundUriBack] = useState<string | null>(null);
+  // const [cardSoundUriFront, setCardSoundUriFront] = useState<string | null>(
+  //   null
+  // );
+  // const [cardSoundUriBack, setCardSoundUriBack] = useState<string | null>(null);
 
   const [selectedTab, setSelectedTab] = useState<string>("front");
   // Media
@@ -78,17 +89,21 @@ const EditFlashcard = () => {
 
         setCard(card);
         if (card.frontImg !== null) {
-          setCardImgUriFront(await getImageSource(card.frontImg));
+          setImageUriFront(await getImageSource(card.frontImg));
         }
         if (card.backImg !== null) {
-          setCardImgUriBack(await getImageSource(card.backImg));
+          setImageUriBack(await getImageSource(card.backImg));
         }
         if (card.frontSound !== null) {
-          setCardSoundUriFront(await getSoundSource(card.frontSound));
+          setSoundUriFront(await getSoundSource(card.frontSound));
         }
         if (card.backSound !== null) {
-          setCardSoundUriBack(await getSoundSource(card.backSound));
+          setSoundUriBack(await getSoundSource(card.backSound));
         }
+        setUpdateImgFront(false);
+        setUpdateImgBack(false);
+        setUpdateSoundFront(false);
+        setUpdateSoundBack(false);
 
         navigation.setOptions({
           title: i18n.t("cards.editCardTitle"),
@@ -125,44 +140,82 @@ const EditFlashcard = () => {
       };
       // update media
       // Image Front
-      if (uplImgUriFront !== null) {
+      if (updateImgFront) {
         console.log("uploading front");
-        const imgData = await newImageFromLocalUri(uplImgUriFront);
-        if (imgData === null) {
-          throw new Error("error uploading image");
+        if (imageUriFront !== null) {
+          const imgData = await newImageFromLocalUri(imageUriFront);
+          if (imgData === null) {
+            throw new Error("error uploading image");
+          }
+          updatedCard.frontImg = imgData.id;
+        } else {
+          //TODO: clean up files
+          updatedCard.frontImg = null;
         }
-        updatedCard.frontImg = imgData.id;
       }
       // Image Back
-      if (uplImgUriBack !== null) {
+      if (updateImgBack) {
         console.log("uploading back");
-        const imgData = await newImageFromLocalUri(uplImgUriBack);
-        if (imgData === null) {
-          throw new Error("error uploading image");
+        if (imageUriBack !== null) {
+          const imgData = await newImageFromLocalUri(imageUriBack);
+          if (imgData === null) {
+            throw new Error("error uploading image");
+          }
+          updatedCard.frontImg = imgData.id;
+        } else {
+          //TODO: clean up files
+          updatedCard.backImg = null;
         }
-        updatedCard.backImg = imgData.id;
       }
+
       // Sound Front
-      if (uplSoundUriFront !== null) {
-        const soundData = await newSoundFromLocalUri(uplSoundUriFront);
-        if (soundData === null) {
-          throw new Error("error uploading sound");
+      if (updateSoundFront) {
+        if (soundUriFront !== null) {
+          const soundData = await newSoundFromLocalUri(soundUriFront);
+          if (soundData === null) {
+            throw new Error("error uploading sound");
+          }
+          updatedCard.frontSound = soundData.id;
+        } else {
+          //TODO: clean up files
+          updatedCard.frontSound = null;
         }
-        updatedCard.frontSound = soundData.id;
       }
       // Sound Back
-      if (uplSoundUriBack !== null) {
-        const soundData = await newSoundFromLocalUri(uplSoundUriBack);
-        if (soundData === null) {
-          throw new Error("error uploading sound");
+      if (updateSoundBack) {
+        if (soundUriBack !== null) {
+          const soundData = await newSoundFromLocalUri(soundUriBack);
+          if (soundData === null) {
+            throw new Error("error uploading sound");
+          }
+          updatedCard.backSound = soundData.id;
+        } else {
+          //TODO: clean up files
+          updatedCard.backSound = null;
         }
-        updatedCard.backSound = soundData.id;
       }
 
       await updateCard(updatedCard);
     }
     router.back();
   };
+
+  function updateUploadedImageFront(uri: string) {
+    setImageUriFront(uri);
+    setUpdateImgFront(true);
+  }
+  function updateUploadedImageBack(uri: string) {
+    setImageUriBack(uri);
+    setUpdateImgBack(true);
+  }
+  function updateUploadedSoundFront(uri: string) {
+    setSoundUriFront(uri);
+    setUpdateSoundFront(true);
+  }
+  function updateUploadedSoundBack(uri: string) {
+    setSoundUriBack(uri);
+    setUpdateSoundBack(true);
+  }
 
   function handleSelectedTabClick(tab: string) {
     setSelectedTab(tab);
@@ -236,12 +289,10 @@ const EditFlashcard = () => {
           card={card}
           front={true}
           setCard={setCard}
-          image={uplImgUriFront !== null ? uplImgUriFront : cardImgUriFront}
-          setUploadedImage={setUplImgUriFront}
-          sound={
-            uplSoundUriFront !== null ? uplSoundUriFront : cardSoundUriFront
-          }
-          setUploadSound={setUplSoundUriFront}
+          image={imageUriFront}
+          setUploadedImage={updateUploadedImageFront}
+          sound={soundUriFront}
+          setUploadSound={updateUploadedSoundFront}
           playSound={handlePlaySound}
         />
       )}
@@ -251,10 +302,10 @@ const EditFlashcard = () => {
           card={card}
           front={false}
           setCard={setCard}
-          image={uplImgUriBack !== null ? uplImgUriBack : cardImgUriBack}
-          setUploadedImage={setUplImgUriBack}
-          sound={uplSoundUriBack !== null ? uplSoundUriBack : cardSoundUriBack}
-          setUploadSound={setUplSoundUriBack}
+          image={imageUriBack}
+          setUploadedImage={updateUploadedImageBack}
+          sound={soundUriBack}
+          setUploadSound={updateUploadedSoundBack}
           playSound={handlePlaySound}
         />
       )}
@@ -307,22 +358,31 @@ const FrontBackEdit = ({
   };
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      // aspect: [4, 3],
-      //quality: 1,
+      allowsEditing: true, // aspect: [4, 3], quality: 1,
     });
-
-    console.log(result);
-
     if (!result.canceled) {
       setUploadedImage(result.assets[0].uri);
       console.log("image selected", result.assets[0].uri);
     }
   };
-  const pickSound = async () => {};
+  const clearImage = () => {
+    setUploadedImage(null);
+  };
+  const pickSound = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "audio/*",
+      copyToCacheDirectory: true,
+    });
+    if (!result.canceled) {
+      console.log("pick sound", result.assets[0].uri);
+      setUploadSound(result.assets[0].uri);
+    }
+  };
+  const clearSound = () => {
+    setUploadSound(null);
+  };
   return (
     <ScrollView>
       <TextInput
@@ -339,22 +399,28 @@ const FrontBackEdit = ({
           {image ? (
             <LocalImage uri={image} maxHeight={120} maxWidth={200} />
           ) : (
-            <Text>No image uploaded</Text>
+            <Text>{i18n.t("cards.noImage")}</Text>
           )}
         </View>
-        <TouchableOpacity onPress={pickImage} style={styles.iconView}>
-          <View
-            style={[styles.uploadIcon, { backgroundColor: colors.primary }]}
-          >
-            <Icon name="file-upload-outline" size={42} color={"white"} />
-            <Text style={styles.iconTxt}>Image</Text>
-          </View>
-        </TouchableOpacity>
-        {/* <Button
-            title="Pick an image"
-            onPress={pickImage}
-            color={colors.primary}
-          /> */}
+        {image ? (
+          <TouchableOpacity onPress={clearImage} style={styles.iconView}>
+            <View
+              style={[styles.uploadIcon, { backgroundColor: colors.primary }]}
+            >
+              <Icon name="close-circle" size={42} color={"white"} />
+              <Text style={styles.iconTxt}>{i18n.t("common.remove")}</Text>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={pickImage} style={styles.iconView}>
+            <View
+              style={[styles.uploadIcon, { backgroundColor: colors.primary }]}
+            >
+              <Icon name="file-upload-outline" size={42} color={"white"} />
+              <Text style={styles.iconTxt}>{i18n.t("common.image")}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.soundUploadContainer}>
@@ -364,17 +430,28 @@ const FrontBackEdit = ({
               <Icon name="play-circle-outline" size={42} color="black" />
             </TouchableOpacity>
           ) : (
-            <Text>No sound uploaded</Text>
+            <Text>{i18n.t("cards.noSound")}</Text>
           )}
         </View>
-        <TouchableOpacity onPress={pickSound} style={styles.iconView}>
-          <View
-            style={[styles.uploadIcon, { backgroundColor: colors.primary }]}
-          >
-            <Icon name="file-upload-outline" size={42} color={"white"} />
-            <Text style={styles.iconTxt}>Sound</Text>
-          </View>
-        </TouchableOpacity>
+        {sound ? (
+          <TouchableOpacity onPress={clearSound} style={styles.iconView}>
+            <View
+              style={[styles.uploadIcon, { backgroundColor: colors.primary }]}
+            >
+              <Icon name="close-circle" size={42} color={"white"} />
+              <Text style={styles.iconTxt}>{i18n.t("common.remove")}</Text>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={pickSound} style={styles.iconView}>
+            <View
+              style={[styles.uploadIcon, { backgroundColor: colors.primary }]}
+            >
+              <Icon name="file-upload-outline" size={42} color={"white"} />
+              <Text style={styles.iconTxt}>{i18n.t("common.sound")}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     </ScrollView>
   );
@@ -440,13 +517,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconView: {
-    flex: 0.2,
+    flex: 0.3,
     justifyContent: "center",
     alignItems: "center",
   },
   uploadIcon: {
     padding: 3,
-    margin: 10,
+    margin: 5,
     borderRadius: 5,
     alignItems: "center",
   },
