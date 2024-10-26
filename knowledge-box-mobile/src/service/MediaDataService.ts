@@ -6,7 +6,7 @@ import * as SQLite from "expo-sqlite";
 import { useEffect, useState } from "react";
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
-import { useImageModel } from "@/src/data/ImageModel";
+import { ImageData, useImageModel } from "@/src/data/ImageModel";
 
 const getMediaUriByName = (name: string) => {
   return FileSystem.documentDirectory + name;
@@ -39,9 +39,10 @@ export default function useMediaDataService() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { newSoundWithId, getSoundById, updateSound } = useSoundModel();
-  const { getImageById, newImageWithId } = useImageModel();
+  const { getImageById, newImageWithId, newImage, updateImage } =
+    useImageModel();
   const [initialized, setInitialized] = useState<boolean>(false);
-  //const db = SQLite.useSQLiteContext();
+  const db = SQLite.useSQLiteContext();
   const [sound, setSound] = useState<Audio.Sound>();
 
   useEffect(() => {
@@ -170,20 +171,57 @@ export default function useMediaDataService() {
     return null;
   }
 
-  //   const importGlobalImageIfNotExists = async (
-  //     globalImageId: number
-  //   ): Promise<number> => {
-  //     const newImageId = -globalImageId;
-  //     const imageData = await getImageById(newImageId);
-  //     if (imageData === null) {
-  //       const fileName = `media/images/-${globalImageId}`; // "-" for global files
-  //       await downloadImage(globalImageId, fileName);
-  //       await newImageWithId(newImageId, fileName, null, null);
-  //     } else {
-  //       //console.log("sound data exists", soundData);
-  //     }
-  //     return newImageId;
-  //   };
+  const newImageFromLocalUri = async (
+    localUri: string
+  ): Promise<ImageData | null> => {
+    var res: ImageData | null = null;
+    await db.withTransactionAsync(async () => {
+      const imageId = await newImage("");
+      const filePath = `media/images/${imageId}`;
+      const imgDir = getMediaUriByName(filePath);
+      // console.log("imgDir", imgDir);
+      await FileSystem.copyAsync({
+        from: localUri,
+        to: imgDir,
+      });
+      const image: ImageData = {
+        id: imageId,
+        file: filePath,
+        ref: localUri,
+        comment: null,
+      };
+      await updateImage(image);
+      res = image;
+    });
+
+    return res;
+  };
+
+  const newSoundFromLocalUri = async (
+    localUri: string
+  ): Promise<SoundData | null> => {
+    var res: SoundData | null = null;
+    await db.withTransactionAsync(async () => {
+      const soundId = await newSound("");
+      const filePath = `media/sounds/${soundId}`;
+      const soundDir = getMediaUriByName(filePath);
+      // console.log("soundDir", soundDir);
+      await FileSystem.copyAsync({
+        from: localUri,
+        to: soundDir,
+      });
+      const sound: SoundData = {
+        id: soundId,
+        file: filePath,
+        ref: localUri,
+        comment: null,
+      };
+      await updateSound(sound);
+      res = sound;
+    });
+
+    return res;
+  };
 
   const getImageSource = async (imageId: number): Promise<string | null> => {
     const imageData = await getImageById(imageId);
@@ -208,20 +246,35 @@ export default function useMediaDataService() {
     return getMediaUriByName(fileName);
   };
 
-  //   const importGlobalSoundIfNotExists = async (
-  //     globalSoundId: number
-  //   ): Promise<number> => {
-  //     const newSoundId = -globalSoundId;
-  //     const soundData = await getSoundById(newSoundId);
-  //     if (soundData === null) {
-  //       const fileName = `media/sounds/-${globalSoundId}.mp3`; // "-" for global files
-  //       await downloadSound(globalSoundId, fileName);
-  //       await newSoundWithId(newSoundId, fileName, null, null);
-  //     } else {
-  //       //console.log("sound data exists", soundData);
-  //     }
-  //     return newSoundId;
-  //   };
+  const getSoundSource = async (soundId: number): Promise<string | null> => {
+    const soundData = await getSoundById(soundId);
+
+    var fileName: string;
+    if (!soundData) {
+      if (soundId < 0) {
+        console.log("sound missing, download");
+        fileName = `media/sounds/${soundId}.mp3`; // "-" for global files
+        await downloadSound(-soundId, fileName);
+        await newSoundWithId(soundId, fileName, null, null);
+      } else {
+        console.error("cant find media sound", soundId);
+        return null;
+      }
+    } else {
+      fileName = soundData.file;
+    }
+
+    return getMediaUriByName(fileName);
+  };
+
+  const playSoundFromUri = async (uri: string) => {
+    const { sound } = await Audio.Sound.createAsync({
+      uri,
+    });
+    setSound(sound);
+    console.log("Playing Sound ", uri);
+    await sound.playAsync();
+  };
 
   const playSound = async (soundId: number) => {
     const soundData = await getSoundById(soundId);
@@ -253,10 +306,12 @@ export default function useMediaDataService() {
   return {
     loading,
     error,
-
-    // importGlobalSoundIfNotExists,
+    getMediaUriByName,
     playSound,
-    // importGlobalImageIfNotExists,
+    playSoundFromUri,
+    getSoundSource,
     getImageSource,
+    newImageFromLocalUri,
+    newSoundFromLocalUri,
   };
 }

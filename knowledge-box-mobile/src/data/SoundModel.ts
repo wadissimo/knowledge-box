@@ -13,8 +13,8 @@ function useSoundModel() {
   // Create
   const newSound = async (
     file: string,
-    ref: string | null,
-    comment: string | null
+    ref: string | null = null,
+    comment: string | null = null
   ): Promise<number> => {
     const result = await db.runAsync(
       "INSERT INTO sounds (file, ref, comment) VALUES (?, ?, ?)",

@@ -19,7 +19,8 @@
       "mins": "m",
       "days": "d"
     },
-    "navBack": "Back"
+    "navBack": "Back",
+    "text": "Text"
   },
   "boxes": {
     "myBoxesTitle": "My Boxes",

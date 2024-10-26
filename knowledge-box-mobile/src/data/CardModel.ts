@@ -15,23 +15,22 @@ type Card = {
   backImg: number | null;
   frontSound: number | null;
   backSound: number | null;
-  initialEaseFactor: number | null;
+  initialEaseFactor: number;
   hide: Boolean;
   repeatTime: number | null;
   prevRepeatTime: number | null;
-  successfulRepeats: number | null;
-  failedRepeats: number | null;
-  interval: number | null;
-  easeFactor: number | null;
-  createdAt?: number | null;
-  status: CardStatus | null;
-  priority: number | null;
+  successfulRepeats: number;
+  failedRepeats: number;
+  interval: number;
+  easeFactor: number;
+  createdAt?: number;
+  status: CardStatus;
+  priority: number;
 };
 
 function useCardModel() {
   const db = SQLite.useSQLiteContext();
 
-  // Create
   const newCard = async (
     collectionId: number,
     front: string,

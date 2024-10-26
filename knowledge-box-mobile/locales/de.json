@@ -19,7 +19,8 @@
       "mins": "M",
       "days": "T"
     },
-    "navBack": "Zurück"
+    "navBack": "Zurück",
+    "text": "Text"
   },
   "boxes": {
     "myBoxesTitle": "Meine Boxen",
