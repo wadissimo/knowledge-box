@@ -76,7 +76,8 @@ export default function useCollectionRemoteService() {
 
   async function addCollection(
     boxId: number,
-    collectionId: number
+    collectionId: number,
+    shuffle: boolean = false
   ): Promise<void> {
     setLoading(true);
     setError(null);
@@ -100,7 +101,7 @@ export default function useCollectionRemoteService() {
           collection.createdBy
         );
         await newBoxCollection(boxId, newColId);
-        const cards = (data.cards as Card[]).map((card) => ({
+        var cards = (data.cards as Card[]).map((card) => ({
           collectionId: newColId,
           front: card.front,
           back: card.back,
@@ -110,6 +111,13 @@ export default function useCollectionRemoteService() {
           backSound: card.backSound ? -card.backSound : null, // Important: update global id to "-", positive values would be local ids
           initialEaseFactor: card.initialEaseFactor,
         }));
+        if (shuffle) {
+          // Shuffle cards using Fisher-Yates algorithm
+          for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+          }
+        }
         await newCards(cards);
         //TODO: sync media if needed too
       }

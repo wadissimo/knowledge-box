@@ -24,7 +24,8 @@
     "image": "Image",
     "sound": "Sound",
     "clear": "Clear",
-    "remove": "Remove"
+    "remove": "Remove",
+    "options": "Options"
   },
   "boxes": {
     "myBoxesTitle": "My Boxes",
@@ -96,7 +97,8 @@
       "newCards": "New Cards:",
       "reviewCards": "Review Cards:",
       "learningCards": "Learning Cards:"
-    }
+    },
+    "shuffleCardsOption": "Shuffle cards"
   },
   "notes": {
     "newNote": "New Note",

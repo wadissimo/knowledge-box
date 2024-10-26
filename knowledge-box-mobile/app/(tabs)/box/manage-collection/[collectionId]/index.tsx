@@ -88,6 +88,7 @@ const CollectionView = () => {
           </Text>
         </View>
       </View>
+      <View></View>
       <View style={styles.trainBtnContainer}>
         <Button
           title={i18n.t("collection.train.trainBtn")}

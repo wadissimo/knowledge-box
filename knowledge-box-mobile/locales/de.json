@@ -24,7 +24,8 @@
     "image": "Bild",
     "sound": "Audio",
     "clear": "Löschen",
-    "remove": "Löschen"
+    "remove": "Löschen",
+    "options": "Optionen"
   },
   "boxes": {
     "myBoxesTitle": "Meine Boxen",
@@ -99,7 +100,8 @@
       "newCards": "Neue Karten:",
       "reviewCards": "Wiederholungskarten:",
       "learningCards": "Lernkarten:"
-    }
+    },
+    "shuffleCardsOption": "Karten mischen"
   },
 
   "notes": {

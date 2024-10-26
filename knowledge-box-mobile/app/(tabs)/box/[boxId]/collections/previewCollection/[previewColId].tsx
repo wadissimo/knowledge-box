@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, Switch } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
@@ -15,7 +15,7 @@ const CollectionPreview = () => {
   const { boxId, previewColId } = useLocalSearchParams();
   const [collection, setCollection] = useState<Collection | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
-
+  const [shuffleCollection, setShuffleCollection] = useState<boolean>(false);
   const router = useRouter();
   const { error, loading, getCollectionPreview, addCollection } =
     useSyncService();
@@ -31,15 +31,17 @@ const CollectionPreview = () => {
 
   function handleAddCollection() {
     // Add collection and all it's cards and get back to the Box screen
-    addCollection(Number(boxId), Number(previewColId)).then(() => {
-      if (error) {
-        // TODO: Error should be shown on UI
-        console.log("Add Collection Failed");
-      } else {
-        router.back();
-        router.back();
+    addCollection(Number(boxId), Number(previewColId), shuffleCollection).then(
+      () => {
+        if (error) {
+          // TODO: Error should be shown on UI
+          console.log("Add Collection Failed");
+        } else {
+          router.back();
+          router.back();
+        }
       }
-    });
+    );
   }
 
   if (!collection) return null;
@@ -79,11 +81,28 @@ const CollectionPreview = () => {
           )}
         />
       </View>
-      <Button
-        title={i18n.t("cards.addCollection")}
-        onPress={handleAddCollection}
-        color={colors.primary}
-      ></Button>
+      <View>
+        <Text style={styles.sectionHeaderText}>
+          {i18n.t("common.options")}:
+        </Text>
+      </View>
+      <View style={[styles.shuffle, { backgroundColor: colors.card }]}>
+        <Text style={styles.shuffleTxt}>
+          {i18n.t("collection.shuffleCardsOption")}
+        </Text>
+        <Switch
+          value={shuffleCollection}
+          onValueChange={setShuffleCollection}
+          thumbColor={colors.primary}
+        />
+      </View>
+      <View>
+        <Button
+          title={i18n.t("cards.addCollection")}
+          onPress={handleAddCollection}
+          color={colors.primary}
+        ></Button>
+      </View>
     </View>
   );
 };
@@ -140,6 +159,16 @@ const styles = StyleSheet.create({
   rowItem: { flex: 1, padding: 5 },
   cardPreviewList: {
     flex: 1,
+  },
+  shuffle: {
+    height: 40,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  shuffleTxt: {
+    fontSize: 16,
+    flex: 0.8,
   },
 });
 
