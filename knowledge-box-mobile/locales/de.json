@@ -94,7 +94,11 @@
       "streak": "Streak:",
       "cardViews": "Kartenansichten:",
       "score": "Punktzahl:",
-      "trainBtn": "Trainieren"
+      "trainBtn": "Trainieren",
+      "options": "Trainingsoptionen",
+      "newCardsCnt": "Anzahl neuer Karten",
+      "reviewCardsCnt": "Anzahl der Wiederholungskarten",
+      "learnCardsCnt": "Anzahl der Lernkarten"
     },
     "stats": {
       "newCards": "Neue Karten:",

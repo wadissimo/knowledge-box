@@ -21,7 +21,11 @@ import {
 } from "@/src/lib/TimeUtils";
 import useMediaDataService from "@/src/service/MediaDataService";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
+import {
+  Collection,
+  CollectionTrainingData,
+  useCollectionModel,
+} from "@/src/data/CollectionModel";
 import TrainingResults from "@/src/components/TrainingResults";
 import { i18n } from "@/src/lib/i18n";
 import {
@@ -46,13 +50,6 @@ const TrainCollection = () => {
   const { colors } = useAppTheme();
   const { collectionId } = useLocalSearchParams();
 
-  const trainer: Trainer = useDefaultTrainer(
-    collectionId !== null && collectionId !== "" ? Number(collectionId) : -1,
-    NEW_CARDS_PER_DAY,
-    REPEAT_CARDS_PER_DAY,
-    LEARNING_CARDS_PER_DAY
-  );
-
   const { learnCardLater } = useCardModel();
   const { updateSession: updateSessionDb, getStartedSession } =
     useSessionModel();
@@ -72,8 +69,19 @@ const TrainCollection = () => {
   const [currentCard, setCurrentCard] = useState<Card | null>(null);
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
   const [collection, setCollection] = useState<Collection | null>(null);
+  const [trainingData, setTrainingData] =
+    useState<CollectionTrainingData | null>(null);
   const [error, setError] = useState<string>("");
   const isFocused = useIsFocused();
+  const trainer: Trainer = useDefaultTrainer(
+    collectionId !== null && collectionId !== "" ? Number(collectionId) : -1,
+    trainingData !== null ? trainingData.maxNewCards : NEW_CARDS_PER_DAY,
+    trainingData !== null ? trainingData.maxReviewCards : REPEAT_CARDS_PER_DAY,
+    trainingData !== null
+      ? trainingData.maxLearningCards
+      : LEARNING_CARDS_PER_DAY
+  );
+
   const totalCards = session
     ? session.newCards + session.reviewCards + session.learningCards
     : null;
@@ -126,7 +134,7 @@ const TrainCollection = () => {
     session.status = SessionStatus.Completed;
     const score = calcScore(session);
     session.score = score;
-    const trainingData = await getCollectionTrainingData(Number(collectionId));
+    //const trainingData = await getCollectionTrainingData(Number(collectionId));
     if (trainingData !== null) {
       const yesterday = getYesterdayAsNumber();
       if (trainingData.lastTrainingDate === yesterday) {
@@ -158,9 +166,11 @@ const TrainCollection = () => {
       existingSession = false;
       session = await trainer.createSession(curDateStripped);
     }
+    //todo: parallel
     const sessionCards = await getCurrentCards(session.id);
 
     setCollection(await getCollectionById(Number(collectionId)));
+    setTrainingData(await getCollectionTrainingData(Number(collectionId)));
     setSession(session);
     setSessionCards(sessionCards);
     setLoading(true);

@@ -137,6 +137,13 @@ const BoxLayout = () => {
         }}
       />
       <Stack.Screen
+        name="manage-collection/[collectionId]/trainOptions"
+        options={{
+          title: i18n.t("collection.train.options"),
+          ...defaultHeaderOptions,
+        }}
+      />
+      <Stack.Screen
         name="[boxId]/notes/newNote"
         options={{
           title: i18n.t("notes.newNote"),

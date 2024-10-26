@@ -54,6 +54,9 @@ const CollectionView = () => {
   function handleTrainPress() {
     router.push(`/(tabs)/box/manage-collection/${collectionId}/train`);
   }
+  function handleTrainOptions() {
+    router.push("./trainOptions");
+  }
 
   if (collection === null) return null;
   return (
@@ -88,7 +91,13 @@ const CollectionView = () => {
           </Text>
         </View>
       </View>
-      <View></View>
+      <View style={styles.trainOptBtnContainer}>
+        <Button
+          title={i18n.t("collection.train.options")}
+          color={colors.primary}
+          onPress={handleTrainOptions}
+        />
+      </View>
       <View style={styles.trainBtnContainer}>
         <Button
           title={i18n.t("collection.train.trainBtn")}
@@ -120,6 +129,11 @@ const styles = StyleSheet.create({
   colNameTxt: {
     fontWeight: "bold",
     fontSize: 24,
+  },
+  trainOptBtnContainer: {
+    justifyContent: "center",
+    margin: 5,
+    height: 80,
   },
   trainBtnContainer: {
     justifyContent: "center",

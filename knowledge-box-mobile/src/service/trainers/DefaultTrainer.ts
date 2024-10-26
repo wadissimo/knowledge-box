@@ -48,6 +48,7 @@ export default function useDefaultTrainer(
     getNextCard: getNextCardDb,
     getAllSessionCards,
   } = useCardTrainingService();
+  console.log("useDefaultTrainer, maxNewCards", maxNewCards);
 
   function getName(): string {
     return i18n.t("trainer.defaultTrainerName");
