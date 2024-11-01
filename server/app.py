@@ -2,7 +2,9 @@ from flask import Flask, request, jsonify, send_file
 import sqlite3
 import os
 import re
+from dotenv import load_dotenv
 
+load_dotenv() 
 app = Flask(__name__)
 
 DB_NAME = "serverdata.db"

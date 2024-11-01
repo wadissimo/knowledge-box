@@ -1,9 +1,12 @@
 import { View, Text } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
-
+import OpenAI from "openai";
+const openai = new OpenAI();
 const NewChat = () => {
   const [messages, setMessages] = useState<any[]>([]);
+  const [client, setClient] = useState<OpenAI | null>(null);
+  const [apiKey, setApiKey] = useState<string>("");
 
   useEffect(() => {
     setMessages([
