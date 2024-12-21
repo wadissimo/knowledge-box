@@ -3,6 +3,7 @@ import sqlite3
 import os
 import re
 from dotenv import load_dotenv
+import gemini
 
 load_dotenv() 
 app = Flask(__name__)
@@ -150,6 +151,40 @@ def search_collections(query):
 
     return results
 
+
+FAKE_API = False
+DEFAULT_LANGUAGE = "English"
+SECRET_KEY = "jclKjUk123dsahkjdhkjsa67FD213sadHAFDUd23213bvcBKJQhjgf12312"
+MODEL = "gemini"
+
+
+@app.route('/api/ai/chat', methods=['POST'])
+def chat():
+    print("chat")
+    data = request.get_json()
+    message = data.get("message")
+    key = data.get("key")
+    lang = data.get("language", DEFAULT_LANGUAGE)
+    if key != SECRET_KEY:
+        print("wrong key")
+        return jsonify({"result":"error"}), 200
+    history = data.get("history")
+    print("history", history)
+
+    # TODO: function calling
+    if FAKE_API:
+        resp_json = {
+            "result":"ok",
+            "message": "Fake response from AI",
+        }
+    else:
+        if MODEL == "chatgpt":
+            pass
+        else:
+            resp_json = gemini.chat(message, lang, history)
+        resp_json[ "result"] = "ok"
+
+    return jsonify(resp_json)
 
 
 if __name__ == '__main__':
