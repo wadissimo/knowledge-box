@@ -13,24 +13,51 @@ const getMediaUriByName = (name: string) => {
 };
 
 async function ensureDirExists() {
-  const dir = getMediaUriByName("media/sounds/");
-  var { exists } = await FileSystem.getInfoAsync(dir);
-  if (!exists) {
-    console.log("Creating media directories", dir);
+  var isError = false;
 
-    await FileSystem.makeDirectoryAsync(dir);
-  } else {
-    console.log("Sound dirs exist", dir);
+  try {
+    const dir = getMediaUriByName("media/");
+    var { exists } = await FileSystem.getInfoAsync(dir);
+    if (!exists) {
+      console.log("Creating media directories", dir);
+      await FileSystem.makeDirectoryAsync(dir);
+    } else {
+      console.log("Media dirs exist", dir);
+    }
+  } catch (error) {
+    console.error(`Error creating media directory `, error);
+    isError = true;
   }
+  try {
+    const dir = getMediaUriByName("media/sounds/");
+    var { exists } = await FileSystem.getInfoAsync(dir);
+    if (!exists) {
+      console.log("Creating media directories", dir);
 
-  const imgDir = getMediaUriByName("media/images/");
-  var { exists } = await FileSystem.getInfoAsync(imgDir);
-  if (!exists) {
-    console.log("Creating media directories", imgDir);
+      await FileSystem.makeDirectoryAsync(dir);
+    } else {
+      console.log("Sound dirs exist", dir);
+    }
+  } catch (error) {
+    console.error(`Error creating sound directory `, error);
+    isError = true;
+  }
+  try {
+    const imgDir = getMediaUriByName("media/images/");
+    var { exists } = await FileSystem.getInfoAsync(imgDir);
+    if (!exists) {
+      console.log("Creating media directories", imgDir);
 
-    await FileSystem.makeDirectoryAsync(imgDir);
-  } else {
-    console.log("Image dirs exist", imgDir);
+      await FileSystem.makeDirectoryAsync(imgDir);
+    } else {
+      console.log("Image dirs exist", imgDir);
+    }
+  } catch (error) {
+    console.error(`Error creating sound directory `, error);
+    isError = true;
+  }
+  if (isError) {
+    throw new Error("Can't create directories");
   }
 }
 

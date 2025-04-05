@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 import { useEffect, useState } from "react";
-import Icon from "react-native-ionicons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Box, useBoxModel } from "@/src/data/BoxModel";
 import { useIsFocused, useTheme } from "@react-navigation/native";
 
@@ -35,7 +35,7 @@ export default function BoxesPage() {
     router.push("./newBox");
   };
   const handleBoxPress = (boxId: number) => {
-    router.push(`/(tabs)/box/${boxId}/boxView`);
+    router.push(`/(tabs)/box/${boxId}/boxView2`);
     //router.push(`/(tabs)/box/${boxId}/boxTest2`);
   };
   return (
@@ -62,7 +62,7 @@ export default function BoxesPage() {
               style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}
             >
               {/* <Text style={styles.addBoxBtnTxt}>+</Text> */}
-              <Icon name="add" color="white" size={42} />
+              <Ionicons name="add" color="white" size={42} />
             </View>
           </TouchableOpacity>
         </View>

@@ -1,0 +1,10 @@
+
+gcloud auth application-default login
+
+pip install --upgrade google-cloud-aiplatform
+
+pip install flask
+pip install flask_cors
+pip install python-dotenv
+
+pip install google-generativeai

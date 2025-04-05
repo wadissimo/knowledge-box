@@ -15,7 +15,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
 import SeparatorWithText from "@/src/components/utils/SeparatorWithText";
 import CreateCollectionForm from "@/src/components/collections/CreateCollectionForm";
-import Icon from "react-native-ionicons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import useCollectionRemoteService from "@/src/service/CollectionRemoteService";
 import SearchTags from "@/src/components/collections/SearchTags";
 import { i18n } from "@/src/lib/i18n";
@@ -89,7 +89,7 @@ const AddCollection = () => {
                   style={styles.iconButton}
                   onPress={handleSearch}
                 >
-                  <Icon name="search" size={24} color="#333" />
+                  <Ionicons name="search" size={24} color="#333" />
                 </TouchableOpacity>
               )}
             </View>

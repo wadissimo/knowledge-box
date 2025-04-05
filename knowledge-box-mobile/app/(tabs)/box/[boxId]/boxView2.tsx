@@ -14,20 +14,236 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  SharedValue,
+  runOnJS,
+  useDerivedValue,
+} from "react-native-reanimated";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
+import { Dimensions } from "react-native";
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { Sizes } from "@/src/constants/Sizes";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { i18n, t } from "@/src/lib/i18n";
-import BoxSection from "@/src/components/BoxSection";
 
 const OFFSET_SIDE_TRIGGER_REORDER = 40;
 const BOX_CARD_OFFSET = 10;
 const BOX_SECTION_HEADER_SIZE = 40;
+
+const DraggableBoxCard = ({
+  name,
+  index,
+  numReorders,
+  numItems,
+
+  onReorder,
+  children,
+}: {
+  name: string;
+  index: number;
+  numReorders: SharedValue<number>;
+  numItems: number;
+
+  children?: ReactNode;
+  onReorder?: Function;
+}) => {
+  const draggableX = useSharedValue(0);
+
+  const initialOffsetY =
+    ((index + numReorders.value) % numItems) * BOX_CARD_OFFSET;
+  const draggableY = useSharedValue(initialOffsetY);
+
+  const isDragged = useSharedValue(false);
+  const movingBack = useSharedValue(false);
+  const posY = useDerivedValue(() => {
+    return isDragged.value
+      ? draggableY.value
+      : ((index + numReorders.value) % numItems) * BOX_CARD_OFFSET;
+  });
+
+  const draggableAnimatedStyle = useAnimatedStyle(() => ({
+    zIndex: (index + numReorders.value) % numItems,
+    transform: [{ translateX: draggableX.value }, { translateY: posY.value }],
+  }));
+
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+      if (Math.abs(e.translationX) > OFFSET_SIDE_TRIGGER_REORDER) {
+        if (!movingBack.value) {
+          isDragged.value = false;
+
+          if (onReorder) runOnJS(onReorder as any)();
+
+          draggableX.value = withTiming(0);
+
+          movingBack.value = true;
+        }
+      } else {
+        isDragged.value = true;
+        movingBack.value = false;
+        draggableX.value = e.translationX;
+        draggableY.value = e.translationY + initialOffsetY;
+      }
+    })
+    .onEnd(() => {
+      isDragged.value = false;
+      if (!movingBack.value) {
+        draggableX.value = withTiming(0);
+        draggableY.value = withTiming(initialOffsetY);
+      }
+    });
+
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        style={[
+          styles.itemBox,
+          styles.shadowProp,
+          { transform: [{ translateY: 20 }], height: 150 },
+          styles.elevation,
+          draggableAnimatedStyle,
+        ]}
+      >
+        {children}
+      </Animated.View>
+    </GestureDetector>
+  );
+};
+
+const BoxSection = ({
+  name,
+  index,
+  numSections,
+  expandedSection,
+  style,
+  onExpand,
+  onAddNew,
+  items,
+  renderItem,
+  renderListItem,
+  defaultText,
+}: {
+  name: string;
+  index: number;
+  numSections: number;
+  expandedSection: number | null;
+  style?: ViewStyle;
+  onExpand: Function;
+  onAddNew?: Function;
+  items: any[];
+  renderItem: Function;
+  renderListItem: Function;
+  defaultText?: String;
+}) => {
+  const availableHeight =
+    Dimensions.get("window").height - Sizes.headerHeight - Sizes.tabBarHeight;
+  const sectionSize = availableHeight / numSections;
+  const { colors } = useTheme();
+
+  const offset = useSharedValue(sectionSize * index);
+  const height = useSharedValue(sectionSize + 5);
+
+  const isExpanded = expandedSection === index;
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    zIndex: index + 1,
+    transform: [{ translateY: offset.value }],
+    height: height.value,
+  }));
+  const numReorders = useSharedValue(0);
+
+  useEffect(() => {
+    // handle section expansion
+    if (expandedSection !== null) {
+      if (index < expandedSection) {
+        offset.value = withTiming(index * BOX_SECTION_HEADER_SIZE);
+      } else if (expandedSection === index) {
+        offset.value = withTiming(index * BOX_SECTION_HEADER_SIZE);
+        height.value = withTiming(
+          availableHeight - (numSections - 1) * BOX_SECTION_HEADER_SIZE
+        );
+      } else if (expandedSection < index) {
+        offset.value = withTiming(
+          availableHeight - (numSections - index) * BOX_SECTION_HEADER_SIZE
+        );
+      }
+    } else {
+      offset.value = withTiming(sectionSize * index);
+      height.value = withTiming(sectionSize + 5);
+    }
+  }, [expandedSection]);
+
+  // handle items reordering
+  const reorderItems = (index: number) => {
+    numReorders.value = numReorders.value + 1;
+  };
+
+  return (
+    <TouchableWithoutFeedback onPress={() => onExpand(index)}>
+      <Animated.View style={[styles.sectionContainer, style, animatedStyle]}>
+        <View style={[styles.sectionHeader]}>
+          <Text style={[styles.sectionHeaderText]}>{name}</Text>
+        </View>
+        {items.length === 0 && defaultText && (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "flex-end",
+              alignItems: "center",
+            }}
+          >
+            <Text style={styles.defaultText}>{defaultText}</Text>
+          </View>
+        )}
+        {isExpanded ? (
+          <ScrollView>
+            {items.map((item, index) => (
+              <Animated.View
+                style={[
+                  styles.itemListBox,
+                  styles.shadowProp,
+                  styles.elevation,
+                ]}
+                key={`listitem_${index}`}
+              >
+                {renderListItem(item, index)}
+              </Animated.View>
+            ))}
+          </ScrollView>
+        ) : (
+          <View style={[styles.sectionListContainer]}>
+            {items.map((item, index) => (
+              <DraggableBoxCard
+                name={name}
+                index={index}
+                numItems={items.length}
+                numReorders={numReorders}
+                onReorder={() => reorderItems(index)}
+                key={`boxCar_${index}`}
+              >
+                {renderItem(item, index)}
+              </DraggableBoxCard>
+            ))}
+          </View>
+        )}
+
+        <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
+          <TouchableOpacity onPress={() => (onAddNew ? onAddNew() : "")}>
+            <Icon name="plus" size={48} color="white" />
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </TouchableWithoutFeedback>
+  );
+};
 
 //const AnimatedBoxSection = Animated.createAnimatedComponent(BoxSection);
 
@@ -114,8 +330,8 @@ const BoxView = () => {
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        {/* <BoxSection
-          name={i18n.t("boxes.conversations")}
+        <BoxSection
+          name="Tools"
           index={0}
           numSections={3}
           expandedSection={expandedSection}
@@ -145,11 +361,11 @@ const BoxView = () => {
               </Text>
             </View>
           )}
-        /> */}
+        />
         <BoxSection
           name={i18n.t("boxes.notes")}
-          index={0}
-          numSections={2}
+          index={1}
+          numSections={3}
           expandedSection={expandedSection}
           style={styles.boxSection}
           onAddNew={handleAddNotePress}
@@ -181,8 +397,8 @@ const BoxView = () => {
 
         <BoxSection
           name={i18n.t("boxes.flashCards")}
-          index={1}
-          numSections={2}
+          index={2}
+          numSections={3}
           expandedSection={expandedSection}
           style={styles.boxSection}
           onAddNew={handleAddCollection}

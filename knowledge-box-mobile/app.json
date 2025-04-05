@@ -23,7 +23,8 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.wadissimo.knowledgebox",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",

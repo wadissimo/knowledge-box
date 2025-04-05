@@ -17,9 +17,10 @@ export default function useCollectionRemoteService() {
     searchQuery: string
   ): Promise<Collection[] | null> {
     try {
+      console.log("searchCollections");
       const URL =
         process.env.EXPO_PUBLIC_API_URL +
-        "collections/search?" +
+        "/collections/search?" +
         new URLSearchParams({
           query: searchQuery,
         });
@@ -31,6 +32,7 @@ export default function useCollectionRemoteService() {
       }
       return data.results as Collection[];
     } catch (e) {
+      console.log("Error in searchCollections");
       console.error(e);
       if (e instanceof Error) {
         setError(e.message);
@@ -49,6 +51,7 @@ export default function useCollectionRemoteService() {
     setLoading(true);
     setError(null);
     try {
+      console.log("getCollectionPreview");
       const URL =
         process.env.EXPO_PUBLIC_API_URL + "collections/preview/" + collectionId;
 
@@ -62,6 +65,7 @@ export default function useCollectionRemoteService() {
       }
       return null;
     } catch (e) {
+      console.log("Error in getCollectionPreview");
       console.error(e);
       if (e instanceof Error) {
         setError(e.message);
@@ -82,6 +86,7 @@ export default function useCollectionRemoteService() {
     setLoading(true);
     setError(null);
     try {
+      console.log("addCollection");
       const URL =
         process.env.EXPO_PUBLIC_API_URL +
         "collections/download/" +
@@ -122,6 +127,7 @@ export default function useCollectionRemoteService() {
         //TODO: sync media if needed too
       }
     } catch (e) {
+      console.log("Error in addCollection");
       console.error(e);
       if (e instanceof Error) {
         setError(e.message);

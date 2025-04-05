@@ -51,7 +51,7 @@ const BoxLayout = () => {
         }}
       />
       <Stack.Screen
-        name="[boxId]/boxView"
+        name="[boxId]/boxView2"
         options={{
           title: "",
           ...defaultHeaderOptions,

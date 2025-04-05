@@ -1,9 +1,9 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
-import Icon from "react-native-ionicons";
 import { Sizes } from "@/src/constants/Sizes";
 import { i18n } from "@/src/lib/i18n";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const _layout = () => {
   return (
@@ -29,7 +29,7 @@ const _layout = () => {
           headerShown: false,
           title: i18n.t("menu.boxes"),
           tabBarIcon: ({ color }: { color: string }) => (
-            <Icon size={28} name="cube" color={color} />
+            <Ionicons size={28} name="cube" color={color} />
           ),
         }}
       />
@@ -38,7 +38,7 @@ const _layout = () => {
         options={{
           title: i18n.t("menu.profile"),
           tabBarIcon: ({ color }: { color: string }) => (
-            <Icon size={28} name="person" color={color} />
+            <Ionicons size={28} name="person" color={color} />
           ),
           headerShown: true,
         }}
@@ -49,7 +49,7 @@ const _layout = () => {
           headerShown: false,
           title: i18n.t("menu.settings"),
           tabBarIcon: ({ color }: { color: string }) => (
-            <Icon size={28} name="cog" color={color} />
+            <Ionicons size={28} name="cog" color={color} />
           ),
         }}
       />
