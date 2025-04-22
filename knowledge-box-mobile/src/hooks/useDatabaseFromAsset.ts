@@ -1,33 +1,37 @@
 import { useEffect, useState } from "react";
 import * as FileSystem from "expo-file-system";
 import { useAssets } from "expo-asset";
+import { Asset } from "expo-asset";
 
-const copyDatabaseAsync = async (assetDbName: string, dbName: string) => {
-  const dbDir = FileSystem.documentDirectory + "SQLite/" + dbName;
+const copyDatabaseAsync = async (assetModule: number, dbName: string) => {
+  const dbDir = FileSystem.documentDirectory + "SQLite/";
+  const destPath = dbDir + dbName;
 
   // Check if the database already exists in the document directory
-  const { exists } = await FileSystem.getInfoAsync(dbDir);
+  const { exists } = await FileSystem.getInfoAsync(destPath);
 
   if (!exists || FORCE_COPY_DATABASE) {
-    console.log("database doesn't exist: copy");
-    // console.log("src", assetDbName);
-    // console.log("dist", dbDir);
+    console.log("Database doesn't exist, copying from bundle...");
 
-    // Copy the database from assets to document directory
+    // Make sure target dir exists
+    await FileSystem.makeDirectoryAsync(dbDir, { intermediates: true });
+
+    // Load and download asset
+    const asset = Asset.fromModule(assetModule);
+    await asset.downloadAsync();
+
+    console.log("Asset downloaded:", asset.localUri);
+
+    // Copy to SQLite directory
     await FileSystem.copyAsync({
-      from: assetDbName,
-      to: dbDir,
+      from: asset.localUri!,
+      to: destPath,
     });
-  } else {
-    console.log("database already exists: ignore");
-  }
 
-  // console.log("dbDir", dbDir);
-  // const db = await SQLite.openDatabaseAsync("userdata.db");
-  // console.log("dbopen successful");
-  // const result = await db.getFirstAsync<number>("SELECT count(*) FROM boxes");
-  // console.log("result", result);
-  // await db.closeAsync();
+    console.log("Database copied to:", destPath);
+  } else {
+    console.log("Database already exists, skipping copy.");
+  }
 };
 
 const FORCE_COPY_DATABASE = false; // TODO: Set True only to reimport initial database, wipes out all user data!
@@ -42,7 +46,7 @@ function useDatabaseFromAsset(): [string | null, boolean] {
   useEffect(() => {
     async function initDb(dbAssetUri: string) {
       if (!dbLoaded) {
-        await copyDatabaseAsync(dbAssetUri, DATABASE_NAME);
+        await copyDatabaseAsync(require(DATABASE_ASSET), DATABASE_NAME);
 
         setDbLoaded(true);
         setDatabase(DATABASE_NAME);
