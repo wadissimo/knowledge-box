@@ -90,9 +90,9 @@ const CollectionBoxSection = ({
         router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
     }
 
-    function handleCollectionClick(collectionId: number) {
+    function handleCollectionClick() {
         console.log("handleCollectionClick");
-        router.push(`/(tabs)/box/manage-collection/${collectionId}`);
+        router.push(`/(tabs)/box/manage-collection/${col.id}/manage`);
      }
      function handleCardClick(cardId: number) {
         console.log("handleCardClick");
@@ -105,6 +105,16 @@ const CollectionBoxSection = ({
       <Animated.View style={[styles.sectionContainer, styles.boxSection, animatedStyle]}>
         <View style={[styles.sectionHeader]}>
           <Text style={[styles.sectionHeaderText]}>{col.name}</Text>
+          <View style={[styles.sectionHeaderIcon]}>
+            <TouchableOpacity onPress={() => handleCollectionClick()}>
+                <Icon name="pencil" size={24} color="green" />
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.sectionHeaderIcon]}>
+            <TouchableOpacity onPress={() => handleTrainCollection()}>
+                <Icon name="arm-flex" size={24} color="green" />
+            </TouchableOpacity>
+          </View>
         </View>
         {cards.length === 0 && (
           <View
@@ -168,14 +178,7 @@ const CollectionBoxSection = ({
         )}
         
         
-        <View style={[styles.trainBoxBtn, { backgroundColor: colors.primary }]}>
-            <TouchableOpacity onPress={() => handleTrainCollection()}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Icon name="arm-flex" size={24} color="white" />
-                <Text style={styles.trainBoxBtnText}>Train</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+        
       </Animated.View>
     </TouchableWithoutFeedback>
       {/* <BoxSection
@@ -289,6 +292,13 @@ const styles = StyleSheet.create({
     color: "black",
 
     flex: 1,
+  },
+  sectionHeaderIcon: {
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "green",
+    marginLeft: 10,
+    marginRight:5,
   },
   sectionFooter: {
     height: 10,

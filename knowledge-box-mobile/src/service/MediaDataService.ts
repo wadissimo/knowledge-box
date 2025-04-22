@@ -300,6 +300,7 @@ export default function useMediaDataService() {
     });
     setSound(sound);
     console.log("Playing Sound ", uri);
+    await sound.setVolumeAsync(1.0); // Set volume to max
     await sound.playAsync();
   };
 
@@ -326,6 +327,7 @@ export default function useMediaDataService() {
     });
     setSound(sound);
     console.log("Playing Sound ", fileName);
+    await sound.setVolumeAsync(1.0); // Set volume to max
     await sound.playAsync();
     //await sound.unloadAsync();
   };

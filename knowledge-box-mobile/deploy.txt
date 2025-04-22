@@ -1,0 +1,8 @@
+npx expo prebuild
+open ios/YourProject.xcworkspace
+Go to project settings "Signing & Capabilities" and select your team
+Go to project settings "Signing & Capabilities" and remove "Push Notifications"
+Click on top bar your project name, select "Edit Scheme", select "Build Configuration" - Release
+Build bundle with npx expo export:embed --entry-file='node_modules/expo/AppEntry.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'
+In Xcode in Build phases -> Bundle React Native code and images -> Check off "For install builds only" if it's checked
+Go to Xcode, select your connected device and run the project
