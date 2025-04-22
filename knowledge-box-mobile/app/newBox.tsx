@@ -2,7 +2,7 @@ import { View, Text, TextInput, StyleSheet, Button, Image } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { useBoxModel } from "@/src/data/BoxModel";
-import { SvgXml } from "react-native-svg";
+
 
 const ManageBox = () => {
   const [name, setName] = useState<string>("");
