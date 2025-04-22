@@ -1,8 +1,10 @@
 import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
 import { Card, useCardModel } from "@/src/data/CardModel";
 import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
-import * as SQLite from "expo-sqlite";
 import { useState } from "react";
+
+
+const apiBase = process.env.EXPO_PUBLIC_API_URL ?? "";
 
 export default function useCollectionRemoteService() {
   const { newCollection } = useCollectionModel();
@@ -11,22 +13,49 @@ export default function useCollectionRemoteService() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  //const db = SQLite.useSQLiteContext();
+  // Retry wrapper for network requests
+  async function fetchWithRetry(
+    url: string,
+    options?: RequestInit,
+    retries: number = 3,
+    backoff: number = 500
+  ): Promise<Response> {
+    try {
+      return await fetch(url, options);
+    } catch (err: unknown) {
+      if (retries <= 1) throw err;
+      console.log(`[CollectionRemoteService] Retry fetch: ${url}, retries left: ${retries - 1}`);
+      await new Promise((res) => setTimeout(res, backoff));
+      return fetchWithRetry(url, options, retries - 1, backoff * 2);
+    }
+  }
 
   async function searchCollections(
     searchQuery: string
   ): Promise<Collection[] | null> {
     try {
       console.log("searchCollections");
-      const URL =
-        process.env.EXPO_PUBLIC_API_URL +
-        "/collections/search?" +
-        new URLSearchParams({
-          query: searchQuery,
-        });
+      const URL = `${apiBase}/collections/search?${new URLSearchParams({ query: searchQuery })}`;
 
-      const res = await fetch(URL);
-      const data = await res.json();
+      console.log('[CollectionRemoteService] Fetching collection:', URL);
+      let res, data;
+      try {
+        res = await fetch(URL);
+      } catch (err: unknown) {
+        const fetchErr = err instanceof Error ? err : new Error(String(err));
+        console.error('[CollectionRemoteService] Fetch failed:', fetchErr, 'URL:', URL);
+        setError('Network error: ' + fetchErr.message);
+        setLoading(false);
+        throw fetchErr;
+      }
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.error('[CollectionRemoteService] JSON parse failed:', jsonErr, 'URL:', URL, 'response:', res);
+        setError('Invalid server response');
+        setLoading(false);
+        throw jsonErr;
+      }
       if (!data || !data.results) {
         throw Error("Network Error");
       }
@@ -52,11 +81,27 @@ export default function useCollectionRemoteService() {
     setError(null);
     try {
       console.log("getCollectionPreview");
-      const URL =
-        process.env.EXPO_PUBLIC_API_URL + "collections/preview/" + collectionId;
+      const URL = `${apiBase}/collections/preview/${collectionId}`;
 
-      const res = await fetch(URL);
-      const data = await res.json();
+      console.log('[CollectionRemoteService] Fetching collection:', URL);
+      let res, data;
+      try {
+        res = await fetch(URL);
+      } catch (err: unknown) {
+        const fetchErr = err instanceof Error ? err : new Error(String(err));
+        console.error('[CollectionRemoteService] Fetch failed:', fetchErr, 'URL:', URL);
+        setError('Network error: ' + fetchErr.message);
+        setLoading(false);
+        throw fetchErr;
+      }
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.error('[CollectionRemoteService] JSON parse failed:', jsonErr, 'URL:', URL, 'response:', res);
+        setError('Invalid server response');
+        setLoading(false);
+        throw jsonErr;
+      }
       if (data && data.collection && data.cards) {
         return {
           collection: data.collection as Collection,
@@ -83,18 +128,46 @@ export default function useCollectionRemoteService() {
     collectionId: number,
     shuffle: boolean = false
   ): Promise<void> {
+    console.log('[CollectionRemoteService] Using API base URL:', apiBase);
     setLoading(true);
     setError(null);
     try {
       console.log("addCollection");
-      const URL =
-        process.env.EXPO_PUBLIC_API_URL +
-        "collections/download/" +
-        collectionId;
+      const URL = `${apiBase}/collections/download/${collectionId}`;
+      console.log('[CollectionRemoteService] Fetching download URL:', URL);
 
-      const res = await fetch(URL);
-      const data = await res.json();
-
+      let res, data;
+      try {
+        // Use retry logic to handle intermittent failures
+        res = await fetchWithRetry(URL);
+      } catch (err: unknown) {
+        const fetchErr = err instanceof Error ? err : new Error(String(err));
+        console.error('[CollectionRemoteService] Fetch failed:', fetchErr, 'URL:', URL);
+        setError('Network error: ' + fetchErr.message);
+        setLoading(false);
+        throw fetchErr;
+      }
+      // Log response details for debugging large or malformed payloads
+      console.log('[CollectionRemoteService] Response status:', res.status, 'ok:', res.ok);
+      console.log('[CollectionRemoteService] Response headers:', JSON.stringify(Array.from(res.headers.entries())));
+      let text: string;
+      try {
+        text = await res.text();
+      } catch (textErr: unknown) {
+        console.error('[CollectionRemoteService] Failed to read response text:', textErr);
+        setError('Failed reading server response');
+        setLoading(false);
+        throw textErr;
+      }
+      console.log('[CollectionRemoteService] Response text length:', text.length);
+      try {
+        data = JSON.parse(text);
+      } catch (jsonErr: unknown) {
+        console.error('[CollectionRemoteService] JSON parse failed:', jsonErr, 'URL:', URL, 'response text length:', text.length);
+        setError('Invalid server response');
+        setLoading(false);
+        throw jsonErr;
+      }
       if (data && data.collection && data.cards) {
         const collection = data.collection;
 

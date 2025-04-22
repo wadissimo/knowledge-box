@@ -13,9 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.wadissimo.knowledgebox",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +21,6 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.wadissimo.knowledgebox",
-      "googleServicesFile": "./google-services.json",
       "usesCleartextTraffic": true
     },
     "web": {
@@ -35,8 +32,6 @@
       "expo-localization",
       "expo-asset",
       ["expo-build-properties", { "ios": { "useFrameworks": "static" } }],
-      "@react-native-firebase/app",
-      "@react-native-firebase/auth",
       "expo-image-picker",
       [
         "expo-document-picker",

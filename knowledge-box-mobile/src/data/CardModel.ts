@@ -160,6 +160,18 @@ function useCardModel() {
     return result;
   };
 
+  const getPreviewCards = async (
+    collectionId: number,
+    limit: number = 5
+  ): Promise<Card[]> => {
+    const result = await db.getAllAsync<Card>(
+      "SELECT * FROM cards WHERE collectionId=? LIMIT ?",
+      collectionId,
+      limit
+    );
+    return result;
+  };
+
   const getCardById = async (cardId: number) => {
     const result = await db.getFirstAsync<Card>(
       "SELECT * FROM cards where id=? ",
@@ -207,6 +219,7 @@ function useCardModel() {
     getCardById,
     getCardCountByStatus,
     learnCardLater,
+    getPreviewCards,
   };
 }
 

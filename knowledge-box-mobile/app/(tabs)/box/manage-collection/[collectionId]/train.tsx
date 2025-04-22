@@ -71,16 +71,43 @@ const TrainCollection = () => {
   const [collection, setCollection] = useState<Collection | null>(null);
   const [trainingData, setTrainingData] =
     useState<CollectionTrainingData | null>(null);
+  const [loadingTrainingData, setLoadingTrainingData] = useState(true);
   const [error, setError] = useState<string>("");
-  const isFocused = useIsFocused();
-  const trainer: Trainer = useDefaultTrainer(
+
+  // Load trainingData on mount or collectionId change
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchTrainingData() {
+      setLoadingTrainingData(true);
+      if (collectionId) {
+        const data = await getCollectionTrainingData(Number(collectionId));
+        if (isMounted) setTrainingData(data);
+      }
+      setLoadingTrainingData(false);
+    }
+    fetchTrainingData();
+    return () => { isMounted = false; };
+  }, [collectionId]);
+
+  // Only create trainer after trainingData is loaded
+  const trainer = useDefaultTrainer(
     collectionId !== null && collectionId !== "" ? Number(collectionId) : -1,
-    trainingData !== null ? trainingData.maxNewCards : NEW_CARDS_PER_DAY,
-    trainingData !== null ? trainingData.maxReviewCards : REPEAT_CARDS_PER_DAY,
-    trainingData !== null
-      ? trainingData.maxLearningCards
-      : LEARNING_CARDS_PER_DAY
+    trainingData ? trainingData.maxNewCards : NEW_CARDS_PER_DAY,
+    trainingData ? trainingData.maxReviewCards : REPEAT_CARDS_PER_DAY,
+    trainingData ? trainingData.maxLearningCards : LEARNING_CARDS_PER_DAY
   );
+  const trainerReady = !loadingTrainingData && collectionId !== null && collectionId !== "";
+
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (trainerReady && isFocused) selectNextCard();
+  }, [session, isFocused, trainerReady]);
+
+  useEffect(() => {
+    if (trainerReady) {
+      updateSession();
+    }
+  }, [trainerReady]);
 
   const totalCards = session
     ? session.newCards + session.reviewCards + session.learningCards
@@ -88,17 +115,14 @@ const TrainCollection = () => {
   const remainingCards = sessionCards.length;
 
   function selectNextCard() {
-    if (session === null) {
-      console.log("current card is null");
+    if (session === null || !trainerReady) {
       setCurrentCard(null);
       return;
     }
-
     setLoading(true);
     trainer
       .getNextCard(session.id)
       .then((card) => {
-        console.log("curent card", card);
         if (card === null) {
           completeTraining()
             .then(() => {
@@ -106,8 +130,7 @@ const TrainCollection = () => {
               setLoading(false);
             })
             .catch((e) => {
-              setError("Error in completing training"); // todo:
-              console.error("Error in completing training", e);
+              setError("Error in completing training");
               setLoading(false);
             });
         } else {
@@ -117,7 +140,6 @@ const TrainCollection = () => {
       })
       .catch((e) => {
         setError("Error in fetching next card");
-        console.error("Error in fetching next card", e);
         setLoading(false);
       });
   }
@@ -156,35 +178,25 @@ const TrainCollection = () => {
 
   async function updateSession() {
     console.log("updateSession");
-    if (!collectionId) return;
+    if (!collectionId || !trainerReady) return;
     const curDateStripped = stripTimeFromDate(new Date());
 
     var session = await trainer.getSession(curDateStripped);
     var existingSession = true;
     if (session === null) {
-      console.log("Creating a training session");
       existingSession = false;
       session = await trainer.createSession(curDateStripped);
     }
-    //todo: parallel
     const sessionCards = await getCurrentCards(session.id);
 
     setCollection(await getCollectionById(Number(collectionId)));
-    setTrainingData(await getCollectionTrainingData(Number(collectionId)));
     setSession(session);
     setSessionCards(sessionCards);
     setLoading(true);
   }
 
-  useEffect(() => {
-    updateSession();
-  }, [collectionId]);
-
-  useEffect(() => {
-    if (isFocused) selectNextCard();
-  }, [session, isFocused]);
-
   const resetTraining = async () => {
+    if (!trainerReady) return;
     console.log("training reset");
     const curDateStripped = stripTimeFromDate(new Date());
     var session = await getStartedSession(
@@ -202,7 +214,7 @@ const TrainCollection = () => {
   async function handleUserResponse(
     userResponse: "again" | "hard" | "good" | "easy"
   ) {
-    if (session === null || currentCard === null) return;
+    if (session === null || currentCard === null || !trainerReady) return;
     //increase view count
     session.totalViews += 1;
     switch (userResponse) {
@@ -249,7 +261,7 @@ const TrainCollection = () => {
   function handleTooEasyMenu() {
     handleUserResponse("easy");
   }
-  if (loading) return null;
+  if (loading || loadingTrainingData) return null;
   if (session === null) return null;
   return (
     <View style={styles.container}>

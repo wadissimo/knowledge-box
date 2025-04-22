@@ -1,18 +1,14 @@
-import MyCardCollectionsCarousel from "@/src/components/MyCardCollectionsCarousel";
 import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
 import { Box, useBoxModel } from "@/src/data/BoxModel";
 import { Collection } from "@/src/data/CollectionModel";
 import { useIsFocused, useTheme } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import React, { forwardRef, ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TouchableWithoutFeedback,
-  ViewStyle,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -22,20 +18,23 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { i18n, t } from "@/src/lib/i18n";
-import BoxSection from "@/src/components/BoxSection";
+import { i18n } from "@/src/lib/i18n";
+import BoxSection from "@/src/components/box/BoxSection";
+import NotesBoxSection from "@/src/components/box/NotesBoxSection";
+import ToolsBoxSection from "@/src/components/box/ToolsBoxSection";
+import CollectionBoxSection from "@/src/components/box/CollectionBoxSection";
+import { Dimensions } from "react-native";
+import { Sizes } from "@/src/constants/Sizes";
 
-const OFFSET_SIDE_TRIGGER_REORDER = 40;
-const BOX_CARD_OFFSET = 10;
 const BOX_SECTION_HEADER_SIZE = 40;
-
+const COLLAPSED_SECTION_SIZE = BOX_SECTION_HEADER_SIZE + 50;
 //const AnimatedBoxSection = Animated.createAnimatedComponent(BoxSection);
 
 const BoxView = () => {
   const { colors } = useTheme();
 
   const [expandedSection, setExpandedSection] = useState<number | null>(null);
-  const numSections = 3;
+  
   const [loading, setLoading] = useState<boolean>(true);
 
   const insets = useSafeAreaInsets();
@@ -50,8 +49,14 @@ const BoxView = () => {
   const [box, setBox] = useState<Box | null>(null);
 
   const isFocused = useIsFocused();
-  const headerHeight = useHeaderHeight();
-
+  //const headerHeight = useHeaderHeight();
+  const availableHeight = Dimensions.get("window").height - Sizes.headerHeight - Sizes.tabBarHeight;
+  console.log("availableHeight", availableHeight, Dimensions.get("window").height, Sizes.headerHeight, Sizes.tabBarHeight);
+  // const numSections = 2 + collections.length;
+  const numSections = collections.length;
+  console.log("numSections", numSections);
+  const sectionSize = availableHeight / numSections;
+  
   useEffect(() => {
     async function loadData() {
       try {
@@ -95,29 +100,110 @@ const BoxView = () => {
     router.push(`./boxManage`);
   }
 
-  function handleAddCollection() {
+  function addCollection() {
     router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
   }
-  function handleAddNotePress() {
-    router.push(`/(tabs)/box/${boxId}/notes/newNote`);
-  }
-  function handleAddChatPress() {
-    router.push(`/(tabs)/box/${boxId}/chats/newChat`);
-  }
-
+  
   function handleCollectionClick(collectionId: number) {
     console.log("handleCollectionClick");
     router.push(`/(tabs)/box/manage-collection/${collectionId}`);
   }
-  //console.log("rendering BoxView");
+  const calcSectionHeight = (index:number):number => {
+    let height = 0;
+    if (expandedSection !== null) {
+      if (expandedSection === index) {
+        height =  availableHeight - (numSections - 1) * BOX_SECTION_HEADER_SIZE;
+      } else {
+        height = COLLAPSED_SECTION_SIZE;
+      }
+    } else {
+      height = sectionSize+5;
+    }
+    // console.log("height", index, height);
+    return height;
+  }
 
+  const calcSectionOffset = (index:number):number => {
+    if (expandedSection !== null) {
+      if (index <= expandedSection) {
+        return index * BOX_SECTION_HEADER_SIZE;
+      }
+      return availableHeight - (numSections - index) * BOX_SECTION_HEADER_SIZE;
+    } 
+    return sectionSize * index;
+  }
+  
+  //console.log("rendering BoxView");
+  if(loading) {
+    return <View style={styles.container} />;
+  }
+  if (box === null) {
+    return <View style={styles.container} />;
+  }
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        {/* <BoxSection
+      {/* <ToolsBoxSection
+        index={0}
+        numSections={numSections}
+        expandedSection={expandedSection}
+        onExpand={onExpand}
+        calcSectionHeight={calcSectionHeight}
+        calcSectionOffset={calcSectionOffset}
+      />
+      <NotesBoxSection
+        index={1}
+        numSections={numSections}
+        expandedSection={expandedSection}
+        onExpand={onExpand}
+        calcSectionHeight={calcSectionHeight}
+        calcSectionOffset={calcSectionOffset}
+      /> */}
+{collections.length === 0 && (
+  <View
+    style={{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Text style={styles.defaultText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
+    <View style={[styles.addBoxBtnMid, { backgroundColor: colors.primary }]}>
+      <TouchableOpacity onPress={addCollection}>
+        <Icon name="plus" size={48} color="white" />
+      </TouchableOpacity>
+    </View>
+  </View>
+)}
+{collections.length > 0 &&(
+<>
+  {collections.map((col, i)=>(
+    <CollectionBoxSection
+      key={`col_${col.id}`}
+      boxId={String(box.id)}
+      col={col}
+      index={i}
+      numSections={numSections}
+      expandedSection={expandedSection}
+      onExpand={onExpand}
+      calcSectionHeight={calcSectionHeight}
+      calcSectionOffset={calcSectionOffset}
+    />
+  ))}
+  <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
+    <TouchableOpacity onPress={addCollection}>
+      <Icon name="plus" size={48} color="white" />
+    </TouchableOpacity>
+  </View>
+  </>
+)
+}
+        
+{/* <BoxSection
+          key={`boxSection_conversations_${boxId}`}
           name={i18n.t("boxes.conversations")}
-          index={0}
-          numSections={3}
+          index={numSections-1}
+          numSections={numSections}
           expandedSection={expandedSection}
           style={styles.boxSection}
           onAddNew={handleAddChatPress}
@@ -146,79 +232,7 @@ const BoxView = () => {
             </View>
           )}
         /> */}
-        <BoxSection
-          name={i18n.t("boxes.notes")}
-          index={0}
-          numSections={2}
-          expandedSection={expandedSection}
-          style={styles.boxSection}
-          onAddNew={handleAddNotePress}
-          onExpand={onExpand}
-          items={items}
-          defaultText={i18n.t("boxes.noNotesDefault")}
-          renderItem={(item: any, index: number) => (
-            <>
-              <View style={styles.cardCntView}>
-                <Text style={styles.cardsCntTxt}>
-                  Cards: {index + 1} {10 * index}
-                </Text>
-              </View>
-              <View style={styles.colNameView}>
-                <Text style={styles.colNameTxt} numberOfLines={4}>
-                  {item}
-                </Text>
-              </View>
-            </>
-          )}
-          renderListItem={(item: any, index: number) => (
-            <View style={styles.colNameView}>
-              <Text style={styles.colNameTxt} numberOfLines={1}>
-                {item}
-              </Text>
-            </View>
-          )}
-        />
-
-        <BoxSection
-          name={i18n.t("boxes.flashCards")}
-          index={1}
-          numSections={2}
-          expandedSection={expandedSection}
-          style={styles.boxSection}
-          onAddNew={handleAddCollection}
-          onExpand={onExpand}
-          items={collections}
-          defaultText={i18n.t("boxes.noCollectionsDefault")}
-          renderItem={(item: Collection, index: number) => (
-            <TouchableOpacity
-              onPress={() => handleCollectionClick(item.id)}
-              style={{ flex: 1 }}
-            >
-              <View style={styles.cardCntView}>
-                <Text style={styles.cardsCntTxt}>
-                  {i18n.t("boxes.numCards")}: {item.cardsNumber}
-                </Text>
-              </View>
-              <View style={styles.colNameView}>
-                <Text style={styles.colNameTxt} numberOfLines={4}>
-                  {item.name}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-          renderListItem={(item: Collection, index: number) => (
-            <TouchableOpacity
-              onPress={() => handleCollectionClick(item.id)}
-              style={{ flex: 1, justifyContent: "center" }}
-            >
-              <View style={styles.colNameView}>
-                <Text style={styles.colNameTxt} numberOfLines={1}>
-                  {item.name}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        />
+        
       </View>
     </SafeAreaProvider>
   );
@@ -230,7 +244,8 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: "flex-start",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
+    //backgroundColor: "#f0f0f0",
+    backgroundColor: "orange",
   },
 
   collectionCard: {
@@ -363,11 +378,23 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 2,
     //right: 10,
-    alignSelf: "flex-end", // Center horizontally
+    alignSelf: "center", // Center horizontally
+  },
+  addBoxBtnMid: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    
+    bottom: 10,
+    marginHorizontal: 10,
+    marginVertical: 60,
+    
   },
   defaultText: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 16,
+    
   },
 });
 

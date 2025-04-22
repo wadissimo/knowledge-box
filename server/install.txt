@@ -1,3 +1,7 @@
+conda create -n knowledge-box python=3.11
+
+https://cloud.google.com/sdk/docs/install
+
 
 gcloud auth application-default login
 
@@ -8,3 +12,5 @@ pip install flask_cors
 pip install python-dotenv
 
 pip install google-generativeai
+
+.env

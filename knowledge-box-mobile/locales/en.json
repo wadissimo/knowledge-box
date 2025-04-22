@@ -31,6 +31,7 @@
     "myBoxesTitle": "My Boxes",
     "notes": "Notes",
     "conversations": "Conversations",
+    "tools": "Tools",
     "flashCards": "Flash Card Collections",
     "newBox": "New Box",
     "editBox": "Edit Box",
@@ -42,7 +43,7 @@
     "confirmDeletionText": "Are you sure you want to delete the box?",
     "noConversationsDefault": "Start a new conversation",
     "noNotesDefault": "Create your first note",
-    "noCollectionsDefault": "Add your frist flash cards collection",
+    "noCollectionsDefault": "Add your first flash cards collection",
     "numCards": "Cards"
   },
   "cards": {

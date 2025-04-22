@@ -1,10 +1,5 @@
-import MyCardCollectionsCarousel from "@/src/components/MyCardCollectionsCarousel";
-import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
-import { Box, useBoxModel } from "@/src/data/BoxModel";
-import { Collection } from "@/src/data/CollectionModel";
-import { useIsFocused, useTheme } from "@react-navigation/native";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import React, { forwardRef, ReactNode, useEffect, useState } from "react";
+import { useTheme } from "@react-navigation/native";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -14,26 +9,17 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  SharedValue,
-  runOnJS,
-  useDerivedValue,
 } from "react-native-reanimated";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
 
 import { Dimensions } from "react-native";
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
 import { Sizes } from "@/src/constants/Sizes";
-import { useHeaderHeight } from "@react-navigation/elements";
-import { i18n, t } from "@/src/lib/i18n";
 import DraggableBoxCard from "./DraggableBoxCard";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const OFFSET_SIDE_TRIGGER_REORDER = 40;
 const BOX_CARD_OFFSET = 10;
@@ -51,6 +37,8 @@ const BoxSection = ({
   renderItem,
   renderListItem,
   defaultText,
+  calcSectionHeight,
+  calcSectionOffset,
 }: {
   name: string;
   index: number;
@@ -63,14 +51,17 @@ const BoxSection = ({
   renderItem: Function;
   renderListItem: Function;
   defaultText?: String;
+  
+  calcSectionOffset: (index: number) => number;
+  calcSectionHeight: (index: number) => number;
 }) => {
   const availableHeight =
     Dimensions.get("window").height - Sizes.headerHeight - Sizes.tabBarHeight;
   const sectionSize = availableHeight / numSections;
   const { colors } = useTheme();
 
-  const offset = useSharedValue(sectionSize * index);
-  const height = useSharedValue(sectionSize + 5);
+  const offset = useSharedValue(calcSectionOffset(index));
+  const height = useSharedValue(calcSectionHeight(index));
 
   const isExpanded = expandedSection === index;
 
@@ -82,30 +73,15 @@ const BoxSection = ({
   const numReorders = useSharedValue(0);
 
   useEffect(() => {
-    // handle section expansion
-    if (expandedSection !== null) {
-      if (index < expandedSection) {
-        offset.value = withTiming(index * BOX_SECTION_HEADER_SIZE);
-      } else if (expandedSection === index) {
-        offset.value = withTiming(index * BOX_SECTION_HEADER_SIZE);
-        height.value = withTiming(
-          availableHeight - (numSections - 1) * BOX_SECTION_HEADER_SIZE
-        );
-      } else if (expandedSection < index) {
-        offset.value = withTiming(
-          availableHeight - (numSections - index) * BOX_SECTION_HEADER_SIZE
-        );
-      }
-    } else {
-      offset.value = withTiming(sectionSize * index);
-      height.value = withTiming(sectionSize + 5);
-    }
-  }, [expandedSection]);
+    offset.value = withTiming(calcSectionOffset(index));
+    height.value = withTiming(calcSectionHeight(index));
+  }, [expandedSection, index]);
 
   // handle items reordering
   const reorderItems = (index: number) => {
     numReorders.value = numReorders.value + 1;
   };
+  // console.log("box_section---------", name, index, isExpanded, expandedSection, sectionSize, availableHeight);
 
   return (
     <TouchableWithoutFeedback onPress={() => onExpand(index)}>
@@ -140,7 +116,7 @@ const BoxSection = ({
             ))}
           </ScrollView>
         ) : (
-          <View style={[styles.sectionListContainer]}>
+          <View style={[styles.sectionListContainer]}>            
             {items.map((item, index) => (
               <DraggableBoxCard
                 name={name}
@@ -155,12 +131,9 @@ const BoxSection = ({
             ))}
           </View>
         )}
-
-        <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
-          <TouchableOpacity onPress={() => (onAddNew ? onAddNew() : "")}>
-            <Icon name="plus" size={48} color="white" />
-          </TouchableOpacity>
-        </View>
+        
+        
+        
       </Animated.View>
     </TouchableWithoutFeedback>
   );
@@ -284,6 +257,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   shadowProp: {
+    
     shadowColor: "#171717",
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
