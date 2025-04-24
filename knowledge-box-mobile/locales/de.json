@@ -78,6 +78,8 @@
     "addCardBtn": "Karte\nHinzufügen",
     "editCardBtn": "Karte\nbearbeiten",
     "deleteCardBtn": "Karte\nLöschen",
+    "createCardBtn": "Karte erstellen",
+    "saveCardBtn": "Karte speichern",
     "error": {
       "emptySides": "Sowohl die Vorder- als auch die Rückseite müssen gefüllt sein."
     },

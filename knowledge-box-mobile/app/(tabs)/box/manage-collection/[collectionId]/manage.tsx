@@ -29,6 +29,9 @@ import { i18n } from "@/src/lib/i18n";
 import { useAppTheme } from "@/src/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList } from '@shopify/flash-list';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+
+const SCROLL_ARROW_SIZE = 32;
 
 export default function ManageCollectionScreen() {
   // --- AI Card Generation Modal State (must be at top, before any returns!) ---
@@ -66,6 +69,11 @@ export default function ManageCollectionScreen() {
   // --- Menu handlers ---
   const openMainMenu = () => setMainMenuVisible(true);
   const closeMainMenu = () => setMainMenuVisible(false);
+
+  // --- FlashList ref and scroll arrows state (must be declared at the top level, not conditionally) ---
+  const flashListRef = React.useRef<any>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(true);
 
   async function fetchCards() {
     var cards = await getCards(Number(collectionId));
@@ -251,6 +259,23 @@ export default function ManageCollectionScreen() {
     Alert.alert(i18n.t("cards.aiSuccess") || "New cards generated!");
   };
 
+  // Handler for scrolling
+  const handleScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const contentHeight = event.nativeEvent.contentSize.height;
+    const layoutHeight = event.nativeEvent.layoutMeasurement.height;
+    setShowScrollTop(offsetY > 80);
+    setShowScrollBottom(offsetY + layoutHeight < contentHeight - 80);
+  };
+
+  // Scroll to top/bottom handlers
+  const scrollToTop = () => {
+    flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  };
+  const scrollToBottom = () => {
+    flashListRef.current?.scrollToEnd({ animated: true });
+  };
+
   return (
     <View style={styles.container}>
       {/* --- Header: only collection name --- */}
@@ -285,7 +310,9 @@ export default function ManageCollectionScreen() {
 
       <View style={{ flex: 1 }}>
         <View style={styles.cardGridNoOutline}>
+          {/* FlashList of cards */}
           <FlashList
+            ref={flashListRef}
             data={cards}
             keyExtractor={(item) => item.id.toString()}
             numColumns={Platform.OS === 'web' ? 3 : 1}
@@ -318,7 +345,30 @@ export default function ManageCollectionScreen() {
             )}
             estimatedItemSize={120}
             ListFooterComponent={null}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
           />
+          {/* Floating arrow buttons */}
+          {showScrollTop && (
+            <TouchableOpacity
+              style={styles.fabScrollTop}
+              onPress={scrollToTop}
+              accessibilityLabel="Scroll to top"
+              activeOpacity={0.85}
+            >
+              <Ionicons name="arrow-up" size={SCROLL_ARROW_SIZE} color="#222" />
+            </TouchableOpacity>
+          )}
+          {showScrollBottom && (
+            <TouchableOpacity
+              style={styles.fabScrollBottom}
+              onPress={scrollToBottom}
+              accessibilityLabel="Scroll to bottom"
+              activeOpacity={0.85}
+            >
+              <Ionicons name="arrow-down" size={SCROLL_ARROW_SIZE} color="#222" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -635,5 +685,33 @@ const styles = StyleSheet.create({
   cardMenuDots: {
     color: '#000',
     padding: 8,
+  },
+  fabScrollTop: {
+    position: 'absolute',
+    right: 4,
+    top: 16,
+    zIndex: 20,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderRadius: 30,
+    padding: 2,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.10,
+    shadowRadius: 2,
+  },
+  fabScrollBottom: {
+    position: 'absolute',
+    right: 4,
+    bottom: 90, // Above FAB menu button
+    zIndex: 20,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderRadius: 30,
+    padding: 2,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.10,
+    shadowRadius: 2,
   },
 });

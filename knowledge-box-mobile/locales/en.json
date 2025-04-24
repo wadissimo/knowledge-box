@@ -75,6 +75,8 @@
     "addCardBtn": "Add Card",
     "editCardBtn": "Edit Card",
     "deleteCardBtn": "Delete Card",
+    "createCardBtn": "Create Card",
+    "saveCardBtn": "Save Card",
     "error": {
       "emptySides": "Both front and back sides must be filled."
     },
