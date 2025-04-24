@@ -103,7 +103,11 @@ const BoxView = () => {
   function addCollection() {
     router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
   }
-  
+
+  function handleTest(){
+    router.push("./FlashcardCollectionsScreen");
+  }
+
   function handleCollectionClick(collectionId: number) {
     console.log("handleCollectionClick");
     router.push(`/(tabs)/box/manage-collection/${collectionId}`);
@@ -193,6 +197,11 @@ const BoxView = () => {
   <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
     <TouchableOpacity onPress={addCollection}>
       <Icon name="plus" size={48} color="white" />
+    </TouchableOpacity>
+  </View>
+  <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
+    <TouchableOpacity onPress={handleTest}>
+      <Icon name="minus" size={48} color="white" />
     </TouchableOpacity>
   </View>
   </>
