@@ -84,7 +84,18 @@
       "tooEasy": "Too Easy"
     },
     "noImage": "No image uploaded",
-    "noSound": "No sound uploaded"
+    "noSound": "No sound uploaded",
+    "askAiTitle": "Ask AI to Generate Cards",
+    "askAiPrompt": "Describe what cards you need:",
+    "askAiBtn": "Ask AI",
+    "generating": "Generating...",
+    "aiSuccess": "New cards generated!",
+    "aiCardModalTitle": "AI-Generated Cards",
+    "aiCardModalDesc": "Select which cards you want to add to your deck.",
+    "aiCardAcceptBtn": "Add Selected Cards",
+    "aiCardCancelBtn": "Cancel",
+    "aiCardNoneSelected": "No cards selected.",
+    "aiCardTryAgain": "Try Again"
   },
   "collection": {
     "train": {

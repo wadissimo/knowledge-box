@@ -86,8 +86,19 @@
       "postpone": "Verschieben",
       "tooEasy": "Zu einfach"
     },
-    "noImage": "No image uploaded",
-    "noSound": "No sound uploaded"
+    "noImage": "Kein Bild hochgeladen",
+    "noSound": "Kein Audio hochgeladen",
+    "askAiTitle": "KI: Karten automatisch generieren",
+    "askAiPrompt": "Beschreiben Sie, welche Karten Sie brauchen:",
+    "askAiBtn": "KI fragen",
+    "generating": "Generiere...",
+    "aiSuccess": "Neue Karten wurden generiert!",
+    "aiCardModalTitle": "KI-generierte Karten",
+    "aiCardModalDesc": "Wählen Sie aus, welche Karten Sie zu Ihrem Deck hinzufügen möchten.",
+    "aiCardAcceptBtn": "Ausgewählte Karten hinzufügen",
+    "aiCardCancelBtn": "Abbrechen",
+    "aiCardNoneSelected": "Keine Karten ausgewählt.",
+    "aiCardTryAgain": "Erneut versuchen"
   },
   "collection": {
     "train": {

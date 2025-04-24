@@ -4,14 +4,22 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   TextInput,
-  Button,
-  FlatList,
   Image,
   Text,
   StyleSheet,
   Pressable,
   Alert,
+  TouchableOpacity,
+  Modal,
+  Platform,
 } from "react-native";
+
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from "react-native-popup-menu";
 
 import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
 import { Card, useCardModel } from "@/src/data/CardModel";
@@ -19,8 +27,23 @@ import { useTheme } from "@react-navigation/native";
 import { Colors } from "@/src/constants/Colors";
 import { i18n } from "@/src/lib/i18n";
 import { useAppTheme } from "@/src/hooks/useAppTheme";
+import { Ionicons } from "@expo/vector-icons";
+import { FlashList } from '@shopify/flash-list';
 
 export default function ManageCollectionScreen() {
+  // --- AI Card Generation Modal State (must be at top, before any returns!) ---
+  const [aiModalVisible, setAiModalVisible] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
+
+  // --- AI Generated Cards State ---
+  const [aiGeneratedCards, setAiGeneratedCards] = useState<{
+    id: number;
+    front: string;
+    back: string;
+    checked: boolean;
+  }[]>([]);
+
   const { colors } = useAppTheme();
 
   const router = useRouter();
@@ -29,19 +52,20 @@ export default function ManageCollectionScreen() {
     affectedCardId?: string;
   }>();
 
-  const [page, setPage] = useState(0);
-  const [perPage, setPerPage] = useState(10);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const { getCollectionById, deleteCollection } = useCollectionModel();
-
   const { getCards, deleteCard } = useCardModel();
   const [cards, setCards] = useState<Card[]>([]);
   const [collection, setCollection] = useState<Collection | null>(null);
   const numCards = cards.length;
 
-  const prevPageDisabled = page === 0;
-  const nextPageDisabled = numCards <= (page + 1) * perPage;
+  // --- State for menus (must be before any return/conditional logic) ---
+  const [mainMenuVisible, setMainMenuVisible] = useState(false);
+
+  // --- Menu handlers ---
+  const openMainMenu = () => setMainMenuVisible(true);
+  const closeMainMenu = () => setMainMenuVisible(false);
 
   async function fetchCards() {
     var cards = await getCards(Number(collectionId));
@@ -50,11 +74,9 @@ export default function ManageCollectionScreen() {
       if (affectedCardId == "-1") {
         // choose last card
         if (cards.length > 0) {
-          setPage(Math.ceil(cards.length / perPage) - 1);
           const lastElement = cards.at(-1);
           if (lastElement) setSelectedCard(lastElement.id);
         } else {
-          setPage(0);
           setSelectedCard(null);
         }
       } else {
@@ -72,44 +94,46 @@ export default function ManageCollectionScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchCards();
-    }, [collectionId, affectedCardId, perPage])
+    }, [collectionId, affectedCardId])
   );
 
-  if (!collection) return;
-
-  const prevPage = () => {
-    setSelectedCard(null);
-    setPage(page - 1);
+  const handleCardPress = (id: number) => {
+    setSelectedCard(id);
+    if (id !== null) {
+      router.push(`/(tabs)/box/manage-collection/${collectionId}/${id}`);
+    }
   };
 
-  const nextPage = () => {
-    setSelectedCard(null);
-    setPage(page + 1);
-  };
+  if (!collection) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   const handleAddCardPress = () => {
     if (!collectionId) {
       console.error("collectionId is undefined");
       return;
     }
+    closeMainMenu();
     console.log("handleAddCardPress");
     router.push(`/(tabs)/box/manage-collection/${collectionId}/new`);
   };
 
-  const handleEditCardPress = () => {
-    if (!collectionId) {
-      console.error("collectionId is undefined");
+  const handleEditCardPress = (id?: number) => {
+    const cardId = typeof id === 'number' ? id : selectedCard;
+    if (!collectionId || cardId == null) {
+      console.error("collectionId or cardId is undefined");
       return;
     }
-    console.log("handleEditCardPress", collectionId, selectedCard);
-
-    router.push(
-      `/(tabs)/box/manage-collection/${collectionId}/${selectedCard}`
-    );
+    router.push(`/(tabs)/box/manage-collection/${collectionId}/${cardId}`);
   };
 
-  const handleDeleteCardPress = () => {
-    if (!selectedCard) return;
+  const handleDeleteCardPress = (id?: number) => {
+    const cardId = typeof id === 'number' ? id : selectedCard;
+    if (!cardId) return;
     Alert.alert(
       i18n.t("common.confirm.deletion"),
       i18n.t("cards.confirmDeletionText"),
@@ -124,7 +148,7 @@ export default function ManageCollectionScreen() {
           onPress: () => {
             console.log("Deleting card...");
             async function onDeleteCard() {
-              await deleteCard(Number(selectedCard));
+              await deleteCard(Number(cardId));
               fetchCards();
               setSelectedCard(null);
             }
@@ -171,138 +195,224 @@ export default function ManageCollectionScreen() {
     );
   };
 
+  const handleAIGenerate = async () => {
+    closeMainMenu();
+    setAiGenerating(true);
+    // Simulate AI card generation with 5 random cards
+    setTimeout(() => {
+      // Generate 5 random cards
+      const randomCards = Array.from({ length: 5 }).map((_, i) => ({
+        id: Date.now() + i,
+        front: `Front ${Math.random().toString(36).substring(2, 7)}`,
+        back: `Back ${Math.random().toString(36).substring(2, 7)}`,
+        checked: true,
+      }));
+      setAiGeneratedCards(randomCards);
+      setAiGenerating(false);
+      // Keep modal open to show selection UI
+    }, 1200);
+  };
+
+  const handleToggleAICard = (id: number) => {
+    setAiGeneratedCards((prev) =>
+      prev.map((card) =>
+        card.id === id ? { ...card, checked: !card.checked } : card
+      )
+    );
+  };
+
+  const handleAcceptAICards = () => {
+    // Add checked cards to deck
+    const accepted = aiGeneratedCards.filter((c) => c.checked);
+    const newCards = accepted.map((c, idx) => ({
+      id: c.id, // Or let backend/database assign real ID
+      front: c.front,
+      back: c.back,
+      collectionId: collectionId ? Number(collectionId) : 0,
+      frontImg: null,
+      backImg: null,
+      frontSound: null,
+      backSound: null,
+      initialEaseFactor: 2.5,
+      hide: false,
+      repeatTime: null,
+      prevRepeatTime: null,
+      successfulRepeats: 0,
+      failedRepeats: 0,
+      interval: 0,
+      easeFactor: 2.5,
+      createdAt: Date.now(),
+      status: 0, // CardStatus.New
+      priority: 0,
+    }));
+    setCards((prev) => [...prev, ...newCards]);
+    setAiGeneratedCards([]);
+    setAiModalVisible(false);
+    Alert.alert(i18n.t("cards.aiSuccess") || "New cards generated!");
+  };
+
   return (
     <View style={styles.container}>
-      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}>
+      {/* --- Header: only collection name --- */}
+      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}> 
         <Text style={styles.colNameTxt}>{collection.name}</Text>
       </View>
-      <View style={styles.cardTable}>
-        <View style={styles.header}>
-          <Text style={styles.headerItem}>{i18n.t("cards.front")}</Text>
-          <Text style={styles.headerItem}>{i18n.t("cards.back")}</Text>
-        </View>
 
-        <FlatList
-          data={cards.slice(page * perPage, (page + 1) * perPage)}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => setSelectedCard(item.id)}>
+      {/* --- Move edit/menu button (FAB) to bottom right --- */}
+      <View style={styles.fabFixedMenuBtnBottomRight}>
+        <Menu opened={mainMenuVisible} onBackdropPress={closeMainMenu}>
+          <MenuTrigger customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
+            <TouchableOpacity style={styles.fabBtnOnly} onPress={openMainMenu} accessibilityLabel="Show collection actions" activeOpacity={0.8}>
+              <Ionicons name="ellipsis-horizontal" size={32} color="#fff" />
+            </TouchableOpacity>
+          </MenuTrigger>
+          <MenuOptions customStyles={{ optionsContainer: { borderRadius: 18, padding: 4 } }}>
+            <MenuOption onSelect={handleAddCardPress}>
+              <View style={styles.menuOptionRow}><Ionicons name="add-circle-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.addCardBtn")}</Text></View>
+            </MenuOption>
+            <MenuOption onSelect={() => { closeMainMenu(); setAiModalVisible(true); }}>
+              <View style={styles.menuOptionRow}><Ionicons name="sparkles" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.askAiBtn") || "Ask AI to Generate"}</Text></View>
+            </MenuOption>
+            <MenuOption onSelect={handleEditCollection}>
+              <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.editCollection")}</Text></View>
+            </MenuOption>
+            <MenuOption onSelect={handleDeleteCollection} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
+              <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={22} color={Colors.light.deleteBtn} style={{ marginRight: 8 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCollection")}</Text></View>
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <View style={styles.cardGridNoOutline}>
+          <FlashList
+            data={cards}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={Platform.OS === 'web' ? 3 : 1}
+            renderItem={({ item }) => (
               <View
-                style={
-                  item.id !== selectedCard
-                    ? [
-                        styles.row,
-                        {
-                          backgroundColor: colors.card,
-                          borderColor: colors.primary,
-                        },
-                      ]
-                    : [
-                        styles.row,
-                        {
-                          backgroundColor: colors.card,
-                          borderColor: colors.primary,
-                        },
-                        styles.selectedRow,
-                      ]
-                }
-                //onTouchEnd={() => setSelectedCard(item.id)}
+                style={[
+                  styles.cardGridItem,
+                  item.id === selectedCard && styles.selectedCardGridItem,
+                  { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
+                ]}
               >
-                <Text style={styles.rowItem} numberOfLines={1}>
-                  {item.front}
-                </Text>
-                <Text style={styles.rowItem} numberOfLines={1}>
-                  {item.back}
-                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardGridFront}>{item.front}</Text>
+                  <Text style={styles.cardGridBack}>{item.back}</Text>
+                </View>
+                <Menu>
+                  <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
+                    <Ionicons name="ellipsis-vertical" size={24} style={styles.cardMenuDots} />
+                  </MenuTrigger>
+                  <MenuOptions customStyles={{ optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 } }}>
+                    <MenuOption onSelect={() => handleEditCardPress(item.id)}>
+                      <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={20} color={Colors.light.tint} style={{ marginRight: 6 }} /><Text>{i18n.t("cards.editCardBtn")}</Text></View>
+                    </MenuOption>
+                    <MenuOption onSelect={() => handleDeleteCardPress(item.id)} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
+                      <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={20} color={Colors.light.deleteBtn} style={{ marginRight: 6 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCardBtn")}</Text></View>
+                    </MenuOption>
+                  </MenuOptions>
+                </Menu>
               </View>
-            </Pressable>
-          )}
-          //style={{ flex: 1 }}
-          //contentContainerStyle={{ paddingBottom: 100 }}
-        />
-
-        <View style={styles.navBtns}>
-          <View style={styles.navBtn}>
-            {prevPageDisabled ? (
-              <></>
-            ) : (
-              <Button
-                title="<<"
-                onPress={() => (prevPageDisabled ? {} : prevPage())}
-                color={colors.primary}
-              />
             )}
-          </View>
-          <View style={styles.cardTableFootMid}>
-            <Text style={styles.cardTableFootMidTxt}>
-              {i18n.t("cards.numCards")}: {cards.length}
-            </Text>
-          </View>
-          <View style={styles.navBtn}>
-            {nextPageDisabled ? (
-              <></>
-            ) : (
-              <Button
-                title=">>"
-                onPress={() => (nextPageDisabled ? {} : nextPage())}
-                color={colors.primary}
-              />
-            )}
-          </View>
+            estimatedItemSize={120}
+            ListFooterComponent={null}
+          />
         </View>
       </View>
 
-      <View style={styles.cardEditBtns}>
-        <View style={styles.addCardBtn}>
-          <Button
-            title={i18n.t("cards.addCardBtn")}
-            onPress={handleAddCardPress}
-            color={colors.primary}
-          />
-        </View>
-        {selectedCard !== null && (
-          <>
-            <View style={styles.addCardBtn}>
-              <Button
-                title={i18n.t("cards.editCardBtn")}
-                onPress={handleEditCardPress}
-                color={colors.primary}
-              />
-            </View>
-            <View style={styles.deleteCardBtn}>
-              <Button
-                title={i18n.t("cards.deleteCardBtn")}
-                onPress={handleDeleteCardPress}
-                color={colors.deleteBtn}
-              />
-            </View>
-          </>
-        )}
+      {/* --- Move card count to footer --- */}
+      <View style={styles.cardCountFooter}>
+        <Ionicons name="albums-outline" size={16} color={Colors.light.tint} style={{ marginRight: 4 }} />
+        <Text style={styles.cardCountText}>{cards.length} {i18n.t("cards.numCards")}</Text>
       </View>
-      <View style={{ flexGrow: 1 }} />
-      <View style={styles.collectionEditBtns}>
-        <View style={styles.editColBtn}>
-          <Button
-            title={i18n.t("cards.editCollection")}
-            onPress={handleEditCollection}
-            color={colors.primary}
-          />
+
+      {/* AI Card Generation Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={aiModalVisible}
+        onRequestClose={() => setAiModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{i18n.t("cards.askAiTitle") || "Ask AI to Generate Cards"}</Text>
+            <Text style={styles.modalLabel}>{i18n.t("cards.askAiPrompt") || "Describe what cards you need:"}</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="e.g. 5 cards about photosynthesis, easy level"
+              value={aiPrompt}
+              onChangeText={setAiPrompt}
+              multiline
+              editable={!aiGenerating && aiGeneratedCards.length === 0}
+            />
+            {/* Show loading spinner or AI card selection UI */}
+            {aiGenerating && (
+              <Text style={{ textAlign: 'center', marginVertical: 10 }}>{i18n.t("cards.generating") || "Generating..."}</Text>
+            )}
+            {!aiGenerating && aiGeneratedCards.length > 0 && (
+              <View style={styles.aiCardsPreview}>
+                <Text style={styles.modalLabel}>{i18n.t("cards.aiPreview") || "Review suggested cards:"}</Text>
+                {aiGeneratedCards.map((card) => (
+                  <View key={card.id} style={styles.aiCardRow}>
+                    <Pressable onPress={() => handleToggleAICard(card.id)} style={styles.aiCardCheckbox}>
+                      <Ionicons name={card.checked ? "checkbox-outline" : "square-outline"} size={24} color={card.checked ? Colors.light.tint : '#aaa'} />
+                    </Pressable>
+                    <View style={styles.aiCardContent}>
+                      <Text style={styles.aiCardFront}>{card.front}</Text>
+                      <Text style={styles.aiCardBack}>{card.back}</Text>
+                    </View>
+                  </View>
+                ))}
+                <View style={styles.modalButtonRow}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
+                    onPress={handleAcceptAICards}
+                    disabled={aiGeneratedCards.filter(c => c.checked).length === 0}
+                  >
+                    <Text style={styles.modalButtonText}>{i18n.t("cards.save") || "Save"}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]} 
+                    onPress={() => { setAiGeneratedCards([]); setAiModalVisible(false); }}
+                  >
+                    <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+            {/* Show ask AI button if not generating and no cards yet */}
+            {!aiGenerating && aiGeneratedCards.length === 0 && (
+              <View style={styles.modalButtonRow}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
+                  onPress={handleAIGenerate}
+                  disabled={aiGenerating || !aiPrompt.trim()}
+                >
+                  <Text style={styles.modalButtonText}>
+                    {i18n.t("cards.askAiBtn") || "Ask AI"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]} 
+                  onPress={() => setAiModalVisible(false)}
+                  disabled={aiGenerating}
+                >
+                  <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
-        <View style={styles.deleteCollectionBtn}>
-          <Button
-            title={i18n.t("cards.deleteCollection")}
-            onPress={handleDeleteCollection}
-            color={colors.deleteBtn}
-          />
-        </View>
-      </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1, //doesn't work - collapses the entire table
+    flex: 1,
     paddingBottom: 10,
     flexDirection: "column",
     justifyContent: "flex-start",
@@ -320,55 +430,45 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 24,
   },
-  cardTable: {
-    marginHorizontal: 30,
-    //borderColor: "#000",
-    //borderWidth: 1,
-    borderRadius: 10,
-    padding: 5,
-    backgroundColor: "#1da422",
-    flexDirection: "column",
-    //flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "stretch",
-  },
-  header: {
-    //flex: 1,
-    flexDirection: "row",
-
-    //backgroundColor: "#1da422",
-  },
-  headerItem: { flex: 1, padding: 5, color: "white", fontWeight: "bold" },
-  row: {
-    flexDirection: "row",
-    //backgroundColor: "#c2fbc4",
-    //borderColor: "#57b75a",
-    borderWidth: 1,
-  },
-  selectedRow: {
-    borderColor: "orange",
-    borderWidth: 1,
-  },
-  rowItem: { flex: 1, padding: 5 },
-  link: {
-    color: "#1010FF",
-    textDecorationLine: "underline",
-    //fontWeight: "bold",
+  cardGridNoOutline: {
+    flex: 1,
+    padding: 8,
   },
   navBtns: {
     flexDirection: "row",
     paddingHorizontal: 15,
   },
-  navBtn: { width: 50 },
-  cardTableFootMid: {
+  cardGridItem: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 18,
+    marginVertical: 8,
+    marginHorizontal: 4,
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    minHeight: 90,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.09,
+    shadowRadius: 6,
+    elevation: 2,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  cardTableFootMidTxt: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "bold",
+  selectedCardGridItem: {
+    borderColor: Colors.light.tint,
+    backgroundColor: '#e8f7ee',
+  },
+  cardGridFront: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: Colors.light.text,
+    marginBottom: 6,
+  },
+  cardGridBack: {
+    fontSize: 16,
+    color: Colors.light.textDim || '#888',
   },
 
   addCardBtn: {
@@ -399,5 +499,141 @@ const styles = StyleSheet.create({
   },
   spacer: {
     flex: 1,
+  },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: Platform.OS === 'ios' ? 34 : 24,
+    backgroundColor: Colors.light.tint,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+    zIndex: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: '85%',
+    alignItems: 'stretch',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalLabel: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  modalInput: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 60,
+    marginBottom: 16,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  modalButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 2,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  aiCardsPreview: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  aiCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    padding: 8,
+  },
+  aiCardCheckbox: {
+    marginRight: 12,
+  },
+  aiCardContent: {
+    flex: 1,
+  },
+  aiCardFront: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  aiCardBack: {
+    fontSize: 15,
+    color: '#444',
+  },
+  menuOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+  },
+  cardCountFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderColor: '#eee',
+  },
+  cardCountText: {
+    color: Colors.light.tint,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  fabFixedMenuBtnBottomRight: {
+    position: 'absolute',
+    right: 18,
+    bottom: 18,
+    zIndex: 30,
+  },
+  fabBtnOnly: {
+    backgroundColor: Colors.light.tint,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  cardMenuDots: {
+    color: '#000',
+    padding: 8,
   },
 });
