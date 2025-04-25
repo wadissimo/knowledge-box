@@ -97,6 +97,7 @@
     "noSuggestedCardsTitle": "No Cards Suggested",
     "noSuggestedCardsMsg": "No cards were suggested by AI. Please modify your prompt and try again.",
     "tryAgain": "Edit Prompt & Try Again",
+    "regenerate": "Regenerate",
     "aiCardModalTitle": "AI-Generated Cards",
     "aiCardModalDesc": "Select which cards you want to add to your deck.",
     "aiCardAcceptBtn": "Add Selected Cards",

@@ -546,9 +546,9 @@ export default function ManageCollectionScreen() {
                 <View style={styles.modalButtonRow}>
                   <TouchableOpacity
                     style={[styles.modalButton, { backgroundColor: Colors.light.tint }]}
-                    onPress={() => setAiAmbiguous(null)}
+                    onPress={handleAIGenerate}
                   >
-                    <Text style={styles.modalButtonText}>{i18n.t("cards.tryAgain") || "Edit Prompt & Try Again"}</Text>
+                    <Text style={styles.modalButtonText}>{i18n.t("cards.regenerate") || "Regenerate"}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]}

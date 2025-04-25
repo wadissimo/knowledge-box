@@ -111,7 +111,8 @@
     "aiSuccess": "Neue Karten generiert!",
     "save": "Speichern",
     "aiError": "KI-Fehler",
-    "tryAgain": "Prompt bearbeiten & erneut versuchen",
+    "tryAgain": "Eingabe bearbeiten & erneut versuchen",
+    "regenerate": "Neu generieren",
     "ambiguousMissingTopic": "Bitte geben Sie das Thema für die Karteikarten an.",
     "ambiguousMissingNumCards": "Bitte geben Sie an, wie viele Karten Sie möchten.",
     "ambiguousMissingLevel": "Bitte geben Sie den Schwierigkeitsgrad oder das Niveau der Karten an."
