@@ -1,6 +1,6 @@
 // app/manage-collection/[collectionId].tsx
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   TextInput,
@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   Modal,
   Platform,
+  ScrollView, // Add ScrollView import
 } from "react-native";
 
 import {
@@ -21,7 +22,9 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 
-import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
+import {
+  Collection, useCollectionModel
+} from "@/src/data/CollectionModel";
 import { Card, useCardModel } from "@/src/data/CardModel";
 import { useTheme } from "@react-navigation/native";
 import { Colors } from "@/src/constants/Colors";
@@ -30,6 +33,8 @@ import { useAppTheme } from "@/src/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList } from '@shopify/flash-list';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { generateFlashcardsWithAI } from "@/src/service/AIService";
+import { ActivityIndicator } from "react-native";
 
 const SCROLL_ARROW_SIZE = 32;
 
@@ -38,6 +43,14 @@ export default function ManageCollectionScreen() {
   const [aiModalVisible, setAiModalVisible] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiErrorModal, setAiErrorModal] = useState(false);
+  const [aiAmbiguous, setAiAmbiguous] = useState<string | null>(null);
+
+  const ambiguityMessages: Record<string, string> = {
+    missing_topic: i18n.t("cards.ambiguousMissingTopic") || "Please specify the topic for the flashcards.",
+    missing_num_cards: i18n.t("cards.ambiguousMissingNumCards") || "Please specify how many cards you want.",
+    missing_level: i18n.t("cards.ambiguousMissingLevel") || "Please specify the difficulty or level for the cards."
+  };
 
   // --- AI Generated Cards State ---
   const [aiGeneratedCards, setAiGeneratedCards] = useState<{
@@ -45,7 +58,9 @@ export default function ManageCollectionScreen() {
     front: string;
     back: string;
     checked: boolean;
+    isDuplicate?: boolean;
   }[]>([]);
+  const [aiDuplicatesLoading, setAIDuplicatesLoading] = useState(false);
 
   const { colors } = useAppTheme();
 
@@ -58,7 +73,7 @@ export default function ManageCollectionScreen() {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const { getCollectionById, deleteCollection } = useCollectionModel();
-  const { getCards, deleteCard } = useCardModel();
+  const { getCards, deleteCard, isDuplicateCard, newCards } = useCardModel();
   const [cards, setCards] = useState<Card[]>([]);
   const [collection, setCollection] = useState<Collection | null>(null);
   const numCards = cards.length;
@@ -74,6 +89,23 @@ export default function ManageCollectionScreen() {
   const flashListRef = React.useRef<any>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(true);
+
+  const aiCardsScrollRef = useRef<ScrollView>(null); // Fix type of aiCardsScrollRef
+  const [aiCardsShowScrollArrow, setAiCardsShowScrollArrow] = useState(false);
+
+  const handleAICardsScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const contentHeight = event.nativeEvent.contentSize.height;
+    const layoutHeight = event.nativeEvent.layoutMeasurement.height;
+    // Show arrow if not at bottom and content is scrollable
+    setAiCardsShowScrollArrow(offsetY + layoutHeight < contentHeight - 10);
+  };
+
+  const scrollAICardsToBottom = () => {
+    if (aiCardsScrollRef.current) {
+      aiCardsScrollRef.current.scrollToEnd({ animated: true });
+    }
+  };
 
   async function fetchCards() {
     var cards = await getCards(Number(collectionId));
@@ -203,22 +235,61 @@ export default function ManageCollectionScreen() {
     );
   };
 
-  const handleAIGenerate = async () => {
-    closeMainMenu();
+  // Check for duplicates for AI generated cards
+  async function checkAIDuplicates(cards: { front: string; back: string }[]) {
+    if (!collectionId) return [];
+    setAIDuplicatesLoading(true);
+    const results = await Promise.all(
+      cards.map(card =>
+        isDuplicateCard(Number(collectionId), card.front, card.back)
+      )
+    );
+    setAIDuplicatesLoading(false);
+    return results;
+  }
+
+  // Call after AI cards are generated
+  async function handleAICardsWithDuplicates(cards: { id: number; front: string; back: string; checked: boolean }[]) {
+    const duplicateFlags = await checkAIDuplicates(cards);
+    setAiGeneratedCards(
+      cards.map((card, idx) => ({
+        ...card,
+        isDuplicate: duplicateFlags[idx],
+        checked: !duplicateFlags[idx] // uncheck if duplicate
+      }))
+    );
+  }
+
+  async function handleAIGenerate() {
     setAiGenerating(true);
-    // Simulate AI card generation with 5 random cards
-    setTimeout(() => {
-      // Generate 5 random cards
-      const randomCards = Array.from({ length: 5 }).map((_, i) => ({
-        id: Date.now() + i,
-        front: `Front ${Math.random().toString(36).substring(2, 7)}`,
-        back: `Back ${Math.random().toString(36).substring(2, 7)}`,
-        checked: true,
-      }));
-      setAiGeneratedCards(randomCards);
-      setAiGenerating(false);
-      // Keep modal open to show selection UI
-    }, 1200);
+    setAiGeneratedCards([]);
+    setAiAmbiguous(null);
+    try {
+      const aiResult = await generateFlashcardsWithAI({
+        prompt: aiPrompt,
+        language: "en",
+        collectionName: collection?.name || "",
+        boxTitle: collection?.name || "",
+        boxDescription: collection?.description || ""
+      });
+      if (Array.isArray(aiResult)) {
+        // Cards returned
+        const aiCardsWithId = aiResult.map((c, idx) => ({
+          id: idx + 1,
+          front: c.front,
+          back: c.back,
+          checked: true
+        }));
+        await handleAICardsWithDuplicates(aiCardsWithId);
+      } else if (aiResult && typeof aiResult === 'object' && 'ambiguous' in aiResult) {
+        setAiAmbiguous(aiResult.ambiguous);
+      } else {
+        setAiErrorModal(true);
+      }
+    } catch (e) {
+      setAiErrorModal(true);
+    }
+    setAiGenerating(false);
   };
 
   const handleToggleAICard = (id: number) => {
@@ -229,33 +300,41 @@ export default function ManageCollectionScreen() {
     );
   };
 
-  const handleAcceptAICards = () => {
+  const handleAcceptAICards = async () => {
     // Add checked cards to deck
     const accepted = aiGeneratedCards.filter((c) => c.checked);
-    const newCards = accepted.map((c, idx) => ({
-      id: c.id, // Or let backend/database assign real ID
+    if (accepted.length === 0) return;
+    // Prepare cards for newCards function
+    const newCardsInput = accepted.map((c) => ({
+      collectionId: collectionId ? Number(collectionId) : 0,
       front: c.front,
       back: c.back,
-      collectionId: collectionId ? Number(collectionId) : 0,
       frontImg: null,
       backImg: null,
       frontSound: null,
       backSound: null,
       initialEaseFactor: 2.5,
-      hide: false,
-      repeatTime: null,
-      prevRepeatTime: null,
-      successfulRepeats: 0,
-      failedRepeats: 0,
-      interval: 0,
-      easeFactor: 2.5,
-      createdAt: Date.now(),
-      status: 0, // CardStatus.New
-      priority: 0,
     }));
-    setCards((prev) => [...prev, ...newCards]);
+    // Save scroll position
+    let scrollOffset = 0;
+    if (flashListRef.current && flashListRef.current.scrollToOffset) {
+      try {
+        // @ts-ignore
+        scrollOffset = await flashListRef.current.getScrollableNode().scrollTop || 0;
+      } catch {}
+    }
+    setAiGenerating(true);
+    await newCards(newCardsInput);
     setAiGeneratedCards([]);
     setAiModalVisible(false);
+    await fetchCards();
+    setAiGenerating(false);
+    // Restore scroll position if possible
+    if (flashListRef.current && flashListRef.current.scrollToOffset) {
+      try {
+        flashListRef.current.scrollToOffset({ offset: scrollOffset, animated: false });
+      } catch {}
+    }
     Alert.alert(i18n.t("cards.aiSuccess") || "New cards generated!");
   };
 
@@ -404,17 +483,43 @@ export default function ManageCollectionScreen() {
             {!aiGenerating && aiGeneratedCards.length > 0 && (
               <View style={styles.aiCardsPreview}>
                 <Text style={styles.modalLabel}>{i18n.t("cards.aiPreview") || "Review suggested cards:"}</Text>
-                {aiGeneratedCards.map((card) => (
-                  <View key={card.id} style={styles.aiCardRow}>
-                    <Pressable onPress={() => handleToggleAICard(card.id)} style={styles.aiCardCheckbox}>
-                      <Ionicons name={card.checked ? "checkbox-outline" : "square-outline"} size={24} color={card.checked ? Colors.light.tint : '#aaa'} />
-                    </Pressable>
-                    <View style={styles.aiCardContent}>
-                      <Text style={styles.aiCardFront}>{card.front}</Text>
-                      <Text style={styles.aiCardBack}>{card.back}</Text>
-                    </View>
-                  </View>
-                ))}
+                {aiDuplicatesLoading && <ActivityIndicator size="small" color="red" style={{ marginBottom: 8 }} />}
+                <View style={{ maxHeight: 300, position: 'relative' }}>
+                  <ScrollView
+                    ref={aiCardsScrollRef}
+                    showsVerticalScrollIndicator={true}
+                    onScroll={handleAICardsScroll}
+                    scrollEventThrottle={16}
+                    style={{}}
+                  >
+                    {aiGeneratedCards.map((card) => (
+                      <View key={card.id} style={styles.aiCardRow}>
+                        <Pressable onPress={() => handleToggleAICard(card.id)} style={styles.aiCardCheckbox}>
+                          <Ionicons name={card.checked ? "checkbox-outline" : "square-outline"} size={24} color={card.checked ? Colors.light.tint : '#aaa'} />
+                        </Pressable>
+                        <View style={styles.aiCardContent}>
+                          <Text style={styles.aiCardFront}>{card.front}</Text>
+                          <Text style={styles.aiCardBack}>{card.back}</Text>
+                        </View>
+                        {card.isDuplicate && (
+                          <View style={{ marginLeft: 8, alignSelf: 'flex-start', backgroundColor: '#fee', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
+                            <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 12 }}>duplicate</Text>
+                          </View>
+                        )}
+                      </View>
+                    ))}
+                  </ScrollView>
+                  {aiCardsShowScrollArrow && (
+                    <TouchableOpacity
+                      style={{ position: 'absolute', right: 8, bottom: 8, backgroundColor: '#fff', borderRadius: 16, padding: 4, elevation: 2, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4 }}
+                      onPress={scrollAICardsToBottom}
+                      accessibilityLabel="Scroll to bottom of AI cards"
+                      activeOpacity={0.85}
+                    >
+                      <Ionicons name="arrow-down" size={28} color="#222" />
+                    </TouchableOpacity>
+                  )}
+                </View>
                 <View style={styles.modalButtonRow}>
                   <TouchableOpacity
                     style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
@@ -432,8 +537,50 @@ export default function ManageCollectionScreen() {
                 </View>
               </View>
             )}
-            {/* Show ask AI button if not generating and no cards yet */}
-            {!aiGenerating && aiGeneratedCards.length === 0 && (
+            {!aiGenerating && aiAmbiguous && (
+              <View style={styles.aiCardsPreview}>
+                <Text style={styles.modalLabel}>{i18n.t("cards.noSuggestedCardsTitle") || "No Cards Suggested"}</Text>
+                <Text style={{ color: 'red', marginVertical: 10 }}>
+                  {ambiguityMessages[aiAmbiguous] || i18n.t("cards.noSuggestedCardsMsg")}
+                </Text>
+                <View style={styles.modalButtonRow}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.tint }]}
+                    onPress={() => setAiAmbiguous(null)}
+                  >
+                    <Text style={styles.modalButtonText}>{i18n.t("cards.tryAgain") || "Edit Prompt & Try Again"}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]}
+                    onPress={() => { setAiAmbiguous(null); setAiModalVisible(false); }}
+                  >
+                    <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+            {!aiGenerating && aiErrorModal && (
+              <View style={styles.aiCardsPreview}>
+                <Text style={styles.modalLabel}>{i18n.t("cards.aiError") || "AI Error"}</Text>
+                <Text style={{ color: 'red', marginVertical: 10 }}>{i18n.t("cards.noSuggestedCardsMsg")}</Text>
+                <View style={styles.modalButtonRow}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.tint }]}
+                    onPress={() => { setAiErrorModal(false); }}
+                  >
+                    <Text style={styles.modalButtonText}>{i18n.t("cards.tryAgain") || "Edit Prompt & Try Again"}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]}
+                    onPress={() => { setAiErrorModal(false); setAiModalVisible(false); }}
+                  >
+                    <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+            {/* Show ask AI button if not generating and no cards yet, and not ambiguous */}
+            {!aiGenerating && aiGeneratedCards.length === 0 && !aiAmbiguous && (
               <View style={styles.modalButtonRow}>
                 <TouchableOpacity
                   style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
@@ -453,6 +600,34 @@ export default function ManageCollectionScreen() {
                 </TouchableOpacity>
               </View>
             )}
+          </View>
+        </View>
+      </Modal>
+      {/* Error Modal for no cards or error */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={aiErrorModal}
+        onRequestClose={() => setAiErrorModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{i18n.t("cards.noSuggestedCardsTitle") || "No Cards Suggested"}</Text>
+            <Text style={styles.modalLabel}>{i18n.t("cards.noSuggestedCardsMsg") || "No cards were suggested by AI. Please modify your prompt and try again."}</Text>
+            <View style={styles.modalButtonRow}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
+                onPress={() => { setAiErrorModal(false); setAiModalVisible(true); }}
+              >
+                <Text style={styles.modalButtonText}>{i18n.t("common.tryAgain") || "Edit Prompt & Try Again"}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]} 
+                onPress={() => setAiErrorModal(false)}
+              >
+                <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -681,6 +856,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 6,
+    zIndex: 20,
   },
   cardMenuDots: {
     color: '#000',

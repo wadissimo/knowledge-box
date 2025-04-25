@@ -209,6 +209,24 @@ function useCardModel() {
       card.id
     );
   };
+
+  // Search for duplicate card by front or back in a collection
+  const isDuplicateCard = async (
+    collectionId: number,
+    front: string,
+    back: string
+  ): Promise<boolean> => {
+    const result = await db.getFirstAsync<Card>(
+      "SELECT * FROM cards WHERE collectionId = ? AND (front = ? OR back = ?)",
+      collectionId,
+      front,
+      back
+    );
+    return !!result;
+  };
+
+
+
   return {
     newCard,
     newCards,
@@ -220,6 +238,7 @@ function useCardModel() {
     getCardCountByStatus,
     learnCardLater,
     getPreviewCards,
+    isDuplicateCard,
   };
 }
 

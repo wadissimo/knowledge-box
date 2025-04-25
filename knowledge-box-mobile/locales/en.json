@@ -89,15 +89,23 @@
     "noSound": "No sound uploaded",
     "askAiTitle": "Ask AI to Generate Cards",
     "askAiPrompt": "Describe what cards you need:",
-    "askAiBtn": "Ask AI",
+    "askAiBtn": "Ask AI to Generate",
+    "aiPreview": "Review suggested cards:",
     "generating": "Generating...",
     "aiSuccess": "New cards generated!",
+    "aiError": "AI Error",
+    "noSuggestedCardsTitle": "No Cards Suggested",
+    "noSuggestedCardsMsg": "No cards were suggested by AI. Please modify your prompt and try again.",
+    "tryAgain": "Edit Prompt & Try Again",
     "aiCardModalTitle": "AI-Generated Cards",
     "aiCardModalDesc": "Select which cards you want to add to your deck.",
     "aiCardAcceptBtn": "Add Selected Cards",
     "aiCardCancelBtn": "Cancel",
     "aiCardNoneSelected": "No cards selected.",
-    "aiCardTryAgain": "Try Again"
+    "aiCardTryAgain": "Try Again",
+    "ambiguousMissingTopic": "Please specify the topic for the flashcards.",
+    "ambiguousMissingNumCards": "Please specify how many cards you want.",
+    "ambiguousMissingLevel": "Please specify the difficulty or level for the cards."
   },
   "collection": {
     "train": {
