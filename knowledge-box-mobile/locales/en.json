@@ -25,7 +25,8 @@
     "sound": "Sound",
     "clear": "Clear",
     "remove": "Remove",
-    "options": "Options"
+    "options": "Options",
+    "loading": "Loading..."
   },
   "boxes": {
     "myBoxesTitle": "My Boxes",

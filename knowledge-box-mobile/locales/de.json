@@ -25,7 +25,8 @@
     "sound": "Audio",
     "clear": "Löschen",
     "remove": "Löschen",
-    "options": "Optionen"
+    "options": "Optionen",
+    "loading": "Lädt..."
   },
   "boxes": {
     "myBoxesTitle": "Meine Boxen",

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getGeminiApiKey } from '../utils/aiSetup';
 
 export enum AIServiceRole {
   AI = 2,
@@ -129,7 +131,10 @@ export function useAIChatService(
     try {
       setError("");
 
-      const key = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+      const key = await getGeminiApiKey();
+      if (!key) {
+        throw new Error("Gemini API Key not found. Please set it up in AI Settings.");
+      }
       const URL =
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" +
         key;
@@ -229,7 +234,11 @@ export async function generateFlashcardsWithAI({
 
   console.log("AIService: Prompt sent to AI:", fullPrompt);
 
-  const key = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+  // Get Gemini API Key from AsyncStorage
+  let key = await getGeminiApiKey();
+  if (!key) {
+    throw new Error("Gemini API Key not found. Please set it up in AI Settings.");
+  }
   const URL =
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" +
     key;
