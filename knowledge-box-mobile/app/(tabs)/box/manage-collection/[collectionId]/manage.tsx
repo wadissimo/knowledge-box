@@ -781,16 +781,23 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   modalButton: {
-    flex: 1,
-    padding: 12,
+    flex: 1, // Make buttons share available space
+    height: 70, // Increased for full text visibility
+    paddingHorizontal: 12, // Slightly less padding to avoid overflow
     borderRadius: 8,
     alignItems: 'center',
+    justifyContent: 'center',
     marginHorizontal: 2,
+    minWidth: 0, // Prevent flexbox overflow
+    maxWidth: '100%',
   },
   modalButtonText: {
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    includeFontPadding: false, // Android only
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18, // Further increased for clarity
   },
   aiCardsPreview: {
     marginTop: 16,
