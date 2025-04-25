@@ -104,9 +104,17 @@
     "aiCardCancelBtn": "Cancel",
     "aiCardNoneSelected": "No cards selected.",
     "aiCardTryAgain": "Try Again",
+    "ambiguousTopic": "The topic is ambiguous. Please clarify your request.",
+    "ambiguousQuantity": "The number of cards requested is ambiguous. Please clarify the amount.",
+    "ambiguousLevel": "The requested difficulty level is ambiguous. Please specify.",
     "ambiguousMissingTopic": "Please specify the topic for the flashcards.",
     "ambiguousMissingNumCards": "Please specify how many cards you want.",
-    "ambiguousMissingLevel": "Please specify the difficulty or level for the cards."
+    "ambiguousMissingLevel": "Please specify the difficulty or level for the cards.",
+    "noCardsYet": "No cards in this collection yet!",
+    "noCardsHint": "Tap the menu button ",
+    "noCardsHint2": " in the bottom-right corner, then select 'Add Card' to create your first card.",
+    "menuButtonLabel": "Menu",
+    "noCardsAIHint": "You can also use AI to generate new cards for this collection."
   },
   "collection": {
     "train": {

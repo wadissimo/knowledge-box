@@ -113,9 +113,17 @@
     "aiError": "KI-Fehler",
     "tryAgain": "Eingabe bearbeiten & erneut versuchen",
     "regenerate": "Neu generieren",
+    "ambiguousTopic": "Das Thema ist unklar. Bitte geben Sie Ihr Thema genauer an.",
+    "ambiguousQuantity": "Die Anzahl der gewünschten Karten ist unklar. Bitte geben Sie die Menge an.",
+    "ambiguousLevel": "Das gewünschte Schwierigkeitsniveau ist unklar. Bitte spezifizieren Sie dieses.",
     "ambiguousMissingTopic": "Bitte geben Sie das Thema für die Karteikarten an.",
     "ambiguousMissingNumCards": "Bitte geben Sie an, wie viele Karten Sie möchten.",
-    "ambiguousMissingLevel": "Bitte geben Sie den Schwierigkeitsgrad oder das Niveau der Karten an."
+    "ambiguousMissingLevel": "Bitte geben Sie den Schwierigkeitsgrad oder das Niveau der Karten an.",
+    "noCardsYet": "Noch keine Karten in dieser Sammlung!",
+    "noCardsHint": "Tippen Sie auf die Menüschaltfläche ",
+    "noCardsHint2": " unten rechts und wählen Sie dann 'Karte hinzufügen', um Ihre erste Karte zu erstellen.",
+    "menuButtonLabel": "Menü",
+    "noCardsAIHint": "Sie können auch die KI verwenden, um neue Karten für diese Sammlung zu generieren."
   },
   "collection": {
     "train": {

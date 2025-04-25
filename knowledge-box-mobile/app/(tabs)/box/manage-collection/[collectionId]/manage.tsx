@@ -38,6 +38,13 @@ import { ActivityIndicator } from "react-native";
 
 const SCROLL_ARROW_SIZE = 32;
 
+const ambiguityMessages: Record<string, string> = {
+  missing_topic: i18n.t("cards.ambiguousTopic") || "The topic is ambiguous. Please clarify your request.",
+  missing_num_cards: i18n.t("cards.ambiguousQuantity") || "The number of cards requested is ambiguous. Please clarify the amount.",
+  missing_level: i18n.t("cards.ambiguousLevel") || "The requested difficulty level is ambiguous. Please specify.",
+  default: i18n.t("cards.noSuggestedCardsMsg") || "No cards were suggested by AI. Please modify your prompt and try again."
+};
+
 export default function ManageCollectionScreen() {
   // --- AI Card Generation Modal State (must be at top, before any returns!) ---
   const [aiModalVisible, setAiModalVisible] = useState(false);
@@ -45,12 +52,6 @@ export default function ManageCollectionScreen() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiErrorModal, setAiErrorModal] = useState(false);
   const [aiAmbiguous, setAiAmbiguous] = useState<string | null>(null);
-
-  const ambiguityMessages: Record<string, string> = {
-    missing_topic: i18n.t("cards.ambiguousMissingTopic") || "Please specify the topic for the flashcards.",
-    missing_num_cards: i18n.t("cards.ambiguousMissingNumCards") || "Please specify how many cards you want.",
-    missing_level: i18n.t("cards.ambiguousMissingLevel") || "Please specify the difficulty or level for the cards."
-  };
 
   // --- AI Generated Cards State ---
   const [aiGeneratedCards, setAiGeneratedCards] = useState<{
@@ -144,6 +145,48 @@ export default function ManageCollectionScreen() {
     }
   };
 
+  const handleAddCardPress = () => {
+    if (!collectionId) {
+      console.error("collectionId is undefined");
+      Alert.alert("Error", "Collection ID is undefined");
+      return;
+    }
+    closeMainMenu();
+    setTimeout(() => {
+      console.log("Navigating to new card screen for collectionId:", collectionId);
+      router.push(`/(tabs)/box/manage-collection/${collectionId}/new`);
+    }, 250); // Wait for menu to close to avoid navigation bug
+  };
+
+  const EmptyState = (
+    <>
+      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}> 
+        <Text style={styles.colNameTxt}>{collection?.name}</Text>
+      </View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Ionicons name="albums-outline" size={56} color={Colors.light.tint} style={{ marginBottom: 16 }} />
+        <Text style={{ fontSize: 22, fontWeight: 'bold', color: Colors.light.text, marginBottom: 12, textAlign: 'center' }}>
+          {i18n.t("cards.noCardsYet")}
+        </Text>
+        <Text style={{ fontSize: 16, color: '#666', marginBottom: 18, textAlign: 'center', maxWidth: 320 }}>
+          {i18n.t("cards.noCardsHint")}
+          <Ionicons name="ellipsis-horizontal" size={20} color={Colors.light.tint} />
+          {i18n.t("cards.noCardsHint2")}
+        </Text>
+        <Text style={{ fontSize: 16, color: Colors.light.tint, marginBottom: 28, textAlign: 'center', maxWidth: 320 }}>
+          {i18n.t("cards.noCardsAIHint")}
+        </Text>
+        <View style={{ position: 'absolute', right: 80, bottom: 35, alignItems: 'center' }}>
+          <Ionicons name="arrow-down" size={40} color={Colors.light.tint} style={{ transform: [{ rotate: '-45deg' }] }} />
+        </View>
+      </View>
+      <View style={styles.cardCountFooter}>
+        <Ionicons name="albums-outline" size={16} color={Colors.light.tint} style={{ marginRight: 4 }} />
+        <Text style={styles.cardCountText}>{cards.length} {i18n.t("cards.numCards")}</Text>
+      </View>
+    </>
+  );
+
   if (!collection) {
     return (
       <View style={styles.container}>
@@ -152,15 +195,7 @@ export default function ManageCollectionScreen() {
     );
   }
 
-  const handleAddCardPress = () => {
-    if (!collectionId) {
-      console.error("collectionId is undefined");
-      return;
-    }
-    closeMainMenu();
-    console.log("handleAddCardPress");
-    router.push(`/(tabs)/box/manage-collection/${collectionId}/new`);
-  };
+  
 
   const handleEditCardPress = (id?: number) => {
     const cardId = typeof id === 'number' ? id : selectedCard;
@@ -355,109 +390,318 @@ export default function ManageCollectionScreen() {
     flashListRef.current?.scrollToEnd({ animated: true });
   };
 
+
+  if (cards.length === 0) {
+    return (
+      <View style={styles.container}>
+        {EmptyState}
+        <View style={styles.fabFixedMenuBtnBottomRight} pointerEvents="box-none">
+          <Menu opened={mainMenuVisible} onBackdropPress={closeMainMenu}>
+            <MenuTrigger customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
+              <TouchableOpacity style={styles.fabBtnOnly} onPress={openMainMenu} accessibilityLabel="Show collection actions" activeOpacity={0.8}>
+                <Ionicons name="ellipsis-horizontal" size={32} color="#fff" />
+              </TouchableOpacity>
+            </MenuTrigger>
+            <MenuOptions customStyles={{ optionsContainer: { borderRadius: 18, padding: 4 } }}>
+              <MenuOption onSelect={handleAddCardPress}>
+                <View style={styles.menuOptionRow}><Ionicons name="add-circle-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.addCardBtn")}</Text></View>
+              </MenuOption>
+              <MenuOption onSelect={() => { closeMainMenu(); setAiModalVisible(true); }}>
+                <View style={styles.menuOptionRow}><Ionicons name="sparkles" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.askAiBtn") || "Ask AI to Generate"}</Text></View>
+              </MenuOption>
+              <MenuOption onSelect={handleEditCollection}>
+                <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.editCollection")}</Text></View>
+              </MenuOption>
+              <MenuOption onSelect={handleDeleteCollection} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
+                <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={22} color={Colors.light.deleteBtn} style={{ marginRight: 8 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCollection")}</Text></View>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
+        </View>
+        {/* Always render modals here so they are accessible regardless of card count */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={aiModalVisible}
+          onRequestClose={() => setAiModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{i18n.t("cards.askAiTitle") || "Ask AI to Generate Cards"}</Text>
+              <Text style={styles.modalLabel}>{i18n.t("cards.askAiPrompt") || "Describe what cards you need:"}</Text>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="e.g. 5 cards about photosynthesis, easy level"
+                value={aiPrompt}
+                onChangeText={setAiPrompt}
+                multiline
+                editable={!aiGenerating && aiGeneratedCards.length === 0}
+              />
+              {/* Show loading spinner or AI card selection UI */}
+              {aiGenerating && (
+                <Text style={{ textAlign: 'center', marginVertical: 10 }}>{i18n.t("cards.generating") || "Generating..."}</Text>
+              )}
+              {!aiGenerating && aiGeneratedCards.length > 0 && (
+                <View style={styles.aiCardsPreview}>
+                  <Text style={styles.modalLabel}>{i18n.t("cards.aiPreview") || "Review suggested cards:"}</Text>
+                  {aiDuplicatesLoading && <ActivityIndicator size="small" color="red" style={{ marginBottom: 8 }} />}
+                  <View style={{ maxHeight: 300, position: 'relative' }}>
+                    <ScrollView
+                      ref={aiCardsScrollRef}
+                      showsVerticalScrollIndicator={true}
+                      onScroll={handleAICardsScroll}
+                      scrollEventThrottle={16}
+                      style={{}}
+                    >
+                      {aiGeneratedCards.map((card) => (
+                        <View key={card.id} style={styles.aiCardRow}>
+                          <Pressable onPress={() => handleToggleAICard(card.id)} style={styles.aiCardCheckbox}>
+                            <Ionicons name={card.checked ? "checkbox-outline" : "square-outline"} size={24} color={card.checked ? Colors.light.tint : '#aaa'} />
+                          </Pressable>
+                          <View style={styles.aiCardContent}>
+                            <Text style={styles.aiCardFront}>{card.front}</Text>
+                            <Text style={styles.aiCardBack}>{card.back}</Text>
+                          </View>
+                          {card.isDuplicate && (
+                            <View style={{ marginLeft: 8, alignSelf: 'flex-start', backgroundColor: '#fee', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
+                              <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 12 }}>duplicate</Text>
+                            </View>
+                          )}
+                        </View>
+                      ))}
+                    </ScrollView>
+                    {aiCardsShowScrollArrow && (
+                      <TouchableOpacity
+                        style={{ position: 'absolute', right: 8, bottom: 8, backgroundColor: '#fff', borderRadius: 16, padding: 4, elevation: 2, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4 }}
+                        onPress={scrollAICardsToBottom}
+                        accessibilityLabel="Scroll to bottom of AI cards"
+                        activeOpacity={0.85}
+                      >
+                        <Ionicons name="arrow-down" size={28} color="#222" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  <View style={styles.modalButtonRow}>
+                    <TouchableOpacity
+                      style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
+                      onPress={handleAcceptAICards}
+                      disabled={aiGeneratedCards.filter(c => c.checked).length === 0}
+                    >
+                      <Text style={styles.modalButtonText}>{i18n.t("cards.save") || "Save"}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]} 
+                      onPress={() => { setAiGeneratedCards([]); setAiModalVisible(false); }}
+                    >
+                      <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+              {!aiGenerating && aiAmbiguous && (
+                <View style={styles.aiCardsPreview}>
+                  <Text style={styles.modalLabel}>{i18n.t("cards.noSuggestedCardsTitle") || "No Cards Suggested"}</Text>
+                  <Text style={{ color: 'red', marginVertical: 10 }}>
+                    {ambiguityMessages[aiAmbiguous] || ambiguityMessages.default}
+                  </Text>
+                  <View style={styles.modalButtonRow}>
+                    <TouchableOpacity
+                      style={[styles.modalButton, { backgroundColor: Colors.light.tint }]}
+                      onPress={handleAIGenerate}
+                    >
+                      <Text style={styles.modalButtonText}>{i18n.t("cards.regenerate") || "Regenerate"}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]}
+                      onPress={() => { setAiAmbiguous(null); setAiModalVisible(false); }}
+                    >
+                      <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+              {!aiGenerating && aiErrorModal && (
+                <View style={styles.aiCardsPreview}>
+                  <Text style={styles.modalLabel}>{i18n.t("cards.aiError") || "AI Error"}</Text>
+                  <Text style={{ color: 'red', marginVertical: 10 }}>{i18n.t("cards.noSuggestedCardsMsg")}</Text>
+                  <View style={styles.modalButtonRow}>
+                    <TouchableOpacity
+                      style={[styles.modalButton, { backgroundColor: Colors.light.tint }]}
+                      onPress={() => { setAiErrorModal(false); }}
+                    >
+                      <Text style={styles.modalButtonText}>{i18n.t("cards.tryAgain") || "Edit Prompt & Try Again"}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]}
+                      onPress={() => { setAiErrorModal(false); setAiModalVisible(false); }}
+                    >
+                      <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+              {/* Show ask AI button if not generating and no cards yet, and not ambiguous */}
+              {!aiGenerating && aiGeneratedCards.length === 0 && !aiAmbiguous && (
+                <View style={styles.modalButtonRow}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
+                    onPress={handleAIGenerate}
+                    disabled={aiGenerating || !aiPrompt.trim()}
+                  >
+                    <Text style={styles.modalButtonText}>
+                      {i18n.t("cards.askAiBtn") || "Ask AI"}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]} 
+                    onPress={() => setAiModalVisible(false)}
+                    disabled={aiGenerating}
+                  >
+                    <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
+        {/* Error Modal for no cards or error */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={aiErrorModal}
+          onRequestClose={() => setAiErrorModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{i18n.t("cards.noSuggestedCardsTitle") || "No Cards Suggested"}</Text>
+              <Text style={styles.modalLabel}>{i18n.t("cards.noSuggestedCardsMsg") || "No cards were suggested by AI. Please modify your prompt and try again."}</Text>
+              <View style={styles.modalButtonRow}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: Colors.light.tint }]} 
+                  onPress={() => { setAiErrorModal(false); setAiModalVisible(true); }}
+                >
+                  <Text style={styles.modalButtonText}>{i18n.t("common.tryAgain") || "Edit Prompt & Try Again"}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: Colors.light.deleteBtn }]} 
+                  onPress={() => setAiErrorModal(false)}
+                >
+                  <Text style={styles.modalButtonText}>{i18n.t("common.cancel") || "Cancel"}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    );
+  }
+  
   return (
     <View style={styles.container}>
-      {/* --- Header: only collection name --- */}
-      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}> 
-        <Text style={styles.colNameTxt}>{collection.name}</Text>
-      </View>
+      {cards.length === 0 ? EmptyState : (
+        <>
+          {/* --- Header: only collection name --- */}
+          <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}> 
+            <Text style={styles.colNameTxt}>{collection.name}</Text>
+          </View>
 
-      {/* --- Move edit/menu button (FAB) to bottom right --- */}
-      <View style={styles.fabFixedMenuBtnBottomRight}>
-        <Menu opened={mainMenuVisible} onBackdropPress={closeMainMenu}>
-          <MenuTrigger customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
-            <TouchableOpacity style={styles.fabBtnOnly} onPress={openMainMenu} accessibilityLabel="Show collection actions" activeOpacity={0.8}>
-              <Ionicons name="ellipsis-horizontal" size={32} color="#fff" />
-            </TouchableOpacity>
-          </MenuTrigger>
-          <MenuOptions customStyles={{ optionsContainer: { borderRadius: 18, padding: 4 } }}>
-            <MenuOption onSelect={handleAddCardPress}>
-              <View style={styles.menuOptionRow}><Ionicons name="add-circle-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.addCardBtn")}</Text></View>
-            </MenuOption>
-            <MenuOption onSelect={() => { closeMainMenu(); setAiModalVisible(true); }}>
-              <View style={styles.menuOptionRow}><Ionicons name="sparkles" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.askAiBtn") || "Ask AI to Generate"}</Text></View>
-            </MenuOption>
-            <MenuOption onSelect={handleEditCollection}>
-              <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.editCollection")}</Text></View>
-            </MenuOption>
-            <MenuOption onSelect={handleDeleteCollection} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
-              <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={22} color={Colors.light.deleteBtn} style={{ marginRight: 8 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCollection")}</Text></View>
-            </MenuOption>
-          </MenuOptions>
-        </Menu>
-      </View>
+          {/* --- Move edit/menu button (FAB) to bottom right --- */}
+          <View style={styles.fabFixedMenuBtnBottomRight}>
+            <Menu opened={mainMenuVisible} onBackdropPress={closeMainMenu}>
+              <MenuTrigger customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
+                <TouchableOpacity style={styles.fabBtnOnly} onPress={openMainMenu} accessibilityLabel="Show collection actions" activeOpacity={0.8}>
+                  <Ionicons name="ellipsis-horizontal" size={32} color="#fff" />
+                </TouchableOpacity>
+              </MenuTrigger>
+              <MenuOptions customStyles={{ optionsContainer: { borderRadius: 18, padding: 4 } }}>
+                <MenuOption onSelect={handleAddCardPress}>
+                  <View style={styles.menuOptionRow}><Ionicons name="add-circle-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.addCardBtn")}</Text></View>
+                </MenuOption>
+                <MenuOption onSelect={() => { closeMainMenu(); setAiModalVisible(true); }}>
+                  <View style={styles.menuOptionRow}><Ionicons name="sparkles" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.askAiBtn") || "Ask AI to Generate"}</Text></View>
+                </MenuOption>
+                <MenuOption onSelect={handleEditCollection}>
+                  <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={22} color={Colors.light.tint} style={{ marginRight: 8 }} /><Text>{i18n.t("cards.editCollection")}</Text></View>
+                </MenuOption>
+                <MenuOption onSelect={handleDeleteCollection} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
+                  <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={22} color={Colors.light.deleteBtn} style={{ marginRight: 8 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCollection")}</Text></View>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+          </View>
 
-      <View style={{ flex: 1 }}>
-        <View style={styles.cardGridNoOutline}>
-          {/* FlashList of cards */}
-          <FlashList
-            ref={flashListRef}
-            data={cards}
-            keyExtractor={(item) => item.id.toString()}
-            numColumns={Platform.OS === 'web' ? 3 : 1}
-            renderItem={({ item }) => (
-              <View
-                style={[
-                  styles.cardGridItem,
-                  item.id === selectedCard && styles.selectedCardGridItem,
-                  { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
-                ]}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.cardGridFront}>{item.front}</Text>
-                  <Text style={styles.cardGridBack}>{item.back}</Text>
-                </View>
-                <Menu>
-                  <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
-                    <Ionicons name="ellipsis-vertical" size={24} style={styles.cardMenuDots} />
-                  </MenuTrigger>
-                  <MenuOptions customStyles={{ optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 } }}>
-                    <MenuOption onSelect={() => handleEditCardPress(item.id)}>
-                      <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={20} color={Colors.light.tint} style={{ marginRight: 6 }} /><Text>{i18n.t("cards.editCardBtn")}</Text></View>
-                    </MenuOption>
-                    <MenuOption onSelect={() => handleDeleteCardPress(item.id)} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
-                      <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={20} color={Colors.light.deleteBtn} style={{ marginRight: 6 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCardBtn")}</Text></View>
-                    </MenuOption>
-                  </MenuOptions>
-                </Menu>
-              </View>
-            )}
-            estimatedItemSize={120}
-            ListFooterComponent={null}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-          />
-          {/* Floating arrow buttons */}
-          {showScrollTop && (
-            <TouchableOpacity
-              style={styles.fabScrollTop}
-              onPress={scrollToTop}
-              accessibilityLabel="Scroll to top"
-              activeOpacity={0.85}
-            >
-              <Ionicons name="arrow-up" size={SCROLL_ARROW_SIZE} color="#222" />
-            </TouchableOpacity>
-          )}
-          {showScrollBottom && (
-            <TouchableOpacity
-              style={styles.fabScrollBottom}
-              onPress={scrollToBottom}
-              accessibilityLabel="Scroll to bottom"
-              activeOpacity={0.85}
-            >
-              <Ionicons name="arrow-down" size={SCROLL_ARROW_SIZE} color="#222" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+          <View style={{ flex: 1 }}>
+            <View style={styles.cardGridNoOutline}>
+              {/* FlashList of cards */}
+              <FlashList
+                ref={flashListRef}
+                data={cards}
+                keyExtractor={(item) => item.id.toString()}
+                numColumns={Platform.OS === 'web' ? 3 : 1}
+                renderItem={({ item }) => (
+                  <View
+                    style={[
+                      styles.cardGridItem,
+                      item.id === selectedCard && styles.selectedCardGridItem,
+                      { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
+                    ]}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.cardGridFront}>{item.front}</Text>
+                      <Text style={styles.cardGridBack}>{item.back}</Text>
+                    </View>
+                    <Menu>
+                      <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
+                        <Ionicons name="ellipsis-vertical" size={24} style={styles.cardMenuDots} />
+                      </MenuTrigger>
+                      <MenuOptions customStyles={{ optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 } }}>
+                        <MenuOption onSelect={() => handleEditCardPress(item.id)}>
+                          <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={20} color={Colors.light.tint} style={{ marginRight: 6 }} /><Text>{i18n.t("cards.editCardBtn")}</Text></View>
+                        </MenuOption>
+                        <MenuOption onSelect={() => handleDeleteCardPress(item.id)} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
+                          <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={20} color={Colors.light.deleteBtn} style={{ marginRight: 6 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCardBtn")}</Text></View>
+                        </MenuOption>
+                      </MenuOptions>
+                    </Menu>
+                  </View>
+                )}
+                estimatedItemSize={120}
+                ListFooterComponent={null}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+              />
+              {/* Floating arrow buttons */}
+              {showScrollTop && (
+                <TouchableOpacity
+                  style={styles.fabScrollTop}
+                  onPress={scrollToTop}
+                  accessibilityLabel="Scroll to top"
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="arrow-up" size={SCROLL_ARROW_SIZE} color="#222" />
+                </TouchableOpacity>
+              )}
+              {showScrollBottom && (
+                <TouchableOpacity
+                  style={styles.fabScrollBottom}
+                  onPress={scrollToBottom}
+                  accessibilityLabel="Scroll to bottom"
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="arrow-down" size={SCROLL_ARROW_SIZE} color="#222" />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
 
-      {/* --- Move card count to footer --- */}
-      <View style={styles.cardCountFooter}>
-        <Ionicons name="albums-outline" size={16} color={Colors.light.tint} style={{ marginRight: 4 }} />
-        <Text style={styles.cardCountText}>{cards.length} {i18n.t("cards.numCards")}</Text>
-      </View>
-
-      {/* AI Card Generation Modal */}
+          {/* --- Move card count to footer --- */}
+          <View style={styles.cardCountFooter}>
+            <Ionicons name="albums-outline" size={16} color={Colors.light.tint} style={{ marginRight: 4 }} />
+            <Text style={styles.cardCountText}>{cards.length} {i18n.t("cards.numCards")}</Text>
+          </View>
+        </>
+      )}
+      {/* Always render modals here so they are accessible regardless of card count */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -541,7 +785,7 @@ export default function ManageCollectionScreen() {
               <View style={styles.aiCardsPreview}>
                 <Text style={styles.modalLabel}>{i18n.t("cards.noSuggestedCardsTitle") || "No Cards Suggested"}</Text>
                 <Text style={{ color: 'red', marginVertical: 10 }}>
-                  {ambiguityMessages[aiAmbiguous] || i18n.t("cards.noSuggestedCardsMsg")}
+                  {ambiguityMessages[aiAmbiguous] || ambiguityMessages.default}
                 </Text>
                 <View style={styles.modalButtonRow}>
                   <TouchableOpacity
