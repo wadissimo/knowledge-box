@@ -215,7 +215,6 @@ const TrainCollection = () => {
     userResponse: "again" | "hard" | "good" | "easy"
   ) {
     if (session === null || currentCard === null || !trainerReady) return;
-    console.log("user response", userResponse);
     //increase view count
     session.totalViews += 1;
     switch (userResponse) {

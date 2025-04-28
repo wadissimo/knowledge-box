@@ -17,24 +17,31 @@ const BoxLayout = () => {
   const { colors } = useTheme();
 
   const headerTitleStyle = {
-    color: "white",
-    fontSize: 32,
+    color: "#fff", // White text for contrast
+    fontSize: 28, // Slightly smaller for balance
     fontWeight: "bold" as "bold",
     height: 100,
+    letterSpacing: 0.5,
+    textShadowColor: '#1565c0', // Subtle shadow for visibility
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   };
 
   const defaultHeaderOptions = {
     headerShown: true,
     headerLeft: () => (
       <TouchableOpacity onPress={() => router.back()}>
-        <Icon name="chevron-left" size={42} color="white" />
+        <Icon name="chevron-left" size={38} color="#fff" style={{ textShadowColor: '#1565c0', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }} />
       </TouchableOpacity>
     ),
     headerBackVisible: false,
     headerShadowVisible: false,
     headerStyle: {
       height: Sizes.headerHeight,
-      backgroundColor: colors.primary,
+      backgroundColor: '#2196f3', // Brighter blue
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
     },
     headerTitleStyle,
   };
@@ -51,7 +58,7 @@ const BoxLayout = () => {
         }}
       />
       <Stack.Screen
-        name="[boxId]/boxView2"
+        name="[boxId]/boxView"
         options={{
           title: "",
           ...defaultHeaderOptions,
@@ -103,7 +110,7 @@ const BoxLayout = () => {
           ...defaultHeaderOptions,
           headerRight: () => (
             <Link href={`./manage` as Href}>
-              <Icon name="pencil-outline" size={32} color="white" />
+              <Icon name="pencil-outline" size={32} color="#fff" style={{ textShadowColor: '#1565c0', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }} />
             </Link>
           ),
         }}

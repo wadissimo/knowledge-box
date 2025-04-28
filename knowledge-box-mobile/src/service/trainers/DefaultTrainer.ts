@@ -20,6 +20,7 @@ const INITIAL_EASE_FACTOR = 2.5;
 const MIN_EASE_FACTOR = 1.3;
 
 const FAIL_DELTA_EASE_FACTOR = 0.4;
+const HARD_DELTA_EASE_FACTOR = 0.3;
 const SUCCESS_DELTA_EASE_FACTOR = 0.1;
 const EASY_DELTA_EASE_FACTOR = 0.2;
 
@@ -239,8 +240,16 @@ export default function useDefaultTrainer(
       sessionCard.status = SessionCardStatus.Learning;
 
     switch (response) {
+      case "hard":
+        //Todo: implement hard
+        card.easeFactor = Math.max(
+          MIN_EASE_FACTOR,
+          easeFactor - HARD_DELTA_EASE_FACTOR
+        );
+        card.interval = Math.round(interval * card.easeFactor);
+        break;
       case "again":
-        console.log("again");
+        console.log(response);
 
         // reduce ease factor
         card.easeFactor = Math.max(

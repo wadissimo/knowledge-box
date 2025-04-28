@@ -12,7 +12,6 @@ import {
 } from "react-native";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { LinearGradient } from 'expo-linear-gradient';
 
 import {
   SafeAreaProvider,
@@ -140,46 +139,44 @@ const BoxView = () => {
   
   //console.log("rendering BoxView");
   if(loading) {
-    return (
-      <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}>
-        <View style={styles.container} />
-      </LinearGradient>
-    );
+    return <View style={styles.container} />;
   }
   if (box === null) {
-    return (
-      <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}>
-        <View style={styles.container} />
-      </LinearGradient>
-    );
+    return <View style={styles.container} />;
   }
   return (
-    <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}>
-      <SafeAreaProvider>
-        <View style={styles.container}>
-        {/* <ToolsBoxSection
-          index={0}
-          numSections={numSections}
-          expandedSection={expandedSection}
-          onExpand={onExpand}
-          calcSectionHeight={calcSectionHeight}
-          calcSectionOffset={calcSectionOffset}
-        />
-        <NotesBoxSection
-          index={1}
-          numSections={numSections}
-          expandedSection={expandedSection}
-          onExpand={onExpand}
-          calcSectionHeight={calcSectionHeight}
-          calcSectionOffset={calcSectionOffset}
-        /> */}
+    <SafeAreaProvider>
+      <View style={styles.container}>
+      {/* <ToolsBoxSection
+        index={0}
+        numSections={numSections}
+        expandedSection={expandedSection}
+        onExpand={onExpand}
+        calcSectionHeight={calcSectionHeight}
+        calcSectionOffset={calcSectionOffset}
+      />
+      <NotesBoxSection
+        index={1}
+        numSections={numSections}
+        expandedSection={expandedSection}
+        onExpand={onExpand}
+        calcSectionHeight={calcSectionHeight}
+        calcSectionOffset={calcSectionOffset}
+      /> */}
 {collections.length === 0 && (
-  <View style={styles.emptyStateContainer}>
-    <Icon name="inbox-arrow-down" size={80} color="#b0b6c1" style={{marginBottom: 12}} />
-    <Text style={styles.emptyStateText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
-    <TouchableOpacity style={styles.addFab} onPress={addCollection} activeOpacity={0.8}>
-      <Icon name="plus" size={32} color="white" />
-    </TouchableOpacity>
+  <View
+    style={{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Text style={styles.defaultText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
+    <View style={[styles.addBoxBtnMid, { backgroundColor: colors.primary }]}>
+      <TouchableOpacity onPress={addCollection}>
+        <Icon name="plus" size={48} color="white" />
+      </TouchableOpacity>
+    </View>
   </View>
 )}
 {collections.length > 0 &&(
@@ -197,32 +194,67 @@ const BoxView = () => {
       calcSectionOffset={calcSectionOffset}
     />
   ))}
-  <TouchableOpacity style={styles.addFab} onPress={addCollection} activeOpacity={0.8}>
-    <Icon name="plus" size={32} color="white" />
-  </TouchableOpacity>
- 
+  <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
+    <TouchableOpacity onPress={addCollection}>
+      <Icon name="plus" size={48} color="white" />
+    </TouchableOpacity>
+  </View>
+  <View style={[styles.addBoxBtn, { backgroundColor: colors.primary }]}>
+    <TouchableOpacity onPress={handleTest}>
+      <Icon name="minus" size={48} color="white" />
+    </TouchableOpacity>
+  </View>
   </>
 )
 }
-   
+        
+{/* <BoxSection
+          key={`boxSection_conversations_${boxId}`}
+          name={i18n.t("boxes.conversations")}
+          index={numSections-1}
+          numSections={numSections}
+          expandedSection={expandedSection}
+          style={styles.boxSection}
+          onAddNew={handleAddChatPress}
+          onExpand={onExpand}
+          items={items}
+          defaultText={i18n.t("boxes.noConversationsDefault")}
+          renderItem={(item: any, index: number) => (
+            <>
+              <View style={styles.cardCntView}>
+                <Text style={styles.cardsCntTxt}>
+                  Cards: {index + 1} {10 * index}
+                </Text>
+              </View>
+              <View style={styles.colNameView}>
+                <Text style={styles.colNameTxt} numberOfLines={4}>
+                  {item}
+                </Text>
+              </View>
+            </>
+          )}
+          renderListItem={(item: any, index: number) => (
+            <View style={styles.colNameView}>
+              <Text style={styles.colNameTxt} numberOfLines={1}>
+                {item}
+              </Text>
+            </View>
+          )}
+        /> */}
         
       </View>
     </SafeAreaProvider>
-    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  gradientBg: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     padding: 10,
     justifyContent: "flex-start",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
-    //backgroundColor: "orange",
+    //backgroundColor: "#f0f0f0",
+    backgroundColor: "orange",
   },
 
   collectionCard: {
@@ -249,23 +281,24 @@ const styles = StyleSheet.create({
     elevation: 25,
   },
   sectionHeader: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingHorizontal: 5,
+    paddingVertical: 7,
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e9f7',
-    borderTopRightRadius: 16,
-    borderTopLeftRadius: 16,
-    backgroundColor: '#e5e9f7',
+    borderBottomColor: "#c2fbc4",
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    backgroundColor: "#c2fbc4",
     height: BOX_SECTION_HEADER_SIZE,
+    // elevation: 2,
   },
   sectionHeaderText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2d3142',
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "black",
+
     flex: 1,
-    letterSpacing: 0.5,
   },
   sectionFooter: {
     height: 10,
@@ -282,15 +315,9 @@ const styles = StyleSheet.create({
     flex: 0.95,
   },
   boxSection: {
-    position: 'absolute',
-    width: '100%',
-    borderRadius: 18,
-    backgroundColor: '#fff',
-    shadowColor: '#171717',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    position: "absolute",
+    width: "100%",
+    //height: 500,
   },
   itemListBox: {
     //position: "absolute",
@@ -348,31 +375,31 @@ const styles = StyleSheet.create({
     elevation: 5,
     shadowColor: "#52006A",
   },
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  emptyStateText: {
-    fontSize: 18,
-    color: '#6c7280',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  addFab: {
+  addBoxBtn: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#4f8cff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#4f8cff',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    marginTop: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 100,
+    position: "absolute",
+    bottom: 10,
+    marginHorizontal: 10,
+    marginVertical: 2,
+    //right: 10,
+    alignSelf: "center", // Center horizontally
+  },
+  addBoxBtnMid: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    
+    bottom: 10,
+    marginHorizontal: 10,
+    marginVertical: 60,
+    
   },
   defaultText: {
     fontSize: 16,

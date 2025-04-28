@@ -225,7 +225,34 @@ function useCardModel() {
     return !!result;
   };
 
+  /**
+   * Returns a window of cards for a collection, given an offset and limit.
+   * Use this to implement paged or windowed browsing for cards in a collection.
+   */
+  const getCardsWindow = async (
+    collectionId: number,
+    offset: number = 0,
+    limit: number = 5
+  ): Promise<Card[]> => {
+    const result = await db.getAllAsync<Card>(
+      "SELECT * FROM cards WHERE collectionId=? ORDER BY id LIMIT ? OFFSET ?",
+      collectionId,
+      limit,
+      offset
+    );
+    return result;
+  };
 
+  /**
+   * Returns the total number of cards in a collection.
+   */
+  const getCardsCount = async (collectionId: number): Promise<number> => {
+    const result = await db.getFirstAsync<{ count: number }>(
+      "SELECT COUNT(*) as count FROM cards WHERE collectionId=?",
+      collectionId
+    );
+    return result?.count ?? 0;
+  };
 
   return {
     newCard,
@@ -234,11 +261,13 @@ function useCardModel() {
     updateCardFrontBack,
     deleteCard,
     getCards,
+    getPreviewCards,
     getCardById,
     getCardCountByStatus,
     learnCardLater,
-    getPreviewCards,
     isDuplicateCard,
+    getCardsWindow,
+    getCardsCount,
   };
 }
 

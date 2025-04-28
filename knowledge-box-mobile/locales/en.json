@@ -151,8 +151,10 @@
     "defaultTrainerName": "Long Term Memory",
     "defaultTrainerDescription": "Build your long term memory using spaced repetition and regular training",
     "responses": {
+      "dontknow": "Don't know",
+      "hard": "Hard",
       "good": "Good",
-      "dontknow": "Don't know"
+      "easy": "Easy"
     }
   },
   "completeTraining": {

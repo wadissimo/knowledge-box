@@ -17,45 +17,52 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-na
 
 import DraggableBoxCard from "./DraggableBoxCard";
 
-
-
 const BOX_SECTION_HEADER_SIZE = 40;
 
 const CollectionBoxSection = ({
-    boxId,
-    col,
-    index,
-  
+  boxId,
+  col,
+  index,
   numSections,
   expandedSection,
   onExpand,
   calcSectionHeight,
   calcSectionOffset,
 }: {
-  
   boxId: string;
   col: Collection;
-  index:number;
+  index: number;
   numSections: number;
   expandedSection: number | null;
   onExpand: (index: number) => void;
   calcSectionHeight: (index: number) => number;
   calcSectionOffset: (index: number) => number;
-    }) => {
-    const { colors } = useTheme();
+}) => {
+  const { colors } = useTheme();
     const router = useRouter();
-    const { getPreviewCards } = useCardModel();
+    const { getCardsWindow, getCardsCount } = useCardModel();
     const [cards, setCards] = useState<Card[]>([]);
+    const [topCardIndex, setTopCardIndex] = useState<number>(0);
+    const [cardOffset,setCardOffset] = useState<number>(0);
+    const [isLoadingCards, setIsLoadingCards] = useState(false);
+    const CARD_WINDOW_SIZE = 5;
+    console.log("CollectionBoxSection refresh", topCardIndex, cards.map((card) => card.front))
 
-    useEffect(()=>{
-        async function loadCards() {
-            // console.log("fetch preview cards", col.id);
-            const cards = await getPreviewCards(Number(col.id));
-            setCards(cards);
-          }
-          if (col.id !== null) {
-            loadCards();
-          }
+    useEffect(() => {
+      let isMounted = true;
+      async function loadInitial() {
+        setIsLoadingCards(true);
+        const window = await getCardsWindow(Number(col.id), 0, CARD_WINDOW_SIZE);
+        window.reverse();
+        if (isMounted) {
+          setCards(window);
+          setIsLoadingCards(false);
+        }
+      }
+      if (col.id !== null) loadInitial();
+      return () => {
+        isMounted = false;
+      };
     }, [col.id]);
 
     const offset = useSharedValue(calcSectionOffset(index));
@@ -82,6 +89,18 @@ const CollectionBoxSection = ({
       numReorders.value = numReorders.value + 1;
     };
   
+    const handleReorderingEnd = async () => {
+      console.log("handleReorderingEnd");
+      const nextCard = await getCardsWindow(Number(col.id), cardOffset + CARD_WINDOW_SIZE, 1);
+      let newCards = [...cards];
+      console.log("newCards", newCards.map((card) => card.front));
+      newCards[CARD_WINDOW_SIZE - 1 - topCardIndex] = nextCard[0];
+      console.log("newCards", newCards.map((card) => card.front));
+      setCards(newCards);
+      setCardOffset(cardOffset + 1);
+      setTopCardIndex((topCardIndex + 1) % CARD_WINDOW_SIZE);
+    };
+      
     const handleTrainCollection = () => {
       router.push(`/(tabs)/box/manage-collection/${col.id}`);
     };
@@ -98,36 +117,36 @@ const CollectionBoxSection = ({
         console.log("handleCardClick");
        
       }
-      // console.log("collection id",col.id);
   return (
     <>
-    <TouchableWithoutFeedback onPress={() => onExpand(index)}>
-      <Animated.View style={[styles.sectionContainer, styles.boxSection, animatedStyle]}>
-        <View style={[styles.sectionHeader]}>
-          <Text style={[styles.sectionHeaderText]}>{col.name}</Text>
-          <View style={[styles.sectionHeaderIcon]}>
-            <TouchableOpacity onPress={() => handleCollectionClick()}>
-                <Icon name="pencil" size={24} color="green" />
-            </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={() => onExpand(index)}>
+        <Animated.View style={[styles.sectionContainer, styles.boxSection, animatedStyle]}>
+          <View style={[styles.sectionHeader, { flexDirection: "row", alignItems: "center" }]}>
+            <Text style={[styles.sectionHeaderText, { flex: 1 }]}>{col.name}</Text>
+            <View style={styles.iconSeparator} />
+            <View style={styles.actionIconsRow}>
+              <TouchableOpacity onPress={handleCollectionClick} style={styles.iconCircleBtn} accessibilityLabel="Edit Collection" activeOpacity={0.7}>
+                <Icon name="note-edit-outline" size={22} color="#4f8cff" />
+                <Text style={styles.iconLabel}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleTrainCollection} style={styles.iconCircleBtn} accessibilityLabel="Start Training" activeOpacity={0.7}>
+                <Icon name="school-outline" size={22} color="#34b233" />
+                <Text style={styles.iconLabel}>Train</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={[styles.sectionHeaderIcon]}>
-            <TouchableOpacity onPress={() => handleTrainCollection()}>
-                <Icon name="arm-flex" size={24} color="green" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        {cards.length === 0 && (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "flex-end",
-              alignItems: "center",
-            }}
-          >
-            <Text style={styles.defaultText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
-          </View>
-        )}
-        {isExpanded ? (
+          {cards.length === 0 && (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "flex-end",
+                alignItems: "center",
+              }}
+            >
+              <Text style={styles.defaultText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
+            </View>
+          )}
+          {isExpanded ? (
           <ScrollView>
             {cards.map((card, index) => (
               <Animated.View
@@ -152,78 +171,42 @@ const CollectionBoxSection = ({
             ))}
           </ScrollView>
         ) : (
-          <View style={[styles.sectionListContainer]}>            
-            {cards.map((card, index) => (
-              <DraggableBoxCard
-                name={card.front}
-                index={index}
-                numItems={cards.length}
-                numReorders={numReorders}
-                onReorder={() => reorderItems(index)}
-                key={`boxCar_${index}`}
-              >
-                <TouchableOpacity
-                onPress={() => handleCardClick(card.id)}
-                style={{ flex: 1 }}
-              >
-                <View style={styles.colNameView}>
-                  <Text style={styles.colNameTxt} numberOfLines={4}>
-                    {card.front}
-                  </Text>
+            <View style={[styles.sectionListContainer]}>
+              {cards.map((card, index) => (
+                <DraggableBoxCard
+                  name={card.front}
+                  index={index}
+                  numItems={cards.length}
+                  numReorders={numReorders}
+                  onReorder={() => reorderItems(index)}
+                  onEnd={handleReorderingEnd}
+                  key={`boxCar_${index}`}
+                  draggable={CARD_WINDOW_SIZE - 1 - index === topCardIndex}
+                >
+                  <TouchableOpacity
+                    onPress={() => handleCardClick(card.id)}
+                    style={{ flex: 1 }}
+                  >
+                    <View style={styles.colNameView}>
+                      <Text style={styles.colNameTxt} numberOfLines={4}>
+                        {card.front}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </DraggableBoxCard>
+              ))}
+              {isLoadingCards && (
+                <View style={{ alignItems: "center", margin: 12 }}>
+                  <Text>Loading more cards...</Text>
                 </View>
-              </TouchableOpacity>
-              </DraggableBoxCard>
-            ))}
-          </View>
-        )}
-        
-        
-        
-      </Animated.View>
-    </TouchableWithoutFeedback>
-      {/* <BoxSection
-        key={`col_${col.id}`}
-            name={col.name}
-            index={index}
-            numSections={numSections}
-            expandedSection={expandedSection}
-            style={styles.boxSection}
-            onAddNew={handleAddCollection}
-            onExpand={onExpand}
-            items={cards.slice(0, 5)}
-            defaultText={i18n.t("boxes.noCollectionsDefault")}
-            calcSectionHeight={calcSectionHeight}
-            calcSectionOffset={calcSectionOffset}
-            renderItem={(card: Card, index: number) => (
-              <TouchableOpacity
-                onPress={() => handleCardClick(card.id)}
-                style={{ flex: 1 }}
-              >
-                <View style={styles.colNameView}>
-                  <Text style={styles.colNameTxt} numberOfLines={4}>
-                    {card.front}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            renderListItem={(card: Card, index: number) => (
-              <TouchableOpacity
-                onPress={() => handleCardClick(card.id)}
-                style={{ flex: 1, justifyContent: "center" }}
-              >
-                <View style={styles.colNameView}>
-                  <Text style={styles.colNameTxt} numberOfLines={1}>
-                    {card.front}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          /> */}
-          
+              )}
+            </View>
+          )}
+        </Animated.View>
+      </TouchableWithoutFeedback>
     </>
   );
 };
-
 
 const styles = StyleSheet.create({
   boxSection: {
@@ -248,7 +231,6 @@ const styles = StyleSheet.create({
   cardsCntTxt: {
     fontSize: 12,
   },
-  
   addBoxBtn: {
     width: 60,
     height: 60,
@@ -274,31 +256,55 @@ const styles = StyleSheet.create({
     elevation: 25,
   },
   sectionHeader: {
-    paddingHorizontal: 5,
-    paddingVertical: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 0,
     flexDirection: "row",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "#c2fbc4",
-    borderTopRightRadius: 10,
-    borderTopLeftRadius: 10,
-    backgroundColor: "#c2fbc4",
-    height: BOX_SECTION_HEADER_SIZE,
-    // elevation: 2,
+    borderBottomColor: "#81d4fa",
+    borderTopRightRadius: 16,
+    borderTopLeftRadius: 16,
+    backgroundColor: "#b3e5fc",
+    height: BOX_SECTION_HEADER_SIZE + 24,
   },
   sectionHeaderText: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "black",
-
+    color: "#0288d1",
     flex: 1,
+    letterSpacing: 0.5,
+    textAlignVertical: "center",
+    textAlign: "left",
+    includeFontPadding: false,
+    paddingVertical: 0,
+    marginVertical: 0,
   },
-  sectionHeaderIcon: {
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "green",
-    marginLeft: 10,
-    marginRight:5,
+  actionIconsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginLeft: 12,
+  },
+  iconCircleBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 2,
+  },
+  iconLabel: {
+    fontSize: 10,
+    color: "#6c7280",
+    textAlign: "center",
+    marginTop: 1,
+  },
+  iconSeparator: {
+    width: 1,
+    height: 32,
+    backgroundColor: "#81d4fa",
+    marginHorizontal: 10,
+    borderRadius: 1,
   },
   sectionFooter: {
     height: 10,
@@ -335,7 +341,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   shadowProp: {
-    
     shadowColor: "#171717",
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
