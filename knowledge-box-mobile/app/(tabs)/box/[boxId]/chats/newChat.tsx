@@ -8,7 +8,7 @@ import {
   AIServiceChatResponseCard,
   AIServiceMessage,
   AIServiceRole,
-  useAIService,
+  useAIChatService,
 } from "@/src/service/AIService";
 import { useLocalSearchParams } from "expo-router";
 import { Box, useBoxModel } from "@/src/data/BoxModel";
@@ -23,7 +23,7 @@ const NewChat = ({
   boxDescription: string;
 }) => {
   const [messages, setMessages] = useState<any[]>([]);
-  const { chat } = useAIService(DEFAULT_LANGUAGE, boxTitle, boxDescription);
+  const { chat } = useAIChatService(DEFAULT_LANGUAGE, boxTitle, boxDescription);
   const createUserMessage = (message: string) => {
     return {
       _id: uuid.v4(),

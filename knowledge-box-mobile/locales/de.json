@@ -11,6 +11,8 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "train":"Trainieren",
     "error": "Fehler",
     "confirm": {
       "deletion": "Löschvorgang Bestätigen"
@@ -45,6 +47,7 @@
     "noConversationsDefault": "Neues Gespräch beginnen",
     "noNotesDefault": "erste Notiz erstellen",
     "noCollectionsDefault": "Karteikartensammlung hinzufügen",
+    "noCardsDefault": "Klicke auf 'Bearbeiten', um Karten hinzuzufügen",
     "numCards": "Karten"
   },
   "cards": {

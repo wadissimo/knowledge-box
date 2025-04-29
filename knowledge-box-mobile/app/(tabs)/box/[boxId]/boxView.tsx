@@ -157,55 +157,37 @@ const BoxView = () => {
     <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}>
       <SafeAreaProvider>
         <View style={styles.container}>
-        {/* <ToolsBoxSection
-          index={0}
-          numSections={numSections}
-          expandedSection={expandedSection}
-          onExpand={onExpand}
-          calcSectionHeight={calcSectionHeight}
-          calcSectionOffset={calcSectionOffset}
-        />
-        <NotesBoxSection
-          index={1}
-          numSections={numSections}
-          expandedSection={expandedSection}
-          onExpand={onExpand}
-          calcSectionHeight={calcSectionHeight}
-          calcSectionOffset={calcSectionOffset}
-        /> */}
-{collections.length === 0 && (
-  <View style={styles.emptyStateContainer}>
-    <Icon name="inbox-arrow-down" size={80} color="#b0b6c1" style={{marginBottom: 12}} />
-    <Text style={styles.emptyStateText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
-    <TouchableOpacity style={styles.addFab} onPress={addCollection} activeOpacity={0.8}>
-      <Icon name="plus" size={32} color="white" />
-    </TouchableOpacity>
-  </View>
-)}
-{collections.length > 0 &&(
-<>
-  {collections.map((col, i)=>(
-    <CollectionBoxSection
-      key={`col_${col.id}`}
-      boxId={String(box.id)}
-      col={col}
-      index={i}
-      numSections={numSections}
-      expandedSection={expandedSection}
-      onExpand={onExpand}
-      calcSectionHeight={calcSectionHeight}
-      calcSectionOffset={calcSectionOffset}
-    />
-  ))}
-  <TouchableOpacity style={styles.addFab} onPress={addCollection} activeOpacity={0.8}>
-    <Icon name="plus" size={32} color="white" />
-  </TouchableOpacity>
- 
-  </>
-)
-}
-   
         
+          {collections.length === 0 && (
+            <View style={styles.emptyStateContainer}>
+              <Icon name="inbox-arrow-down" size={80} color="#b0b6c1" style={{marginBottom: 12}} />
+              <Text style={styles.emptyStateText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
+            </View>
+          )}
+          {collections.length > 0 &&(
+          <>
+            {collections.map((col, i)=>(
+              <CollectionBoxSection
+                key={`col_${col.id}`}
+                boxId={String(box.id)}
+                col={col}
+                index={i}
+                numSections={numSections}
+                expandedSection={expandedSection}
+                onExpand={onExpand}
+                calcSectionHeight={calcSectionHeight}
+                calcSectionOffset={calcSectionOffset}
+              />
+            ))}
+            
+          
+            </>
+          )
+          }
+   
+        <TouchableOpacity style={styles.addFab} onPress={addCollection} activeOpacity={0.8}>
+          <Icon name="plus" size={32} color="white" />
+        </TouchableOpacity>
       </View>
     </SafeAreaProvider>
     </LinearGradient>
@@ -361,6 +343,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   addFab: {
+    position: "absolute",
+    zIndex: 1000,
+    right: 20,
+    bottom: 20,
     width: 60,
     height: 60,
     borderRadius: 30,

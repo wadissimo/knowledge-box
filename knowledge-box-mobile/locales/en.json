@@ -11,6 +11,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
+    "edit": "Edit",
+    "train":"Train",
     "error": "Error",
     "confirm": {
       "deletion": "Confirm Deletion"
@@ -45,6 +47,7 @@
     "noConversationsDefault": "Start a new conversation",
     "noNotesDefault": "Create your first note",
     "noCollectionsDefault": "Add your first flash cards collection",
+    "noCardsDefault": "Click Edit button to add cards",
     "numCards": "Cards"
   },
   "cards": {

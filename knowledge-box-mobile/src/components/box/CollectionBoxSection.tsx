@@ -18,6 +18,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-na
 import DraggableBoxCard from "./DraggableBoxCard";
 
 const BOX_SECTION_HEADER_SIZE = 40;
+const MAX_CARD_WINDOW_SIZE = 5;
 
 const CollectionBoxSection = ({
   boxId,
@@ -38,22 +39,26 @@ const CollectionBoxSection = ({
   calcSectionHeight: (index: number) => number;
   calcSectionOffset: (index: number) => number;
 }) => {
-  const { colors } = useTheme();
+    const { colors } = useTheme();
     const router = useRouter();
     const { getCardsWindow, getCardsCount } = useCardModel();
+
     const [cards, setCards] = useState<Card[]>([]);
     const [topCardIndex, setTopCardIndex] = useState<number>(0);
     const [cardOffset,setCardOffset] = useState<number>(0);
     const [isLoadingCards, setIsLoadingCards] = useState(false);
-    const CARD_WINDOW_SIZE = 5;
+    const [cardCount, setCardCount] = useState<number>(0);
+    const CARD_WINDOW_SIZE = Math.min(MAX_CARD_WINDOW_SIZE, cardCount);
     console.log("CollectionBoxSection refresh", topCardIndex, cards.map((card) => card.front))
 
     useEffect(() => {
       let isMounted = true;
       async function loadInitial() {
         setIsLoadingCards(true);
-        const window = await getCardsWindow(Number(col.id), 0, CARD_WINDOW_SIZE);
-        window.reverse();
+        const count = await getCardsCount(Number(col.id));
+        setCardCount(count);
+        const window = await getCardsWindow(Number(col.id), 0, Math.min(MAX_CARD_WINDOW_SIZE, count));
+        //window.reverse();
         if (isMounted) {
           setCards(window);
           setIsLoadingCards(false);
@@ -91,23 +96,24 @@ const CollectionBoxSection = ({
   
     const handleReorderingEnd = async () => {
       console.log("handleReorderingEnd");
-      const nextCard = await getCardsWindow(Number(col.id), cardOffset + CARD_WINDOW_SIZE, 1);
-      let newCards = [...cards];
-      console.log("newCards", newCards.map((card) => card.front));
-      newCards[CARD_WINDOW_SIZE - 1 - topCardIndex] = nextCard[0];
-      console.log("newCards", newCards.map((card) => card.front));
-      setCards(newCards);
-      setCardOffset(cardOffset + 1);
+      const nextCardIndex = (cardOffset + CARD_WINDOW_SIZE)%cardCount;
+      const nextCard = await getCardsWindow(Number(col.id), nextCardIndex, 1);
+      if(nextCard.length > 0){
+        let newCards = [...cards];
+        console.log("newCards1", newCards.map((card) => card.front));
+        newCards[topCardIndex] = nextCard[0];
+        console.log("nextCard", nextCard)
+        console.log("newCards2", newCards.map((card) => card.front));
+        setCards(newCards);
+      }
+      
+      setCardOffset((cardOffset+1)%cardCount);
       setTopCardIndex((topCardIndex + 1) % CARD_WINDOW_SIZE);
     };
       
     const handleTrainCollection = () => {
       router.push(`/(tabs)/box/manage-collection/${col.id}`);
     };
-
-    function handleAddCollection() {
-        router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
-    }
 
     function handleCollectionClick() {
         console.log("handleCollectionClick");
@@ -126,12 +132,12 @@ const CollectionBoxSection = ({
             <View style={styles.iconSeparator} />
             <View style={styles.actionIconsRow}>
               <TouchableOpacity onPress={handleCollectionClick} style={styles.iconCircleBtn} accessibilityLabel="Edit Collection" activeOpacity={0.7}>
-                <Icon name="note-edit-outline" size={22} color="#4f8cff" />
-                <Text style={styles.iconLabel}>Edit</Text>
+                <Icon name="note-edit-outline" size={24} color="#4f8cff" />
+                <Text style={styles.iconLabel}>{i18n.t("common.edit")}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleTrainCollection} style={styles.iconCircleBtn} accessibilityLabel="Start Training" activeOpacity={0.7}>
-                <Icon name="school-outline" size={22} color="#34b233" />
-                <Text style={styles.iconLabel}>Train</Text>
+                <Icon name="school-outline" size={24} color="#34b233" />
+                <Text style={styles.iconLabel}>{i18n.t("common.train")}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -143,7 +149,7 @@ const CollectionBoxSection = ({
                 alignItems: "center",
               }}
             >
-              <Text style={styles.defaultText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
+              <Text style={styles.defaultText}>{i18n.t("boxes.noCardsDefault")}</Text>
             </View>
           )}
           {isExpanded ? (
@@ -175,13 +181,13 @@ const CollectionBoxSection = ({
               {cards.map((card, index) => (
                 <DraggableBoxCard
                   name={card.front}
-                  index={index}
+                  index={CARD_WINDOW_SIZE - 1 - index}
                   numItems={cards.length}
                   numReorders={numReorders}
                   onReorder={() => reorderItems(index)}
                   onEnd={handleReorderingEnd}
-                  key={`boxCar_${index}`}
-                  draggable={CARD_WINDOW_SIZE - 1 - index === topCardIndex}
+                  key={`boxCar_${card.id}`}
+                  draggable={index === topCardIndex}
                 >
                   <TouchableOpacity
                     onPress={() => handleCardClick(card.id)}
@@ -247,10 +253,10 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     borderColor: "#ddd",
-    borderWidth: 1,
+    borderWidth: 0,
     borderBottomWidth: 0,
-    borderTopRightRadius: 10,
-    borderTopLeftRadius: 10,
+    borderTopRightRadius: 16,
+    borderTopLeftRadius: 16,
     marginHorizontal: 10,
     backgroundColor: "#fff",
     elevation: 25,
@@ -286,9 +292,9 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   iconCircleBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 2,
@@ -323,6 +329,7 @@ const styles = StyleSheet.create({
   defaultText: {
     fontSize: 18,
     fontWeight: "bold",
+    textAlign: "center",
   },
   itemListBox: {
     //position: "absolute",
