@@ -8,6 +8,7 @@ import {
   useRouter,
 } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTheme } from "@react-navigation/native";
 import { Sizes } from "@/src/constants/Sizes";
 import { i18n } from "@/src/lib/i18n";
@@ -51,8 +52,20 @@ const BoxLayout = () => {
       <Stack.Screen
         name="boxes"
         options={{
-          title: i18n.t("boxes.myBoxesTitle"),
-
+          title: '',
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="cube-outline" size={28} color="#fff" style={{ marginRight: 8 }} />
+              <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#fff', letterSpacing: 0.5 }}>{i18n.t("boxes.myBoxesTitle")}</Text>
+            </View>
+          ),
+          headerBackTitleVisible: false,
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: 'transparent',
+            elevation: 0,
+            shadowOpacity: 0,
+          },
           ...defaultHeaderOptions,
           headerLeft: () => null,
         }}

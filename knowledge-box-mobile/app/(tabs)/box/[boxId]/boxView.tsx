@@ -153,8 +153,14 @@ const BoxView = () => {
       </LinearGradient>
     );
   }
-  return (
-    <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}>
+  return (//
+    <LinearGradient
+            colors={["#2196f3", "#7dc5f5"]}
+            style={{ flex: 1 }}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+     {/* <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}> */}
       <SafeAreaProvider>
         <View style={styles.container}>
         
@@ -203,7 +209,7 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: "flex-start",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
+    //backgroundColor: "#f0f0f0",
     //backgroundColor: "orange",
   },
 
@@ -345,8 +351,8 @@ const styles = StyleSheet.create({
   addFab: {
     position: "absolute",
     zIndex: 1000,
-    right: 20,
-    bottom: 20,
+    right: 10,
+    bottom: 70,
     width: 60,
     height: 60,
     borderRadius: 30,

@@ -10,11 +10,32 @@ const _layout = () => {
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: "#fff",
-          height: Sizes.tabBarHeight,
+          backgroundColor: '#ffffffee',
+          height: Sizes.tabBarHeight + 8,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          shadowColor: '#0288d1',
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.13,
+          shadowRadius: 16,
+          elevation: 12,
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderTopWidth: 0,
         },
-        tabBarActiveTintColor: "#444",
-        tabBarInactiveTintColor: "#aaa",
+        tabBarActiveTintColor: '#0288d1',
+        tabBarInactiveTintColor: '#b0bec5',
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontSize: 13,
+          fontWeight: '600',
+          marginBottom: 2,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
+        },
       }}
     >
       <Tabs.Screen
@@ -28,8 +49,8 @@ const _layout = () => {
         options={{
           headerShown: false,
           title: i18n.t("menu.boxes"),
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Ionicons size={28} name="cube" color={color} />
+          tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
+            <Ionicons size={focused ? 32 : 28} name="cube" color={color} style={focused ? { shadowColor: '#0288d1', shadowOpacity: 0.2, shadowRadius: 6 } : {}} />
           ),
         }}
       />
@@ -37,8 +58,8 @@ const _layout = () => {
         name="user"
         options={{
           title: i18n.t("menu.profile"),
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Ionicons size={28} name="person" color={color} />
+          tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
+            <Ionicons size={focused ? 32 : 28} name="person" color={color} style={focused ? { shadowColor: '#0288d1', shadowOpacity: 0.2, shadowRadius: 6 } : {}} />
           ),
           headerShown: true,
         }}
@@ -48,8 +69,8 @@ const _layout = () => {
         options={{
           headerShown: false,
           title: i18n.t("menu.settings"),
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Ionicons size={28} name="cog" color={color} />
+          tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
+            <Ionicons size={focused ? 32 : 28} name="cog" color={color} style={focused ? { shadowColor: '#0288d1', shadowOpacity: 0.2, shadowRadius: 6 } : {}} />
           ),
         }}
       />
