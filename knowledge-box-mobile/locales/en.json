@@ -50,6 +50,10 @@
     "noCardsDefault": "Click Edit button to add cards",
     "numCards": "Cards"
   },
+  "box": {
+    "addTitle": "Add to Box",
+    "addCards": "Add Cards"
+  },
   "cards": {
     "cardsCollections": "Cards Collections",
     "createCollection": "Create Collection",

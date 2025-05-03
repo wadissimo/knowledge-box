@@ -9,6 +9,8 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
+  Modal
 } from "react-native";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -26,6 +28,9 @@ import ToolsBoxSection from "@/src/components/box/ToolsBoxSection";
 import CollectionBoxSection from "@/src/components/box/CollectionBoxSection";
 import { Dimensions } from "react-native";
 import { Sizes } from "@/src/constants/Sizes";
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { AddToBoxModal } from "@/src/components/box/AddToBoxButton";
 
 const BOX_SECTION_HEADER_SIZE = 40;
 const COLLAPSED_SECTION_SIZE = BOX_SECTION_HEADER_SIZE + 50;
@@ -35,8 +40,8 @@ const BoxView = () => {
   const { colors } = useTheme();
 
   const [expandedSection, setExpandedSection] = useState<number | null>(null);
-  
   const [loading, setLoading] = useState<boolean>(true);
+  
 
   const insets = useSafeAreaInsets();
 
@@ -101,9 +106,7 @@ const BoxView = () => {
     router.push(`./boxManage`);
   }
 
-  function addCollection() {
-    router.push(`/(tabs)/box/${boxId}/collections/addCollection`);
-  }
+  
 
   function handleTest(){
     router.push("./FlashcardCollectionsScreen");
@@ -153,6 +156,8 @@ const BoxView = () => {
       </LinearGradient>
     );
   }
+
+ 
   return (//
     <LinearGradient
             colors={["#2196f3", "#7dc5f5"]}
@@ -190,10 +195,10 @@ const BoxView = () => {
             </>
           )
           }
-   
-        <TouchableOpacity style={styles.addFab} onPress={addCollection} activeOpacity={0.8}>
-          <Icon name="plus" size={32} color="white" />
-        </TouchableOpacity>
+    
+        <AddToBoxModal boxId={box.id} />
+        
+        
       </View>
     </SafeAreaProvider>
     </LinearGradient>
@@ -348,28 +353,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  addFab: {
-    position: "absolute",
-    zIndex: 1000,
-    right: 10,
-    bottom: 70,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#4f8cff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#4f8cff',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    marginTop: 12,
-  },
+  
   defaultText: {
     fontSize: 16,
     
   },
+  
 });
 
 export default BoxView;

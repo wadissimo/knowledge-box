@@ -50,6 +50,10 @@
     "noCardsDefault": "Klicke auf 'Bearbeiten', um Karten hinzuzufügen",
     "numCards": "Karten"
   },
+  "box": {
+    "addTitle": "Zur Box hinzufügen",
+    "addCards": "Karten hinzufügen"
+  },
   "cards": {
     "cardsCollections": "Karteikartensammlung",
     "createCollection": "Sammlung Herstellen",
