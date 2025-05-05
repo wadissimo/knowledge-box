@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getGeminiApiKey } from '../utils/aiSetup';
 
 export enum AIServiceRole {
   AI = 2,
@@ -21,8 +20,8 @@ export type AIServiceChatResponse = {
   original_response_parts?: any;
 };
 
-const JSON_START = "```json";
-const JSON_END = "```";
+const JSON_START = '```json';
+const JSON_END = '```';
 
 const extractJsonAndRemoveFromMessage = (
   message: string
@@ -39,10 +38,10 @@ const extractJsonAndRemoveFromMessage = (
   try {
     const parsedJson = JSON.parse(jsonString);
     // Remove the matched JSON block from the message
-    const updatedMessage = message.replace(match[0], "").trim();
+    const updatedMessage = message.replace(match[0], '').trim();
     return { json: parsedJson, updatedMessage };
   } catch (error) {
-    console.error("Invalid JSON format:", error);
+    console.error('Invalid JSON format:', error);
     return { json: null, updatedMessage: message };
   }
 };
@@ -110,39 +109,31 @@ const get_chat_system_prompt = (
   User's language is ${language}. Reply in user's language.`;
 };
 
-const get_system_prompt = (
-  language: string,
-  boxTitle: string,
-  boxDescription: string
-): string => {
+const get_system_prompt = (language: string, boxTitle: string, boxDescription: string): string => {
   return `You are an assistant in an app where users have their knowledge organized in boxes.
   User's language is ${language}. Reply in user's language.`;
 };
 
-export function useAIChatService(
-  language: string,
-  boxTitle: string,
-  boxDescription: string
-) {
+export function useAIChatService(language: string, boxTitle: string, boxDescription: string) {
   const [history, setHistory] = useState<any[]>([]);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
 
   async function chat(message: string): Promise<AIServiceChatResponse | null> {
     try {
-      setError("");
+      setError('');
 
       const key = await getGeminiApiKey();
       if (!key) {
-        throw new Error("Gemini API Key not found. Please set it up in AI Settings.");
+        throw new Error('Gemini API Key not found. Please set it up in AI Settings.');
       }
       const URL =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" +
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' +
         key;
 
       const response = await fetch(URL, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           system_instruction: {
@@ -153,7 +144,7 @@ export function useAIChatService(
           contents: [
             ...history,
             {
-              role: "user",
+              role: 'user',
               parts: [
                 {
                   text: message,
@@ -169,17 +160,16 @@ export function useAIChatService(
       //console.log("content", data.candidates[0].content);
       const content = data.candidates[0].content;
       const responseText = content.parts[0].text;
-      console.log("responseText", responseText);
+      console.log('responseText', responseText);
 
       // Check if response contains JSON
-      const { json: jsonResponse, updatedMessage } =
-        extractJsonAndRemoveFromMessage(responseText);
+      const { json: jsonResponse, updatedMessage } = extractJsonAndRemoveFromMessage(responseText);
       const aiResponse: AIServiceChatResponse = {
         message: responseText,
       };
       if (jsonResponse !== null) {
-        console.log("found JSON");
-        if (jsonResponse?.type === "new_cards" && jsonResponse?.content) {
+        console.log('found JSON');
+        if (jsonResponse?.type === 'new_cards' && jsonResponse?.content) {
           const content = jsonResponse.content;
 
           // Extract cards as an array of objects with face and back
@@ -191,11 +181,8 @@ export function useAIChatService(
         }
       }
       //Update history:
-      setHistory((h) => [...h, { role: "user", parts: [{ text: message }] }]);
-      setHistory((h) => [
-        ...h,
-        { role: "model", parts: [{ text: responseText }] },
-      ]);
+      setHistory(h => [...h, { role: 'user', parts: [{ text: message }] }]);
+      setHistory(h => [...h, { role: 'model', parts: [{ text: responseText }] }]);
 
       return aiResponse;
       // if (data.result === "ok") {
@@ -207,23 +194,24 @@ export function useAIChatService(
       if (e instanceof Error) {
         setError(e.message);
       } else {
-        setError("An unexpected error occurred");
+        setError('An unexpected error occurred');
       }
       return null;
     }
-    throw Error("Invalid server response");
   }
 
   return { chat, error };
 }
 
 export async function generateFlashcardsWithAI({
+  apiKey,
   prompt,
   language,
   collectionName,
   boxTitle,
   boxDescription,
 }: {
+  apiKey: string;
   prompt: string;
   language: string;
   collectionName: string;
@@ -232,21 +220,21 @@ export async function generateFlashcardsWithAI({
 }): Promise<AIServiceChatResponseCard[] | { ambiguous: string }> {
   const fullPrompt = `Generate flashcards for the following collection and box.\n\nCollection: ${collectionName}\nBox: ${boxTitle}\nBox Description: ${boxDescription}\n\nUser instructions: ${prompt}`;
 
-  console.log("AIService: Prompt sent to AI:", fullPrompt);
+  console.log('AIService: Prompt sent to AI:', fullPrompt);
 
   // Get Gemini API Key from AsyncStorage
-  let key = await getGeminiApiKey();
-  if (!key) {
-    throw new Error("Gemini API Key not found. Please set it up in AI Settings.");
+
+  if (!apiKey) {
+    throw new Error('API Key not found. Please set it up in AI Settings.');
   }
   const URL =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" +
-    key;
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' +
+    apiKey;
 
   const response = await fetch(URL, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       system_instruction: {
@@ -256,7 +244,7 @@ export async function generateFlashcardsWithAI({
       },
       contents: [
         {
-          role: "user",
+          role: 'user',
           parts: [
             {
               text: fullPrompt,
@@ -268,43 +256,40 @@ export async function generateFlashcardsWithAI({
   });
   const data: any = await response.json();
   const content = data.candidates?.[0]?.content;
-  const responseText = content?.parts?.[0]?.text || "";
+  const responseText = content?.parts?.[0]?.text || '';
 
-  console.log("AIService: Response from AI:", responseText);
+  console.log('AIService: Response from AI:', responseText);
 
   // Extract JSON block with cards or ambiguity
   const { json: jsonResponse } = extractJsonAndRemoveFromMessage(responseText);
-  if (jsonResponse?.type === "new_cards" && jsonResponse?.content) {
+  if (jsonResponse?.type === 'new_cards' && jsonResponse?.content) {
     return Object.entries(jsonResponse.content).map(([front, back]) => ({
       front: front.trim(),
       back: (back as string).trim(),
     }));
   }
-  if (jsonResponse?.type === "ambiguous" && typeof jsonResponse?.content === "string") {
-    if (["missing_topic", "missing_num_cards", "missing_level"].includes(jsonResponse.content)) {
+  if (jsonResponse?.type === 'ambiguous' && typeof jsonResponse?.content === 'string') {
+    if (['missing_topic', 'missing_num_cards', 'missing_level'].includes(jsonResponse.content)) {
       return { ambiguous: jsonResponse.content };
     }
   }
   // If not matching, return error
-  throw new Error("AI response could not be parsed or did not match expected format.");
+  throw new Error('AI response could not be parsed or did not match expected format.');
 }
 
 export function useAIRemoteService() {
   const [history, setHistory] = useState<any[]>([]);
-  async function chat(
-    message: string,
-    language: string
-  ): Promise<AIServiceChatResponse> {
+  async function chat(message: string, language: string): Promise<AIServiceChatResponse> {
     //Update history:
-    setHistory((h) => [...h, { role: AIServiceRole.User, parts: message }]);
-    const key = "jclKjUk123dsahkjdhkjsa67FD213sadHAFDUd23213bvcBKJQhjgf12312";
-    const URL = process.env.EXPO_PUBLIC_API_URL + "/api/ai/chat";
+    setHistory(h => [...h, { role: AIServiceRole.User, parts: message }]);
+    const key = 'jclKjUk123dsahkjdhkjsa67FD213sadHAFDUd23213bvcBKJQhjgf12312';
+    const URL = process.env.EXPO_PUBLIC_API_URL + '/api/ai/chat';
 
     const response = await fetch(URL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         message,
@@ -315,18 +300,24 @@ export function useAIRemoteService() {
     });
     const data: any = await response.json();
     //Update history:
-    setHistory((h) => [
-      ...h,
-      { role: AIServiceRole.AI, parts: data.original_response_parts },
-    ]);
+    setHistory(h => [...h, { role: AIServiceRole.AI, parts: data.original_response_parts }]);
 
-    console.log("ai response", data);
-    if (data.result === "ok") {
+    console.log('ai response', data);
+    if (data.result === 'ok') {
       return data as AIServiceChatResponse;
     } else {
-      throw Error("Invalid server response");
+      throw Error('Invalid server response');
     }
   }
 
   return { chat };
+}
+
+export async function isAISetupCompleted(): Promise<boolean> {
+  const value = await AsyncStorage.getItem('ai_setup_completed');
+  return value === 'true';
+}
+
+export async function getGeminiApiKey(): Promise<string | null> {
+  return await AsyncStorage.getItem('gemini_api_key');
 }

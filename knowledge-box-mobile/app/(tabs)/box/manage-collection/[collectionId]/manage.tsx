@@ -1,50 +1,31 @@
-// app/manage-collection/[collectionId].tsx
-import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
-  TextInput,
-  Image,
   Text,
   StyleSheet,
   Pressable,
   Alert,
   TouchableOpacity,
-  Modal,
   Platform,
-  ScrollView, // Add ScrollView import
-  ActivityIndicator, // Import ActivityIndicator
-} from "react-native";
+  ActivityIndicator,
+} from 'react-native';
 
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from "react-native-popup-menu";
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 
-import {
-  Collection, useCollectionModel
-} from "@/src/data/CollectionModel";
-import { Card, useCardModel } from "@/src/data/CardModel";
-import { useTheme } from "@react-navigation/native";
-import { Colors } from "@/src/constants/Colors";
-import { i18n } from "@/src/lib/i18n";
-import { useAppTheme } from "@/src/hooks/useAppTheme";
-import { Ionicons } from "@expo/vector-icons";
+import { Collection, useCollectionModel } from '@/src/data/CollectionModel';
+import { Card, useCardModel } from '@/src/data/CardModel';
+import { Colors } from '@/src/constants/Colors';
+import { i18n } from '@/src/lib/i18n';
+import { useAppTheme } from '@/src/hooks/useAppTheme';
+import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { AIManager } from "./AIManager";
-import { MainMenu } from "./MainMenu";
+import { AIManager } from './AIManager';
+import { MainMenu } from './MainMenu';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 const SCROLL_ARROW_SIZE = 32;
-
-const ambiguityMessages: Record<string, string> = {
-  missing_topic: i18n.t("cards.ambiguousTopic") || "The topic is ambiguous. Please clarify your request.",
-  missing_num_cards: i18n.t("cards.ambiguousQuantity") || "The number of cards requested is ambiguous. Please clarify the amount.",
-  missing_level: i18n.t("cards.ambiguousLevel") || "The requested difficulty level is ambiguous. Please specify.",
-  default: i18n.t("cards.noSuggestedCardsMsg") || "No cards were suggested by AI. Please modify your prompt and try again."
-};
 
 export default function ManageCollectionScreen() {
   // --- State for menus (must be before any return/conditional logic) ---
@@ -69,13 +50,19 @@ export default function ManageCollectionScreen() {
     collectionId?: string;
     affectedCardId?: string;
   }>();
-  console.log("collectionId", collectionId);
+  console.log('collectionId', collectionId);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const { getCollectionById, deleteCollection } = useCollectionModel();
   const { getCards, deleteCard, newCards } = useCardModel();
   const [cards, setCards] = useState<Card[]>([]);
   const [collection, setCollection] = useState<Collection | null>(null);
+
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
+
+  const totalBottomPadding = insets.bottom + tabBarHeight;
+  console.log('totalBottomPadding', totalBottomPadding);
   const numCards = cards.length;
 
   const handleCardPress = (id: number) => {
@@ -87,52 +74,91 @@ export default function ManageCollectionScreen() {
 
   const handleAddCardPress = () => {
     if (!collectionId) {
-      console.error("collectionId is undefined");
-      Alert.alert("Error", "Collection ID is undefined");
+      console.error('collectionId is undefined');
+      Alert.alert('Error', 'Collection ID is undefined');
       return;
     }
     closeMainMenu();
     setTimeout(() => {
-      console.log("Navigating to new card screen for collectionId:", collectionId);
+      console.log('Navigating to new card screen for collectionId:', collectionId);
       router.push(`/(tabs)/box/manage-collection/${collectionId}/new`);
     }, 250); // Wait for menu to close to avoid navigation bug
   };
 
   const EmptyState = (
     <>
-      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}> 
+      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}>
         <Text style={styles.colNameTxt}>{collection?.name}</Text>
       </View>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Ionicons name="albums-outline" size={56} color={Colors.light.tint} style={{ marginBottom: 16 }} />
-        <Text style={{ fontSize: 22, fontWeight: 'bold', color: Colors.light.text, marginBottom: 12, textAlign: 'center' }}>
-          {i18n.t("cards.noCardsYet")}
+        <Ionicons
+          name="albums-outline"
+          size={56}
+          color={Colors.light.tint}
+          style={{ marginBottom: 16 }}
+        />
+        <Text
+          style={{
+            fontSize: 22,
+            fontWeight: 'bold',
+            color: Colors.light.text,
+            marginBottom: 12,
+            textAlign: 'center',
+          }}
+        >
+          {i18n.t('cards.noCardsYet')}
         </Text>
-        <Text style={{ fontSize: 16, color: '#666', marginBottom: 18, textAlign: 'center', maxWidth: 320 }}>
-          {i18n.t("cards.noCardsHint")}
+        <Text
+          style={{
+            fontSize: 16,
+            color: '#666',
+            marginBottom: 18,
+            textAlign: 'center',
+            maxWidth: 320,
+          }}
+        >
+          {i18n.t('cards.noCardsHint')}
           <Ionicons name="ellipsis-horizontal" size={20} color={Colors.light.tint} />
-          {i18n.t("cards.noCardsHint2")}
+          {i18n.t('cards.noCardsHint2')}
         </Text>
-        <Text style={{ fontSize: 16, color: Colors.light.tint, marginBottom: 28, textAlign: 'center', maxWidth: 320 }}>
-          {i18n.t("cards.noCardsAIHint")}
+        <Text
+          style={{
+            fontSize: 16,
+            color: Colors.light.tint,
+            marginBottom: 28,
+            textAlign: 'center',
+            maxWidth: 320,
+          }}
+        >
+          {i18n.t('cards.noCardsAIHint')}
         </Text>
         <View style={{ position: 'absolute', right: 80, bottom: 35, alignItems: 'center' }}>
-          <Ionicons name="arrow-down" size={40} color={Colors.light.tint} style={{ transform: [{ rotate: '-45deg' }] }} />
+          <Ionicons
+            name="arrow-down"
+            size={40}
+            color={Colors.light.tint}
+            style={{ transform: [{ rotate: '-45deg' }] }}
+          />
         </View>
       </View>
       <View style={styles.cardCountFooter}>
-        <Ionicons name="albums-outline" size={16} color={Colors.light.tint} style={{ marginRight: 4 }} />
-        <Text style={styles.cardCountText}>{cards.length} {i18n.t("cards.numCards")}</Text>
+        <Ionicons
+          name="albums-outline"
+          size={16}
+          color={Colors.light.tint}
+          style={{ marginRight: 4 }}
+        />
+        <Text style={styles.cardCountText}>
+          {cards.length} {i18n.t('cards.numCards')}
+        </Text>
       </View>
     </>
   );
 
-  
-
   const handleEditCardPress = (id?: number) => {
     const cardId = typeof id === 'number' ? id : selectedCard;
     if (!collectionId || cardId == null) {
-      console.error("collectionId or cardId is undefined");
+      console.error('collectionId or cardId is undefined');
       return;
     }
     router.push(`/(tabs)/box/manage-collection/${collectionId}/${cardId}`);
@@ -142,18 +168,18 @@ export default function ManageCollectionScreen() {
     const cardId = typeof id === 'number' ? id : selectedCard;
     if (!cardId) return;
     Alert.alert(
-      i18n.t("common.confirm.deletion"),
-      i18n.t("cards.confirmDeletionText"),
+      i18n.t('common.confirm.deletion'),
+      i18n.t('cards.confirmDeletionText'),
       [
         {
-          text: i18n.t("common.cancel"),
-          onPress: () => console.log("Deletion cancelled"),
-          style: "cancel",
+          text: i18n.t('common.cancel'),
+          onPress: () => console.log('Deletion cancelled'),
+          style: 'cancel',
         },
         {
-          text: i18n.t("common.delete"),
+          text: i18n.t('common.delete'),
           onPress: () => {
-            console.log("Deleting card...");
+            console.log('Deleting card...');
             async function onDeleteCard() {
               await deleteCard(Number(cardId));
               fetchCards();
@@ -161,7 +187,7 @@ export default function ManageCollectionScreen() {
             }
             onDeleteCard();
           },
-          style: "destructive",
+          style: 'destructive',
         },
       ],
       { cancelable: true }
@@ -170,7 +196,7 @@ export default function ManageCollectionScreen() {
 
   const handleEditCollection = () => {
     if (!collectionId) {
-      console.error("collectionId is undefined");
+      console.error('collectionId is undefined');
       return;
     }
 
@@ -179,23 +205,23 @@ export default function ManageCollectionScreen() {
 
   const handleDeleteCollection = () => {
     Alert.alert(
-      i18n.t("common.confirm.deletion"),
-      i18n.t("cards.collectionConfirmDeletionText"),
+      i18n.t('common.confirm.deletion'),
+      i18n.t('cards.collectionConfirmDeletionText'),
       [
         {
-          text: i18n.t("common.cancel"),
-          onPress: () => console.log("Deletion cancelled"),
-          style: "cancel",
+          text: i18n.t('common.cancel'),
+          onPress: () => console.log('Deletion cancelled'),
+          style: 'cancel',
         },
         {
-          text: i18n.t("common.delete"),
+          text: i18n.t('common.delete'),
           onPress: () => {
-            console.log("Deleting collection...");
+            console.log('Deleting collection...');
             deleteCollection(Number(collectionId));
             router.back();
             router.back();
           },
-          style: "destructive",
+          style: 'destructive',
         },
       ],
       { cancelable: true }
@@ -206,7 +232,7 @@ export default function ManageCollectionScreen() {
     var cards = await getCards(Number(collectionId));
     setCards(cards);
     if (affectedCardId) {
-      if (affectedCardId == "-1") {
+      if (affectedCardId == '-1') {
         // choose last card
         if (cards.length > 0) {
           const lastElement = cards.at(-1);
@@ -223,7 +249,7 @@ export default function ManageCollectionScreen() {
   useEffect(() => {
     if (collectionId !== undefined && collectionId !== null) {
       (async () => {
-        console.log("Fetching collection...")
+        console.log('Fetching collection...');
         const collection = await getCollectionById(Number(collectionId));
         await fetchCards();
         console.log(collection?.name);
@@ -259,13 +285,13 @@ export default function ManageCollectionScreen() {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color={Colors.light.tint} />
-        <Text style={{marginTop: 16}}>{i18n.t("common.loading") || "Loading..."}</Text>
+        <Text style={{ marginTop: 16 }}>{i18n.t('common.loading') || 'Loading...'}</Text>
       </View>
     );
   }
 
   if (cards.length === 0) {
-    console.log("no cards, collection", collection);
+    console.log('no cards, collection', collection);
     return (
       <View style={styles.container}>
         {EmptyState}
@@ -274,7 +300,10 @@ export default function ManageCollectionScreen() {
           onOpen={openMainMenu}
           onClose={closeMainMenu}
           onAddCard={handleAddCardPress}
-          onAskAI={() => { closeMainMenu(); setAiModalVisible(true); }}
+          onAskAI={() => {
+            closeMainMenu();
+            setAiModalVisible(true);
+          }}
           onEditCollection={handleEditCollection}
           onDeleteCollection={handleDeleteCollection}
         />
@@ -290,13 +319,15 @@ export default function ManageCollectionScreen() {
       </View>
     );
   }
-  
+
   return (
     <View style={styles.container}>
-      {cards.length === 0 ? EmptyState : (
+      {cards.length === 0 ? (
+        EmptyState
+      ) : (
         <>
           {/* --- Header: only collection name --- */}
-          <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}> 
+          <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}>
             <Text style={styles.colNameTxt}>{collection.name}</Text>
           </View>
 
@@ -306,7 +337,11 @@ export default function ManageCollectionScreen() {
             onOpen={openMainMenu}
             onClose={closeMainMenu}
             onAddCard={handleAddCardPress}
-            onAskAI={() => { closeMainMenu(); console.log("Ask AI"); setAiModalVisible(true); }}
+            onAskAI={() => {
+              closeMainMenu();
+              console.log('Ask AI');
+              setAiModalVisible(true);
+            }}
             onEditCollection={handleEditCollection}
             onDeleteCollection={handleDeleteCollection}
           />
@@ -317,14 +352,19 @@ export default function ManageCollectionScreen() {
               <FlashList
                 ref={flashListRef}
                 data={cards}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={item => item.id.toString()}
                 numColumns={Platform.OS === 'web' ? 3 : 1}
                 renderItem={({ item }) => (
                   <View
                     style={[
                       styles.cardGridItem,
                       item.id === selectedCard && styles.selectedCardGridItem,
-                      { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative' },
+                      {
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        position: 'relative',
+                      },
                     ]}
                   >
                     <View style={{ flex: 1 }}>
@@ -335,12 +375,42 @@ export default function ManageCollectionScreen() {
                       <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
                         <Ionicons name="ellipsis-vertical" size={24} style={styles.cardMenuDots} />
                       </MenuTrigger>
-                      <MenuOptions customStyles={{ optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 } }}>
+                      <MenuOptions
+                        customStyles={{
+                          optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 },
+                        }}
+                      >
                         <MenuOption onSelect={() => handleEditCardPress(item.id)}>
-                          <View style={styles.menuOptionRow}><Ionicons name="create-outline" size={20} color={Colors.light.tint} style={{ marginRight: 6 }} /><Text>{i18n.t("cards.editCardBtn")}</Text></View>
+                          <View style={styles.menuOptionRow}>
+                            <Ionicons
+                              name="create-outline"
+                              size={20}
+                              color={Colors.light.tint}
+                              style={{ marginRight: 6 }}
+                            />
+                            <Text>{i18n.t('cards.editCardBtn')}</Text>
+                          </View>
                         </MenuOption>
-                        <MenuOption onSelect={() => handleDeleteCardPress(item.id)} customStyles={{ optionWrapper: { backgroundColor: Colors.light.deleteBtn + '22', borderRadius: 10 } }}>
-                          <View style={styles.menuOptionRow}><Ionicons name="trash-outline" size={20} color={Colors.light.deleteBtn} style={{ marginRight: 6 }} /><Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>{i18n.t("cards.deleteCardBtn")}</Text></View>
+                        <MenuOption
+                          onSelect={() => handleDeleteCardPress(item.id)}
+                          customStyles={{
+                            optionWrapper: {
+                              backgroundColor: Colors.light.deleteBtn + '22',
+                              borderRadius: 10,
+                            },
+                          }}
+                        >
+                          <View style={styles.menuOptionRow}>
+                            <Ionicons
+                              name="trash-outline"
+                              size={20}
+                              color={Colors.light.deleteBtn}
+                              style={{ marginRight: 6 }}
+                            />
+                            <Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>
+                              {i18n.t('cards.deleteCardBtn')}
+                            </Text>
+                          </View>
                         </MenuOption>
                       </MenuOptions>
                     </Menu>
@@ -350,6 +420,9 @@ export default function ManageCollectionScreen() {
                 ListFooterComponent={null}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
+                contentContainerStyle={{
+                  paddingBottom: totalBottomPadding,
+                }}
               />
               {/* Floating arrow buttons */}
               {showScrollTop && (
@@ -373,12 +446,17 @@ export default function ManageCollectionScreen() {
                 </TouchableOpacity>
               )}
             </View>
-          </View>
-
-          {/* --- Move card count to footer --- */}
-          <View style={styles.cardCountFooter}>
-            <Ionicons name="albums-outline" size={16} color={Colors.light.tint} style={{ marginRight: 4 }} />
-            <Text style={styles.cardCountText}>{cards.length} {i18n.t("cards.numCards")}</Text>
+            <View style={[styles.cardCountFooter, { paddingBottom: totalBottomPadding }]}>
+              <Ionicons
+                name="albums-outline"
+                size={16}
+                color={Colors.light.tint}
+                style={{ marginRight: 4 }}
+              />
+              <Text style={styles.cardCountText}>
+                {cards.length} {i18n.t('cards.numCards')}
+              </Text>
+            </View>
           </View>
         </>
       )}
@@ -399,28 +477,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: 10,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    width: "100%",
-    height: "100%",
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    width: '100%',
+    height: '100%',
   },
   colNameContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 10,
     //backgroundColor: "#c2fbc4",
     marginBottom: 10,
   },
   colNameTxt: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 24,
   },
   cardGridNoOutline: {
     flex: 1,
-    padding: 8,
+    paddingHorizontal: 8,
   },
   navBtns: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingHorizontal: 15,
   },
   cardGridItem: {
@@ -453,7 +531,7 @@ const styles = StyleSheet.create({
   },
   cardGridBack: {
     fontSize: 16,
-    color: Colors.light.textDim || '#888',
+    color: '#888',
   },
 
   addCardBtn: {
@@ -464,20 +542,20 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
   cardEditBtns: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 10,
     paddingTop: 5,
-    justifyContent: "space-evenly",
+    justifyContent: 'space-evenly',
   },
   editColBtn: {
     paddingTop: 5,
   },
   collectionEditBtns: {
     paddingTop: 10,
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 10,
 
-    justifyContent: "space-evenly",
+    justifyContent: 'space-evenly',
   },
   deleteCardBtn: {
     paddingTop: 5,
@@ -485,23 +563,7 @@ const styles = StyleSheet.create({
   spacer: {
     flex: 1,
   },
-  fab: {
-    position: 'absolute',
-    right: 24,
-    bottom: Platform.OS === 'ios' ? 34 : 24,
-    backgroundColor: Colors.light.tint,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
-    zIndex: 10,
-  },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -592,39 +654,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   cardCountFooter: {
+    paddingBottom: 8, // Add safe area + spacing
+    paddingTop: 8,
+    backgroundColor: '#fff', // Optional: background for visibility
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    alignItems: 'center',
+    zIndex: 10,
     borderTopWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#ccc',
   },
   cardCountText: {
     color: Colors.light.tint,
     fontWeight: 'bold',
     fontSize: 16,
   },
-  fabFixedMenuBtnBottomRight: {
-    position: 'absolute',
-    right: 18,
-    bottom: 18,
-    zIndex: 30,
-  },
-  fabBtnOnly: {
-    backgroundColor: Colors.light.tint,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
-    zIndex: 20,
-  },
+
   cardMenuDots: {
     color: '#000',
     padding: 8,
@@ -640,7 +685,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 2,
   },
   fabScrollBottom: {
@@ -654,7 +699,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 2,
   },
 });

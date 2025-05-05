@@ -25,6 +25,15 @@ const SETTINGS_DEFAULTS = {
   learnCards: '10',
   theme: 'light',
 };
+export const SETTING_IDS = {
+  language: 'language',
+  apiKey: 'apiKey',
+  model: 'model',
+  newCards: 'newCards',
+  reviewCards: 'reviewCards',
+  learnCards: 'learnCards',
+  theme: 'theme',
+};
 function useSettingsModel() {
   const db = SQLite.useSQLiteContext();
 

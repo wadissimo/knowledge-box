@@ -201,6 +201,9 @@ const SettingsTab = () => {
       case 'resetAI':
         handleResetAI();
         break;
+      case 'database':
+        router.push('./settings/database');
+        break;
       default:
         break;
     }
