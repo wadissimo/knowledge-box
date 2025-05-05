@@ -9,8 +9,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Pressable,
-  Modal
 } from "react-native";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -20,15 +18,11 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { i18n } from "@/src/lib/i18n";
-import BoxSection from "@/src/components/box/BoxSection";
-import NotesBoxSection from "@/src/components/box/NotesBoxSection";
 import ToolsBoxSection from "@/src/components/box/ToolsBoxSection";
 import CollectionBoxSection from "@/src/components/box/CollectionBoxSection";
 import { Dimensions } from "react-native";
 import { Sizes } from "@/src/constants/Sizes";
-import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { AddToBoxModal } from "@/src/components/box/AddToBoxButton";
 

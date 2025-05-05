@@ -12,7 +12,7 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "edit": "Bearbeiten",
-    "train":"Trainieren",
+    "train": "Trainieren",
     "error": "Fehler",
     "confirm": {
       "deletion": "Löschvorgang Bestätigen"
@@ -183,5 +183,21 @@
     "again": "Nochmal:",
     "score": "Deine Punktzahl:",
     "newTraining": "Neues Training"
+  },
+  "settings": {
+    "language": "Sprache",
+    "common": "Allgemein",
+    "ai": "KI-Einstellungen",
+    "train": "Trainingseinstellungen",
+    "theme": "Design",
+    "appearance": "Darstellung",
+    "dev": "Entwickleroptionen",
+    "resetAI": "KI-Einrichtung zurücksetzen",
+    "database": "Datenbankzugriff",
+    "newCards": "Anzahl neuer Karten",
+    "reviewCards": "Anzahl zu wiederholender Karten",
+    "learnCards": "Anzahl zu lernender Karten",
+    "apiKey": "API Key",
+    "model": "Model"
   }
 }

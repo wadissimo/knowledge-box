@@ -12,7 +12,7 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "train":"Train",
+    "train": "Train",
     "error": "Error",
     "confirm": {
       "deletion": "Confirm Deletion"
@@ -173,5 +173,21 @@
     "again": "Again:",
     "score": "Your Score:",
     "newTraining": "New Training"
+  },
+  "settings": {
+    "language": "Language",
+    "common": "Common",
+    "ai": "AI Settings",
+    "train": "Training Defaults",
+    "theme": "Theme",
+    "appearance": "Appearance",
+    "dev": "Dev Options",
+    "resetAI": "Reset AI Set up",
+    "database": "Database Access",
+    "newCards": "New Cards Count",
+    "reviewCards": "Review Cards Count",
+    "learnCards": "Learn Cards Count",
+    "apiKey": "API Key",
+    "model": "Model"
   }
 }

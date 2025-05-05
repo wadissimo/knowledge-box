@@ -19,3 +19,9 @@ i18n.defaultLocale = deviceLanguage;
 
 //i18n.locale = deviceLanguage;
 i18n.locale = "de";
+export function setLocale(locale: string) {
+  i18n.locale = locale;
+}
+export function getLocale() {
+  return i18n.locale;
+}

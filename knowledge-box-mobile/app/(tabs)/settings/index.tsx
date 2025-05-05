@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,131 +8,217 @@ import {
   TextInput,
   Switch,
   Platform,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useTheme } from "@react-navigation/native";
+  Modal,
+  Pressable,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
+import { getLocale, i18n, setLocale } from '@/src/lib/i18n';
+import { Setting, SettingCategory, useSettingsModel } from '@/src/data/SettingsModel';
+import { router } from 'expo-router';
 
-const LANGUAGE_OPTIONS = [
-  { label: "English", value: "en" },
-  { label: "Deutsch", value: "de" },
-  { label: "中文 (Chinese)", value: "zh" },
-  { label: "Русский (Russian)", value: "ru" },
-  { label: "Français (French)", value: "fr" },
-];
-const MODEL_OPTIONS = [
-  { label: "Gemini 1.5", value: "gemini-1.5" },
-  { label: "Gemini 2.0", value: "gemini-2.0" },
-];
-const THEME_OPTIONS = [
-  { label: "Light", value: "light" },
-  { label: "Dark", value: "dark" },
-];
-
-const GROUPS = [
-  {
-    key: "common",
-    title: "Common",
-    icon: "settings-outline",
-    settings: [
-      { key: "language", label: "Language", type: "picker", options: LANGUAGE_OPTIONS },
-      { key: "dummy1", label: "Dummy Setting 1", type: "switch" },
-      { key: "dummy2", label: "Dummy Setting 2", type: "input" },
-    ],
-  },
-  {
-    key: "ai",
-    title: "AI Settings",
-    icon: "cloud-outline",
-    settings: [
-      { key: "apiKey", label: "API Key", type: "input" },
-      { key: "model", label: "Model", type: "select", options: MODEL_OPTIONS },
-    ],
-  },
-  {
-    key: "train",
-    title: "Training Defaults",
-    icon: "school-outline",
-    settings: [
-      { key: "newCards", label: "New Cards Count", type: "input", keyboardType: "numeric" },
-      { key: "reviewCards", label: "Review Cards Count", type: "input", keyboardType: "numeric" },
-      { key: "learnCards", label: "Learn Cards Count", type: "input", keyboardType: "numeric" },
-      { key: "dummy3", label: "Dummy Setting 3", type: "input" },
-    ],
-  },
-  {
-    key: "appearance",
-    title: "Appearance",
-    icon: "color-palette-outline",
-    settings: [
-      { key: "theme", label: "Color Theme", type: "select", options: THEME_OPTIONS },
-      { key: "dummy4", label: "Dummy Setting 4", type: "switch" },
-    ],
-  },
-  {
-    key: "dev",
-    title: "Dev Options",
-    icon: "construct-outline",
-    settings: [
-      { key: "resetAI", label: "Reset AI Set up", type: "button", color: "#d9534f" },
-      { key: "database", label: "Database Access", type: "link", link: "./settings/database" },
-      { key: "dummy5", label: "Dummy Setting 5", type: "switch" },
-    ],
-  },
-];
-
-const initialSettings = {
-  language: "en",
-  apiKey: "",
-  model: "gemini-1.5",
-  newCards: "20",
-  reviewCards: "50",
-  learnCards: "10",
-  theme: "light",
-  dummy1: false,
-  dummy2: "",
-  dummy3: "",
-  dummy4: false,
-  dummy5: false,
+type Option = {
+  label: string;
+  value: string;
 };
+
+type Options = {
+  language: Option[];
+  model: Option[];
+  theme: Option[];
+};
+
+const OPTIONS: Options = {
+  language: [
+    { label: 'English', value: 'en' },
+    { label: 'Deutsch', value: 'de' },
+    { label: '中文 (Chinese)', value: 'zh' },
+    { label: 'Русский (Russian)', value: 'ru' },
+    { label: 'Français (French)', value: 'fr' },
+  ],
+  model: [
+    { label: 'Gemini 1.5', value: 'gemini-1.5' },
+    { label: 'Gemini 2.0', value: 'gemini-2.0' },
+  ],
+  theme: [
+    { label: 'Light', value: 'light' },
+    { label: 'Dark', value: 'dark' },
+  ],
+};
+
+type OptionCategory = keyof typeof OPTIONS;
+
+// const GROUPS = [
+//   {
+//     key: 'common',
+//     title: i18n.t('settings.common'),
+//     icon: 'settings-outline',
+//     settings: [
+//       {
+//         key: 'language',
+//         label: i18n.t('settings.language'),
+//         type: 'picker',
+//         options: LANGUAGE_OPTIONS,
+//       },
+//     ],
+//   },
+//   {
+//     key: 'ai',
+//     title: i18n.t('settings.ai'),
+//     icon: 'cloud-outline',
+//     settings: [
+//       { key: 'apiKey', label: 'API Key', type: 'input' },
+//       { key: 'model', label: 'Model', type: 'select', options: MODEL_OPTIONS },
+//     ],
+//   },
+//   {
+//     key: 'train',
+//     title: i18n.t('settings.train'),
+//     icon: 'school-outline',
+//     settings: [
+//       {
+//         key: 'newCards',
+//         label: i18n.t('settings.newCards'),
+//         type: 'input',
+//         keyboardType: 'numeric',
+//       },
+//       {
+//         key: 'reviewCards',
+//         label: i18n.t('settings.reviewCards'),
+//         type: 'input',
+//         keyboardType: 'numeric',
+//       },
+//       {
+//         key: 'learnCards',
+//         label: i18n.t('settings.learnCards'),
+//         type: 'input',
+//         keyboardType: 'numeric',
+//       },
+//     ],
+//   },
+//   {
+//     key: 'appearance',
+//     title: i18n.t('settings.appearance'),
+//     icon: 'color-palette-outline',
+//     settings: [
+//       { key: 'theme', label: i18n.t('settings.theme'), type: 'select', options: THEME_OPTIONS },
+//     ],
+//   },
+//   {
+//     key: 'dev',
+//     title: i18n.t('settings.dev'),
+//     icon: 'construct-outline',
+//     settings: [
+//       { key: 'resetAI', label: i18n.t('settings.resetAI'), type: 'button', color: '#d9534f' },
+//       {
+//         key: 'database',
+//         label: i18n.t('settings.database'),
+//         type: 'link',
+//         link: './settings/database',
+//       },
+//     ],
+//   },
+// ];
+
+// const initialSettings = {
+//   language: 'en',
+//   apiKey: '',
+//   model: 'gemini-1.5',
+//   newCards: '20',
+//   reviewCards: '50',
+//   learnCards: '10',
+//   theme: 'light',
+//   dummy1: false,
+//   dummy2: '',
+//   dummy3: '',
+//   dummy4: false,
+//   dummy5: false,
+// };
 
 const SettingsTab = () => {
   const { colors } = useTheme();
-  const [expandedGroups, setExpandedGroups] = useState(() => GROUPS.map((g) => g.key === "common"));
-  const [settings, setSettings] = useState(initialSettings);
+  const [expandedCategories, setExpandedCategories] = useState<boolean[]>([]);
+  const [settings, setSettings] = useState<Setting[]>([]);
+  const [showReloadInfo, setShowReloadInfo] = useState(false);
+  const { upsertSetting, getAllCategories, getAllSettings } = useSettingsModel();
+  const [categories, setCategories] = useState<SettingCategory[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      //Parallelize
+      const [categories, settings] = await Promise.all([getAllCategories(), getAllSettings()]);
+      setSettings(settings);
+      setCategories(categories);
+      setExpandedCategories(categories.map(g => g.id === 'common'));
+      setLoading(false);
+    }
+    loadData();
+  }, []);
 
   const handleExpand = (idx: number) => {
-    setExpandedGroups((prev) => prev.map((v, i) => (i === idx ? !v : v)));
+    setExpandedCategories(prev => prev.map((v, i) => (i === idx ? !v : v)));
   };
 
   const handleChange = (key: string, value: any) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    const newSetting = settings.map(setting => {
+      if (setting.id === key) {
+        setting.value = value;
+      }
+      return setting;
+    });
+    setSettings(newSetting);
   };
 
   const handleSave = () => {
-    // Here you would persist settings
-    console.log("Saved settings:", settings);
+    settings.forEach(setting => {
+      upsertSetting(setting);
+    });
+    const lang = settings.find(setting => setting.id === 'language')?.value;
+    if (lang && lang !== getLocale()) {
+      setShowReloadInfo(true);
+      setLocale(lang);
+    }
+    console.log('Saved settings:', settings);
   };
 
   const handleResetAI = () => {
     // Reset AI setup logic here
-    console.log("AI setup reset");
+    console.log('AI setup reset');
   };
 
-  const renderSetting = (setting: any) => {
-    if (setting.type === "picker") {
+  const handleLinkClick = (id: string, link: string) => {
+    console.log('Link clicked:', id, link);
+    router.push(link);
+  };
+
+  const handleButtonClick = (id: string) => {
+    console.log('Button clicked:', id);
+    switch (id) {
+      case 'resetAI':
+        handleResetAI();
+        break;
+      default:
+        break;
+    }
+  };
+
+  const renderSetting = (setting: Setting) => {
+    if (setting.type === 'picker') {
       return (
         <View style={styles.pickerContainer}>
           <Picker
-            selectedValue={settings[setting.key]}
-            onValueChange={(itemValue) => handleChange(setting.key, itemValue)}
+            selectedValue={setting.value}
+            onValueChange={itemValue => handleChange(setting.id, itemValue)}
             style={styles.picker}
             itemStyle={styles.pickerItem}
             dropdownIconColor="#1976d2"
             mode="dropdown"
           >
-            {setting.options.map((opt: any) => (
+            {OPTIONS[setting.options as OptionCategory].map((opt: Option) => (
               <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
             ))}
           </Picker>
@@ -140,62 +226,62 @@ const SettingsTab = () => {
       );
     }
     switch (setting.type) {
-      case "input":
+      case 'input':
         return (
           <TextInput
             style={styles.input}
-            value={settings[setting.key]}
-            onChangeText={(text) => handleChange(setting.key, text)}
-            placeholder={setting.label}
-            keyboardType={setting.keyboardType || "default"}
+            value={setting.value}
+            onChangeText={text => handleChange(setting.id, text)}
+            placeholder={i18n.t(setting.label)}
+            keyboardType={setting.keyboardType || 'default'}
             placeholderTextColor="#90caf9"
           />
         );
-      case "switch":
+      case 'switch':
         return (
           <Switch
-            value={settings[setting.key]}
-            onValueChange={(value) => handleChange(setting.key, value)}
-            thumbColor={settings[setting.key] ? "#1976d2" : "#bdbdbd"}
-            trackColor={{ false: "#bdbdbd", true: "#90caf9" }}
+            value={setting.value}
+            onValueChange={value => handleChange(setting.id, value)}
+            thumbColor={setting.value ? '#1976d2' : '#bdbdbd'}
+            trackColor={{ false: '#bdbdbd', true: '#90caf9' }}
           />
         );
-      case "select":
+      case 'select':
         return (
           <View style={styles.selectContainer}>
-            {setting.options.map((opt: any) => (
+            {OPTIONS[setting.options as OptionCategory].map((opt: Option) => (
               <TouchableOpacity
                 key={opt.value}
-                style={[
-                  styles.selectOption,
-                  settings[setting.key] === opt.value && styles.selectedOption,
-                ]}
-                onPress={() => handleChange(setting.key, opt.value)}
+                style={[styles.selectOption, setting.value === opt.value && styles.selectedOption]}
+                onPress={() => handleChange(setting.id, opt.value)}
               >
-                <Text style={[
-                  styles.selectOptionText,
-                  settings[setting.key] === opt.value && styles.selectedOptionText,
-                ]}>{opt.label}</Text>
+                <Text
+                  style={[
+                    styles.selectOptionText,
+                    setting.value === opt.value && styles.selectedOptionText,
+                  ]}
+                >
+                  {opt.label}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
         );
-      case "button":
+      case 'button':
         return (
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: setting.color || "#1976d2" }]}
-            onPress={handleResetAI}
+            style={[styles.button, { backgroundColor: '#1976d2' }]}
+            onPress={() => handleButtonClick(setting.id)}
           >
-            <Text style={styles.buttonText}>{setting.label}</Text>
+            <Text style={styles.buttonText}>{i18n.t(setting.label)}</Text>
           </TouchableOpacity>
         );
-      case "link":
+      case 'link':
         return (
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => {
-              // navigation logic here
-              // Use router.push if available
+              handleLinkClick(setting.id, setting.link);
             }}
           >
             <Text style={styles.linkText}>{setting.label}</Text>
@@ -206,51 +292,57 @@ const SettingsTab = () => {
         return null;
     }
   };
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <LinearGradient
-      colors={["#2196f3", "#7dc5f5"]}
+      colors={['#2196f3', '#7dc5f5']}
       style={{ flex: 1 }}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      {/* <View style={styles.headerBar}>
-        <Text style={styles.headerTitle}>Settings</Text>
-      </View> */}
       <View style={{ flex: 1, paddingBottom: 96 }}>
         <ScrollView
           contentContainerStyle={{ paddingVertical: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          {GROUPS.map((group, idx) => (
-            <View key={group.key} style={styles.groupContainer}>
+          {categories.map((category, idx) => (
+            <View key={category.id} style={styles.groupContainer}>
               <TouchableOpacity
                 style={styles.groupHeader}
                 onPress={() => handleExpand(idx)}
                 activeOpacity={0.8}
               >
                 <Ionicons
-                  name={group.icon}
+                  name={category.icon}
                   size={24}
                   color="#1976d2"
                   style={{ marginRight: 8 }}
                 />
-                <Text style={styles.groupTitle}>{group.title}</Text>
+                <Text style={styles.groupTitle}>{i18n.t(category.title)}</Text>
                 <View style={{ flex: 1 }} />
                 <Ionicons
-                  name={expandedGroups[idx] ? "chevron-up" : "chevron-down"}
+                  name={expandedCategories[idx] ? 'chevron-up' : 'chevron-down'}
                   size={24}
                   color="#1976d2"
                 />
               </TouchableOpacity>
-              {expandedGroups[idx] && (
+              {expandedCategories[idx] && (
                 <View style={styles.card}>
-                  {group.settings.map((setting) => (
-                    <View key={setting.key} style={styles.settingRow}>
-                      <Text style={styles.settingLabel}>{setting.label}</Text>
-                      {renderSetting(setting)}
-                    </View>
-                  ))}
+                  {settings
+                    .filter(setting => setting.category === category.id)
+                    .map(setting => (
+                      <View key={setting.id} style={styles.settingRow}>
+                        <Text style={styles.settingLabel}>{i18n.t(setting.label)}</Text>
+                        {renderSetting(setting)}
+                      </View>
+                    ))}
                 </View>
               )}
             </View>
@@ -258,20 +350,39 @@ const SettingsTab = () => {
         </ScrollView>
       </View>
       <View style={styles.fabContainer} pointerEvents="box-none">
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={handleSave}
-          activeOpacity={0.85}
-        >
+        <TouchableOpacity style={styles.fab} onPress={handleSave} activeOpacity={0.85}>
           <Ionicons name="save" size={28} color="#fff" />
         </TouchableOpacity>
       </View>
+      <Modal
+        visible={showReloadInfo}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowReloadInfo(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setShowReloadInfo(false)}>
+          <Pressable style={styles.modalContainer}>
+            <Ionicons name="information-circle-outline" size={48} color="#1976d2" />
+            <Text style={styles.modalTitle}>App Reload Required</Text>
+            <Text style={styles.modalMessage}>
+              Please restart the app for the language change to apply properly.
+            </Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setShowReloadInfo(false)}>
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   groupContainer: {
     marginHorizontal: 16,
     marginBottom: 20,
@@ -303,7 +414,7 @@ const styles = StyleSheet.create({
     padding: 18,
     shadowColor: '#0288d1',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
     marginBottom: 2,
@@ -419,6 +530,49 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     zIndex: 100,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    backgroundColor: '#ffffff',
+    padding: 24,
+    borderRadius: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 10,
+    marginHorizontal: 40,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#263238',
+    marginTop: 12,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: '#546e7a',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  modalButton: {
+    backgroundColor: '#1976d2',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
