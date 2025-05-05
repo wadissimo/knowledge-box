@@ -24,7 +24,7 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
   const [database, dbLoaded] = useDatabaseFromAsset();
-  const currentTheme = useColorScheme() === "dark" ? darkTheme : lightTheme;
+  const currentTheme = lightTheme;
 
   useEffect(() => {
     if (fontsLoaded) {

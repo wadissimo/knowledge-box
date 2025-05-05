@@ -214,9 +214,9 @@ const SettingsTab = () => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <View style={styles.headerBar}>
+      {/* <View style={styles.headerBar}>
         <Text style={styles.headerTitle}>Settings</Text>
-      </View>
+      </View> */}
       <View style={{ flex: 1, paddingBottom: 96 }}>
         <ScrollView
           contentContainerStyle={{ paddingVertical: 16 }}
@@ -271,29 +271,7 @@ const SettingsTab = () => {
 };
 
 const styles = StyleSheet.create({
-  headerBar: {
-    height: 64,
-    backgroundColor: "#2196f3",
-    justifyContent: "flex-end",
-    paddingHorizontal: 24,
-    paddingBottom: 8,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    shadowColor: "#0288d1",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 28,
-    fontWeight: "bold",
-    letterSpacing: 0.5,
-    textShadowColor: '#1565c0',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
+  
   groupContainer: {
     marginHorizontal: 16,
     marginBottom: 20,
