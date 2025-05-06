@@ -24,6 +24,8 @@ export const defaultColors = {
   deleteBtnText: '#fff',
   popupBg: '#fff',
   popupText: '#000',
+  activeTintColor: '#2196f3',
+  tabsBg: '#fff',
 };
 
 export const darkColors = {
@@ -42,6 +44,8 @@ export const darkColors = {
   deleteBtnText: '#000',
   popupBg: '#555',
   popupText: '#fff',
+  activeTintColor: '#fff',
+  tabsBg: '#000',
 };
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

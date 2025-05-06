@@ -1,16 +1,18 @@
-import { View, Text } from 'react-native';
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Sizes } from '@/src/constants/Sizes';
 import { i18n } from '@/src/lib/i18n';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const _layout = () => {
+  const { themeColors } = useThemeColors();
+
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#ffffffee',
+          backgroundColor: themeColors.tabsBg,
           height: Sizes.tabBarHeight + 8,
           // borderTopLeftRadius: 20,
           // borderTopRightRadius: 20,
@@ -25,7 +27,7 @@ const _layout = () => {
           // bottom: 0,
           borderTopWidth: 0,
         },
-        tabBarActiveTintColor: '#0288d1',
+        tabBarActiveTintColor: themeColors.activeTintColor,
         tabBarInactiveTintColor: '#b0bec5',
         tabBarShowLabel: true,
         tabBarLabelStyle: {
