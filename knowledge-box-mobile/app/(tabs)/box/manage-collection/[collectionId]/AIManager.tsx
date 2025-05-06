@@ -110,7 +110,7 @@ export const AIManager: React.FC<AIManagerProps & { setAiModalVisible?: (v: bool
     if (!setupCompleted || !apiKey || !apiKey.value) {
       if (setAiModalVisible) setAiModalVisible(false);
       if (typeof onClose === 'function') onClose();
-      router.push('/(tabs)/box/manage-collection/[collectionId]/AISetup');
+      router.push('./AISetup');
       return;
     }
     setAiGenerating(true);

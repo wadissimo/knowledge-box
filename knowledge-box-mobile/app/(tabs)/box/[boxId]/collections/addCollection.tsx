@@ -8,20 +8,20 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   SafeAreaView,
-} from "react-native";
-import React, { useState } from "react";
-import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
-import SeparatorWithText from "@/src/components/utils/SeparatorWithText";
-import CreateCollectionForm from "@/src/components/collections/CreateCollectionForm";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import useCollectionRemoteService from "@/src/service/CollectionRemoteService";
-import SearchTags from "@/src/components/collections/SearchTags";
-import { i18n } from "@/src/lib/i18n";
+} from 'react-native';
+import React, { useState } from 'react';
+import { Collection, useCollectionModel } from '@/src/data/CollectionModel';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useBoxCollectionModel } from '@/src/data/BoxCollectionModel';
+import SeparatorWithText from '@/src/components/utils/SeparatorWithText';
+import CreateCollectionForm from '@/src/components/collections/CreateCollectionForm';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import useCollectionRemoteService from '@/src/service/CollectionRemoteService';
+import SearchTags from '@/src/components/collections/SearchTags';
+import { i18n } from '@/src/lib/i18n';
 
 const AddCollection = () => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<Collection[]>([]);
 
   const [noResults, setNoResults] = useState<boolean>(false);
@@ -41,9 +41,9 @@ const AddCollection = () => {
 
   const handleSearch = () => {
     searchCollections(searchQuery)
-      .then((collections) => {
+      .then(collections => {
         if (error) {
-          console.log("Error fetching collection");
+          console.log('Error fetching collection');
         } else if (!collections || collections.length == 0) {
           setNoResults(true);
           setSearchResults([]);
@@ -60,35 +60,30 @@ const AddCollection = () => {
   };
 
   const handleCollectionPress = (collectionId: number) => {
-    console.log("Collection ID clicked", collectionId);
-    router.push(
-      `/(tabs)/box/${boxId}/collections/previewCollection/${collectionId}`
-    );
+    console.log('Collection ID clicked', collectionId);
+    router.push(`/(tabs)/box/${boxId}/collections/previewCollection/${collectionId}`);
   };
 
   const handleTagPress = (tag: string) => {
     setSearchQuery(tag);
   };
-  console.log("rendering addCollections");
+  console.log('rendering addCollections');
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.searchContainer}>
-            <Text style={styles.searchText}>{i18n.t("cards.search")}</Text>
+            <Text style={styles.searchText}>{i18n.t('cards.search')}</Text>
             <View style={styles.searchBar}>
               <TextInput
                 style={styles.input}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder={i18n.t("cards.searchPlaceholder")}
+                placeholder={i18n.t('cards.searchPlaceholder')}
               />
 
               {searchQuery.length > 0 && (
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={handleSearch}
-                >
+                <TouchableOpacity style={styles.iconButton} onPress={handleSearch}>
                   <Ionicons name="search" size={24} color="#333" />
                 </TouchableOpacity>
               )}
@@ -100,35 +95,23 @@ const AddCollection = () => {
             <View style={styles.searchResult}>
               {noResults ? (
                 <View>
-                  <Text>{i18n.t("cards.searchNoResults")}</Text>
+                  <Text>{i18n.t('cards.searchNoResults')}</Text>
                 </View>
               ) : (
-                searchResults.map((searchResult) => (
+                searchResults.map(searchResult => (
                   <View
                     key={`sr_${searchResult.id}`}
-                    style={[
-                      styles.searchResultBox,
-                      styles.elevation,
-                      styles.shadowProp,
-                    ]}
+                    style={[styles.searchResultBox, styles.elevation, styles.shadowProp]}
                   >
-                    <TouchableOpacity
-                      onPress={() => handleCollectionPress(searchResult.id)}
-                    >
-                      <Text
-                        style={styles.searchResultNameTxt}
-                        numberOfLines={1}
-                      >
+                    <TouchableOpacity onPress={() => handleCollectionPress(searchResult.id)}>
+                      <Text style={styles.searchResultNameTxt} numberOfLines={1}>
                         {searchResult.name}
                       </Text>
-                      <Text
-                        style={styles.searchResultDescrTxt}
-                        numberOfLines={3}
-                      >
+                      <Text style={styles.searchResultDescrTxt} numberOfLines={3}>
                         {searchResult.description}
                       </Text>
                       <Text>
-                        {i18n.t("cards.numCards")}: {searchResult.cardsNumber}
+                        {i18n.t('cards.numCards')}: {searchResult.cardsNumber}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -136,7 +119,7 @@ const AddCollection = () => {
               )}
             </View>
           </ScrollView>
-          <SeparatorWithText text={i18n.t("common.or")} />
+          <SeparatorWithText text={i18n.t('common.or')} />
           <CreateCollectionForm onCreate={handleCollectionCreate} />
         </View>
       </TouchableWithoutFeedback>
@@ -148,13 +131,13 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 20,
     paddingHorizontal: 20,
-    backgroundColor: "#1da422",
+    backgroundColor: '#1da422',
     height: 80,
   },
   headerTxt: {
-    color: "white",
+    color: 'white',
     fontSize: 36,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   container: {
     flex: 1,
@@ -171,27 +154,27 @@ const styles = StyleSheet.create({
   },
   searchText: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginVertical: 10,
   },
   searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
   },
   input: {
     flex: 1,
-    backgroundColor: "#FFF",
-    borderColor: "#DDD",
+    backgroundColor: '#FFF',
+    borderColor: '#DDD',
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
     fontSize: 16,
-    color: "#333",
+    color: '#333',
     paddingRight: 40,
   },
   iconButton: {
-    position: "absolute",
+    position: 'absolute',
     right: 10,
     padding: 5,
   },
@@ -200,28 +183,28 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: "lightgrey",
-    backgroundColor: "#c2fbc4",
+    borderColor: 'lightgrey',
+    backgroundColor: '#c2fbc4',
     margin: 5,
     height: 100,
   },
   searchResultNameTxt: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   searchResultDescrTxt: {
     fontSize: 12,
   },
 
   shadowProp: {
-    shadowColor: "#171717",
+    shadowColor: '#171717',
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   elevation: {
     elevation: 5,
-    shadowColor: "#52006A",
+    shadowColor: '#52006A',
   },
 });
 

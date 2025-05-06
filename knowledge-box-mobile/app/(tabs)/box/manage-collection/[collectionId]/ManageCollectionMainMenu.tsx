@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/src/constants/Colors';
 import { i18n } from '@/src/lib/i18n';
 
-interface MainMenuProps {
+interface ManageCollectionMainMenuProps {
   visible: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -15,7 +15,7 @@ interface MainMenuProps {
   onDeleteCollection: () => void;
 }
 
-export const MainMenu: React.FC<MainMenuProps> = ({
+export const ManageCollectionMainMenu: React.FC<ManageCollectionMainMenuProps> = ({
   visible,
   onOpen,
   onClose,
@@ -25,7 +25,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onDeleteCollection,
 }) => (
   <View
-    style={{ position: 'absolute', bottom: 62, right: 24, zIndex: 1000, elevation: 20 }}
+    style={{ position: 'absolute', bottom: 8, right: 8, zIndex: 1000, elevation: 20 }}
     pointerEvents="box-none"
   >
     <Menu opened={visible} onBackdropPress={onClose}>

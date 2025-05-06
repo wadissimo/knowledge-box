@@ -21,9 +21,10 @@ import { useAppTheme } from '@/src/hooks/useAppTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { AIManager } from './AIManager';
-import { MainMenu } from './MainMenu';
+import { ManageCollectionMainMenu } from './ManageCollectionMainMenu';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const SCROLL_ARROW_SIZE = 32;
 
@@ -85,75 +86,7 @@ export default function ManageCollectionScreen() {
     }, 250); // Wait for menu to close to avoid navigation bug
   };
 
-  const EmptyState = (
-    <>
-      <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}>
-        <Text style={styles.colNameTxt}>{collection?.name}</Text>
-      </View>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Ionicons
-          name="albums-outline"
-          size={56}
-          color={Colors.light.tint}
-          style={{ marginBottom: 16 }}
-        />
-        <Text
-          style={{
-            fontSize: 22,
-            fontWeight: 'bold',
-            color: Colors.light.text,
-            marginBottom: 12,
-            textAlign: 'center',
-          }}
-        >
-          {i18n.t('cards.noCardsYet')}
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            color: '#666',
-            marginBottom: 18,
-            textAlign: 'center',
-            maxWidth: 320,
-          }}
-        >
-          {i18n.t('cards.noCardsHint')}
-          <Ionicons name="ellipsis-horizontal" size={20} color={Colors.light.tint} />
-          {i18n.t('cards.noCardsHint2')}
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            color: Colors.light.tint,
-            marginBottom: 28,
-            textAlign: 'center',
-            maxWidth: 320,
-          }}
-        >
-          {i18n.t('cards.noCardsAIHint')}
-        </Text>
-        <View style={{ position: 'absolute', right: 80, bottom: 35, alignItems: 'center' }}>
-          <Ionicons
-            name="arrow-down"
-            size={40}
-            color={Colors.light.tint}
-            style={{ transform: [{ rotate: '-45deg' }] }}
-          />
-        </View>
-      </View>
-      <View style={styles.cardCountFooter}>
-        <Ionicons
-          name="albums-outline"
-          size={16}
-          color={Colors.light.tint}
-          style={{ marginRight: 4 }}
-        />
-        <Text style={styles.cardCountText}>
-          {cards.length} {i18n.t('cards.numCards')}
-        </Text>
-      </View>
-    </>
-  );
+  const EmptyState = <></>;
 
   const handleEditCardPress = (id?: number) => {
     const cardId = typeof id === 'number' ? id : selectedCard;
@@ -281,41 +214,9 @@ export default function ManageCollectionScreen() {
   };
 
   if (collection === null) {
-    // Show loading spinner instead of just text
     return (
-      <View style={styles.container}>
+      <View style={styles.emptyContainer}>
         <ActivityIndicator size="large" color={Colors.light.tint} />
-        <Text style={{ marginTop: 16 }}>{i18n.t('common.loading') || 'Loading...'}</Text>
-      </View>
-    );
-  }
-
-  if (cards.length === 0) {
-    console.log('no cards, collection', collection);
-    return (
-      <View style={styles.container}>
-        {EmptyState}
-        <MainMenu
-          visible={mainMenuVisible}
-          onOpen={openMainMenu}
-          onClose={closeMainMenu}
-          onAddCard={handleAddCardPress}
-          onAskAI={() => {
-            closeMainMenu();
-            setAiModalVisible(true);
-          }}
-          onEditCollection={handleEditCollection}
-          onDeleteCollection={handleDeleteCollection}
-        />
-        <AIManager
-          visible={aiModalVisible}
-          onClose={() => setAiModalVisible(false)}
-          collectionId={collectionId ?? undefined}
-          collectionName={collection?.name ?? undefined}
-          collectionDescription={collection?.description ?? undefined}
-          onCardsAccepted={fetchCards}
-          setAiModalVisible={setAiModalVisible}
-        />
       </View>
     );
   }
@@ -323,16 +224,98 @@ export default function ManageCollectionScreen() {
   return (
     <View style={styles.container}>
       {cards.length === 0 ? (
-        EmptyState
+        <View style={styles.container}>
+          <View style={[styles.colNameContainer]}>
+            <Text style={styles.colNameTxt}>{collection?.name}</Text>
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons
+              name="albums-outline"
+              size={56}
+              color={Colors.light.tint}
+              style={{ marginBottom: 16 }}
+            />
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: 'bold',
+                color: Colors.light.text,
+                marginBottom: 12,
+                textAlign: 'center',
+              }}
+            >
+              {i18n.t('cards.noCardsYet')}
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                color: '#666',
+                marginBottom: 18,
+                textAlign: 'center',
+                maxWidth: 320,
+              }}
+            >
+              {i18n.t('cards.noCardsHint')}
+              <Ionicons name="ellipsis-horizontal" size={20} color={Colors.light.tint} />
+              {i18n.t('cards.noCardsHint2')}
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                color: Colors.light.tint,
+                marginBottom: 28,
+                textAlign: 'center',
+                maxWidth: 320,
+              }}
+            >
+              {i18n.t('cards.noCardsAIHint')}
+            </Text>
+            <View style={{ position: 'absolute', right: 80, bottom: 35, alignItems: 'center' }}>
+              <Ionicons
+                name="arrow-down"
+                size={40}
+                color={Colors.light.tint}
+                style={{ transform: [{ rotate: '-45deg' }] }}
+              />
+            </View>
+          </View>
+          <View style={styles.cardCountFooter}>
+            <Ionicons name="albums-outline" size={16} color="#fff" style={{ marginRight: 4 }} />
+            <Text style={styles.cardCountText}>
+              {cards.length} {i18n.t('cards.numCards')}
+            </Text>
+          </View>
+          <ManageCollectionMainMenu
+            visible={mainMenuVisible}
+            onOpen={openMainMenu}
+            onClose={closeMainMenu}
+            onAddCard={handleAddCardPress}
+            onAskAI={() => {
+              closeMainMenu();
+              setAiModalVisible(true);
+            }}
+            onEditCollection={handleEditCollection}
+            onDeleteCollection={handleDeleteCollection}
+          />
+          <AIManager
+            visible={aiModalVisible}
+            onClose={() => setAiModalVisible(false)}
+            collectionId={collectionId ?? undefined}
+            collectionName={collection?.name ?? undefined}
+            collectionDescription={collection?.description ?? undefined}
+            onCardsAccepted={fetchCards}
+            setAiModalVisible={setAiModalVisible}
+          />
+        </View>
       ) : (
         <>
           {/* --- Header: only collection name --- */}
-          <View style={[styles.colNameContainer, { backgroundColor: colors.card }]}>
+          <View style={[styles.colNameContainer]}>
             <Text style={styles.colNameTxt}>{collection.name}</Text>
           </View>
 
           {/* --- Move edit/menu button (FAB) to bottom right --- */}
-          <MainMenu
+          <ManageCollectionMainMenu
             visible={mainMenuVisible}
             onOpen={openMainMenu}
             onClose={closeMainMenu}
@@ -345,119 +328,124 @@ export default function ManageCollectionScreen() {
             onEditCollection={handleEditCollection}
             onDeleteCollection={handleDeleteCollection}
           />
-
-          <View style={{ flex: 1 }}>
-            <View style={styles.cardGridNoOutline}>
-              {/* FlashList of cards */}
-              <FlashList
-                ref={flashListRef}
-                data={cards}
-                keyExtractor={item => item.id.toString()}
-                numColumns={Platform.OS === 'web' ? 3 : 1}
-                renderItem={({ item }) => (
-                  <View
-                    style={[
-                      styles.cardGridItem,
-                      item.id === selectedCard && styles.selectedCardGridItem,
-                      {
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        position: 'relative',
-                      },
-                    ]}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.cardGridFront}>{item.front}</Text>
-                      <Text style={styles.cardGridBack}>{item.back}</Text>
-                    </View>
-                    <Menu>
-                      <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
-                        <Ionicons name="ellipsis-vertical" size={24} style={styles.cardMenuDots} />
-                      </MenuTrigger>
-                      <MenuOptions
-                        customStyles={{
-                          optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 },
-                        }}
-                      >
-                        <MenuOption onSelect={() => handleEditCardPress(item.id)}>
-                          <View style={styles.menuOptionRow}>
-                            <Ionicons
-                              name="create-outline"
-                              size={20}
-                              color={Colors.light.tint}
-                              style={{ marginRight: 6 }}
-                            />
-                            <Text>{i18n.t('cards.editCardBtn')}</Text>
-                          </View>
-                        </MenuOption>
-                        <MenuOption
-                          onSelect={() => handleDeleteCardPress(item.id)}
+          <LinearGradient
+            colors={['#b3e5fc', '#cbefff']}
+            style={{ flex: 1 }}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <View style={{ flex: 1 }}>
+              <View style={styles.cardGridNoOutline}>
+                {/* FlashList of cards */}
+                <FlashList
+                  ref={flashListRef}
+                  data={cards}
+                  keyExtractor={item => item.id.toString()}
+                  numColumns={Platform.OS === 'web' ? 3 : 1}
+                  renderItem={({ item }) => (
+                    <View
+                      style={[
+                        styles.cardGridItem,
+                        item.id === selectedCard && styles.selectedCardGridItem,
+                        {
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          position: 'relative',
+                        },
+                      ]}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.cardGridFront}>{item.front}</Text>
+                        <Text style={styles.cardGridBack}>{item.back}</Text>
+                      </View>
+                      <Menu>
+                        <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
+                          <Ionicons
+                            name="ellipsis-vertical"
+                            size={24}
+                            style={styles.cardMenuDots}
+                          />
+                        </MenuTrigger>
+                        <MenuOptions
                           customStyles={{
-                            optionWrapper: {
-                              backgroundColor: Colors.light.deleteBtn + '22',
-                              borderRadius: 10,
-                            },
+                            optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 },
                           }}
                         >
-                          <View style={styles.menuOptionRow}>
-                            <Ionicons
-                              name="trash-outline"
-                              size={20}
-                              color={Colors.light.deleteBtn}
-                              style={{ marginRight: 6 }}
-                            />
-                            <Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>
-                              {i18n.t('cards.deleteCardBtn')}
-                            </Text>
-                          </View>
-                        </MenuOption>
-                      </MenuOptions>
-                    </Menu>
-                  </View>
+                          <MenuOption onSelect={() => handleEditCardPress(item.id)}>
+                            <View style={styles.menuOptionRow}>
+                              <Ionicons
+                                name="create-outline"
+                                size={20}
+                                color={Colors.light.tint}
+                                style={{ marginRight: 6 }}
+                              />
+                              <Text>{i18n.t('cards.editCardBtn')}</Text>
+                            </View>
+                          </MenuOption>
+                          <MenuOption
+                            onSelect={() => handleDeleteCardPress(item.id)}
+                            customStyles={{
+                              optionWrapper: {
+                                backgroundColor: Colors.light.deleteBtn + '22',
+                                borderRadius: 10,
+                              },
+                            }}
+                          >
+                            <View style={styles.menuOptionRow}>
+                              <Ionicons
+                                name="trash-outline"
+                                size={20}
+                                color={Colors.light.deleteBtn}
+                                style={{ marginRight: 6 }}
+                              />
+                              <Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>
+                                {i18n.t('cards.deleteCardBtn')}
+                              </Text>
+                            </View>
+                          </MenuOption>
+                        </MenuOptions>
+                      </Menu>
+                    </View>
+                  )}
+                  estimatedItemSize={120}
+                  ListFooterComponent={null}
+                  onScroll={handleScroll}
+                  scrollEventThrottle={16}
+                  contentContainerStyle={{
+                    paddingBottom: totalBottomPadding,
+                  }}
+                />
+                {/* Floating arrow buttons */}
+                {showScrollTop && (
+                  <TouchableOpacity
+                    style={styles.fabScrollTop}
+                    onPress={scrollToTop}
+                    accessibilityLabel="Scroll to top"
+                    activeOpacity={0.85}
+                  >
+                    <Ionicons name="arrow-up" size={SCROLL_ARROW_SIZE} color="#222" />
+                  </TouchableOpacity>
                 )}
-                estimatedItemSize={120}
-                ListFooterComponent={null}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
-                contentContainerStyle={{
-                  paddingBottom: totalBottomPadding,
-                }}
-              />
-              {/* Floating arrow buttons */}
-              {showScrollTop && (
-                <TouchableOpacity
-                  style={styles.fabScrollTop}
-                  onPress={scrollToTop}
-                  accessibilityLabel="Scroll to top"
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name="arrow-up" size={SCROLL_ARROW_SIZE} color="#222" />
-                </TouchableOpacity>
-              )}
-              {showScrollBottom && (
-                <TouchableOpacity
-                  style={styles.fabScrollBottom}
-                  onPress={scrollToBottom}
-                  accessibilityLabel="Scroll to bottom"
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name="arrow-down" size={SCROLL_ARROW_SIZE} color="#222" />
-                </TouchableOpacity>
-              )}
+                {showScrollBottom && (
+                  <TouchableOpacity
+                    style={styles.fabScrollBottom}
+                    onPress={scrollToBottom}
+                    accessibilityLabel="Scroll to bottom"
+                    activeOpacity={0.85}
+                  >
+                    <Ionicons name="arrow-down" size={SCROLL_ARROW_SIZE} color="#222" />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <View style={[styles.cardCountFooter]}>
+                <Ionicons name="albums-outline" size={16} color="#fff" style={{ marginRight: 4 }} />
+                <Text style={styles.cardCountText}>
+                  {cards.length} {i18n.t('cards.numCards')}
+                </Text>
+              </View>
             </View>
-            <View style={[styles.cardCountFooter, { paddingBottom: totalBottomPadding }]}>
-              <Ionicons
-                name="albums-outline"
-                size={16}
-                color={Colors.light.tint}
-                style={{ marginRight: 4 }}
-              />
-              <Text style={styles.cardCountText}>
-                {cards.length} {i18n.t('cards.numCards')}
-              </Text>
-            </View>
-          </View>
+          </LinearGradient>
         </>
       )}
       <AIManager
@@ -476,9 +464,16 @@ export default function ManageCollectionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 10,
     flexDirection: 'column',
     justifyContent: 'flex-start',
+    width: '100%',
+    height: '100%',
+  },
+  emptyContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '100%',
     height: '100%',
   },
@@ -486,12 +481,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
-    //backgroundColor: "#c2fbc4",
-    marginBottom: 10,
+    //backgroundColor: '#e3f2fd',
+    backgroundColor: '#b3e5fc',
   },
   colNameTxt: {
     fontWeight: 'bold',
     fontSize: 24,
+    //color: '#000',
+    color: '#0288d1',
   },
   cardGridNoOutline: {
     flex: 1,
@@ -533,120 +530,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
   },
-
-  addCardBtn: {
-    paddingTop: 5,
-  },
-
-  deleteCollectionBtn: {
-    paddingTop: 5,
-  },
-  cardEditBtns: {
-    flexDirection: 'row',
-    gap: 10,
-    paddingTop: 5,
-    justifyContent: 'space-evenly',
-  },
-  editColBtn: {
-    paddingTop: 5,
-  },
-  collectionEditBtns: {
-    paddingTop: 10,
-    flexDirection: 'row',
-    gap: 10,
-
-    justifyContent: 'space-evenly',
-  },
-  deleteCardBtn: {
-    paddingTop: 5,
-  },
-  spacer: {
-    flex: 1,
-  },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    width: '85%',
-    alignItems: 'stretch',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  modalLabel: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  modalInput: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    minHeight: 60,
-    marginBottom: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  modalButtonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  modalButton: {
-    flex: 1, // Make buttons share available space
-    height: 70, // Increased for full text visibility
-    paddingHorizontal: 12, // Slightly less padding to avoid overflow
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 2,
-    minWidth: 0, // Prevent flexbox overflow
-    maxWidth: '100%',
-  },
-  modalButtonText: {
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    includeFontPadding: false, // Android only
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18, // Further increased for clarity
-  },
-  aiCardsPreview: {
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  aiCardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    padding: 8,
-  },
-  aiCardCheckbox: {
-    marginRight: 12,
-  },
-  aiCardContent: {
-    flex: 1,
-  },
-  aiCardFront: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  aiCardBack: {
-    fontSize: 15,
-    color: '#444',
-  },
   menuOptionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -656,24 +539,24 @@ const styles = StyleSheet.create({
   cardCountFooter: {
     paddingBottom: 8, // Add safe area + spacing
     paddingTop: 8,
-    backgroundColor: '#fff', // Optional: background for visibility
+    backgroundColor: '#0288d1', // Optional: background for visibility
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-    borderTopWidth: 1,
-    borderColor: '#ccc',
+    // borderTopWidth: 1,
+    // borderColor: '#ccc',
   },
   cardCountText: {
-    color: Colors.light.tint,
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
-
   cardMenuDots: {
     color: '#000',
     padding: 8,
   },
+
   fabScrollTop: {
     position: 'absolute',
     right: 4,

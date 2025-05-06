@@ -19,6 +19,7 @@ import { Picker } from '@react-native-picker/picker';
 import { getLocale, i18n, setLocale } from '@/src/lib/i18n';
 import { Setting, SettingCategory, useSettingsModel } from '@/src/data/SettingsModel';
 import { Href, router } from 'expo-router';
+import { resetAISetup } from '@/src/service/AIService';
 
 type Option = {
   label: string;
@@ -189,6 +190,7 @@ const SettingsTab = () => {
   const handleResetAI = () => {
     // Reset AI setup logic here
     console.log('AI setup reset');
+    resetAISetup();
   };
 
   const handleLinkClick = (id: string, link: string) => {

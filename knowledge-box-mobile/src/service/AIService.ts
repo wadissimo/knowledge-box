@@ -313,6 +313,11 @@ export function useAIRemoteService() {
   return { chat };
 }
 
+export async function resetAISetup(): Promise<void> {
+  await AsyncStorage.removeItem('ai_setup_completed');
+  await AsyncStorage.removeItem('gemini_api_key');
+}
+
 export async function isAISetupCompleted(): Promise<boolean> {
   const value = await AsyncStorage.getItem('ai_setup_completed');
   return value === 'true';
