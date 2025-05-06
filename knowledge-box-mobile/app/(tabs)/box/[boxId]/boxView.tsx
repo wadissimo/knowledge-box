@@ -1,41 +1,32 @@
-import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
-import { Box, useBoxModel } from "@/src/data/BoxModel";
-import { Collection } from "@/src/data/CollectionModel";
-import { useIsFocused, useTheme } from "@react-navigation/native";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { useBoxCollectionModel } from '@/src/data/BoxCollectionModel';
+import { Box, useBoxModel } from '@/src/data/BoxModel';
+import { Collection } from '@/src/data/CollectionModel';
+import { useIsFocused, useTheme } from '@react-navigation/native';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import { i18n } from "@/src/lib/i18n";
-import ToolsBoxSection from "@/src/components/box/ToolsBoxSection";
-import CollectionBoxSection from "@/src/components/box/CollectionBoxSection";
-import { Dimensions } from "react-native";
-import { Sizes } from "@/src/constants/Sizes";
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { i18n } from '@/src/lib/i18n';
+import ToolsBoxSection from '@/src/components/box/ToolsBoxSection';
+import CollectionBoxSection from '@/src/components/box/CollectionBoxSection';
+import { Dimensions } from 'react-native';
+import { Sizes } from '@/src/constants/Sizes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { AddToBoxModal } from "@/src/components/box/AddToBoxButton";
+import { AddToBoxModal } from '@/src/components/box/AddToBoxButton';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const BOX_SECTION_HEADER_SIZE = 40;
 const COLLAPSED_SECTION_SIZE = BOX_SECTION_HEADER_SIZE + 50;
 //const AnimatedBoxSection = Animated.createAnimatedComponent(BoxSection);
 
 const BoxView = () => {
-  const { colors } = useTheme();
-
+  const { themeColors } = useThemeColors();
   const [expandedSection, setExpandedSection] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  
 
   const insets = useSafeAreaInsets();
 
@@ -50,13 +41,19 @@ const BoxView = () => {
 
   const isFocused = useIsFocused();
   //const headerHeight = useHeaderHeight();
-  const availableHeight = Dimensions.get("window").height - Sizes.headerHeight - Sizes.tabBarHeight;
-  console.log("availableHeight", availableHeight, Dimensions.get("window").height, Sizes.headerHeight, Sizes.tabBarHeight);
+  const availableHeight = Dimensions.get('window').height - Sizes.headerHeight - Sizes.tabBarHeight;
+  console.log(
+    'availableHeight',
+    availableHeight,
+    Dimensions.get('window').height,
+    Sizes.headerHeight,
+    Sizes.tabBarHeight
+  );
   // const numSections = 2 + collections.length;
   const numSections = collections.length;
-  console.log("numSections", numSections);
+  console.log('numSections', numSections);
   const sectionSize = availableHeight / numSections;
-  
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -66,8 +63,7 @@ const BoxView = () => {
         setBox(box);
         setCollections(cols);
         if (box !== null) {
-          var boxName =
-            box.name.length > 14 ? box.name.substring(0, 12) + "..." : box.name;
+          var boxName = box.name.length > 14 ? box.name.substring(0, 12) + '...' : box.name;
           navigation.setOptions({
             title: boxName,
             headerRight: () => (
@@ -83,11 +79,9 @@ const BoxView = () => {
     }
     if (isFocused) {
       loadData();
-      console.log("fetch data");
+      console.log('fetch data');
     }
   }, [isFocused]);
-
-  const items: any[] = ["c 1", "3", "5"];
 
   function onExpand(index: number) {
     if (expandedSection === index) {
@@ -100,101 +94,106 @@ const BoxView = () => {
     router.push(`./boxManage`);
   }
 
-  
-
-  function handleTest(){
-    router.push("./FlashcardCollectionsScreen");
+  function handleTest() {
+    router.push('./FlashcardCollectionsScreen');
   }
 
   function handleCollectionClick(collectionId: number) {
-    console.log("handleCollectionClick");
+    console.log('handleCollectionClick');
     router.push(`/(tabs)/box/manage-collection/${collectionId}`);
   }
-  const calcSectionHeight = (index:number):number => {
+  const calcSectionHeight = (index: number): number => {
     let height = 0;
     if (expandedSection !== null) {
       if (expandedSection === index) {
-        height =  availableHeight - (numSections - 1) * BOX_SECTION_HEADER_SIZE;
+        height = availableHeight - (numSections - 1) * BOX_SECTION_HEADER_SIZE;
       } else {
         height = COLLAPSED_SECTION_SIZE;
       }
     } else {
-      height = sectionSize+5;
+      height = sectionSize + 5;
     }
     // console.log("height", index, height);
     return height;
-  }
+  };
 
-  const calcSectionOffset = (index:number):number => {
+  const calcSectionOffset = (index: number): number => {
     if (expandedSection !== null) {
       if (index <= expandedSection) {
         return index * BOX_SECTION_HEADER_SIZE;
       }
       return availableHeight - (numSections - index) * BOX_SECTION_HEADER_SIZE;
-    } 
+    }
     return sectionSize * index;
-  }
-  
+  };
+
   //console.log("rendering BoxView");
-  if(loading) {
+  if (loading) {
     return (
-      <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}>
+      <LinearGradient
+        colors={[themeColors.headerBg, themeColors.subHeaderBg]}
+        style={styles.gradientBg}
+      >
         <View style={styles.container} />
       </LinearGradient>
     );
   }
   if (box === null) {
     return (
-      <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}>
+      <LinearGradient
+        colors={[themeColors.headerBg, themeColors.subHeaderBg]}
+        style={styles.gradientBg}
+      >
         <View style={styles.container} />
       </LinearGradient>
     );
   }
 
- 
-  return (//
+  return (
+    //
     <LinearGradient
-            colors={["#2196f3", "#7dc5f5"]}
-            style={{ flex: 1 }}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-     {/* <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}> */}
+      colors={[themeColors.headerBg, themeColors.subHeaderBg]}
+      style={{ flex: 1 }}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      {/* <LinearGradient colors={['#f0f4ff', '#e5e9f7']} style={styles.gradientBg}> */}
       <SafeAreaProvider>
         <View style={styles.container}>
-        
           {collections.length === 0 && (
             <View style={styles.emptyStateContainer}>
-              <Icon name="inbox-arrow-down" size={80} color="#b0b6c1" style={{marginBottom: 12}} />
-              <Text style={styles.emptyStateText}>{i18n.t("boxes.noCollectionsDefault")}</Text>
+              <Icon
+                name="inbox-arrow-down"
+                size={80}
+                color={themeColors.headerText}
+                style={{ marginBottom: 12 }}
+              />
+              <Text style={[styles.emptyStateText, { color: themeColors.headerText }]}>
+                {i18n.t('boxes.noCollectionsDefault')}
+              </Text>
             </View>
           )}
-          {collections.length > 0 &&(
-          <>
-            {collections.map((col, i)=>(
-              <CollectionBoxSection
-                key={`col_${col.id}`}
-                boxId={String(box.id)}
-                col={col}
-                index={i}
-                numSections={numSections}
-                expandedSection={expandedSection}
-                onExpand={onExpand}
-                calcSectionHeight={calcSectionHeight}
-                calcSectionOffset={calcSectionOffset}
-              />
-            ))}
-            
-          
+          {collections.length > 0 && (
+            <>
+              {collections.map((col, i) => (
+                <CollectionBoxSection
+                  key={`col_${col.id}`}
+                  boxId={String(box.id)}
+                  col={col}
+                  index={i}
+                  numSections={numSections}
+                  expandedSection={expandedSection}
+                  onExpand={onExpand}
+                  calcSectionHeight={calcSectionHeight}
+                  calcSectionOffset={calcSectionOffset}
+                />
+              ))}
             </>
-          )
-          }
-    
-        <AddToBoxModal boxId={box.id} />
-        
-        
-      </View>
-    </SafeAreaProvider>
+          )}
+
+          <AddToBoxModal boxId={box.id} />
+        </View>
+      </SafeAreaProvider>
     </LinearGradient>
   );
 };
@@ -206,33 +205,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    justifyContent: "flex-start",
-    alignItems: "center",
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     //backgroundColor: "#f0f0f0",
     //backgroundColor: "orange",
   },
 
   collectionCard: {
-    backgroundColor: "#f9c2ff",
+    backgroundColor: '#f9c2ff',
   },
   notesCard: {
-    backgroundColor: "#c2e1ff",
+    backgroundColor: '#c2e1ff',
   },
   chatsCard: {
-    backgroundColor: "#c2ffc2",
+    backgroundColor: '#c2ffc2',
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   sectionContainer: {
-    borderColor: "#ddd",
+    borderColor: '#ddd',
     borderWidth: 1,
     borderBottomWidth: 0,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
     marginHorizontal: 10,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     elevation: 25,
   },
   sectionHeader: {
@@ -258,13 +257,13 @@ const styles = StyleSheet.create({
     height: 10,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
-    backgroundColor: "#cad1ca",
+    backgroundColor: '#cad1ca',
   },
-  sectionIcons: { flexDirection: "row", gap: 32 },
+  sectionIcons: { flexDirection: 'row', gap: 32 },
   sectionListContainer: {
     paddingVertical: 5,
     paddingHorizontal: 7,
-    alignItems: "center",
+    alignItems: 'center',
     // backgroundColor: "orange",
     flex: 0.95,
   },
@@ -283,35 +282,35 @@ const styles = StyleSheet.create({
     //position: "absolute",
     //width: "100%",
     height: 60,
-    backgroundColor: "#faf8b4",
+    backgroundColor: '#faf8b4',
     borderRadius: 5,
 
     //borderColor: "lightgrey",
     borderWidth: 1,
-    borderColor: "#dd8",
+    borderColor: '#dd8',
     //paddingVertical: 5,
     //paddingHorizontal: 15,
     marginHorizontal: 5,
     marginVertical: 2,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   itemBox: {
-    position: "absolute",
-    width: "100%",
+    position: 'absolute',
+    width: '100%',
     height: 150,
-    backgroundColor: "#faf8b4",
+    backgroundColor: '#faf8b4',
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: "#dd8",
+    borderColor: '#dd8',
     //margin: 5,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   colNameView: {
     flex: 0.6,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     //alignSelf: "center",
     //backgroundColor: "orangered",
   },
@@ -320,20 +319,20 @@ const styles = StyleSheet.create({
   },
   cardCntView: {
     padding: 7,
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
   },
   cardsCntTxt: {
     fontSize: 12,
   },
   shadowProp: {
-    shadowColor: "#171717",
+    shadowColor: '#171717',
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   elevation: {
     elevation: 5,
-    shadowColor: "#52006A",
+    shadowColor: '#52006A',
   },
   emptyStateContainer: {
     flex: 1,
@@ -347,12 +346,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  
+
   defaultText: {
     fontSize: 16,
-    
   },
-  
 });
 
 export default BoxView;

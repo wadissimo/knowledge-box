@@ -30,7 +30,7 @@ export const darkColors = {
   dark: true,
   headerBg: '#000',
   headerText: '#f00',
-  subHeaderBg: '#000',
+  subHeaderBg: '#444',
   subHeaderText: '#f00',
   cardBg: '#999',
   cardText: '#f00',

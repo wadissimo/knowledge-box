@@ -27,16 +27,7 @@ const BoxLayout = () => {
     headerShown: true,
     headerLeft: () => (
       <TouchableOpacity onPress={() => router.back()}>
-        <Icon
-          name="chevron-left"
-          size={38}
-          color="#fff"
-          style={{
-            textShadowColor: '#1565c0',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 2,
-          }}
-        />
+        <Icon name="chevron-left" size={38} color="#fff" style={headerTitleStyle} />
       </TouchableOpacity>
     ),
     headerBackVisible: false,
@@ -49,6 +40,12 @@ const BoxLayout = () => {
       shadowOpacity: 0,
     },
     headerTitleStyle,
+    headerLeftContainerStyle: {
+      backgroundColor: themeColors.headerBg,
+    },
+    headerRightContainerStyle: {
+      backgroundColor: themeColors.headerBg,
+    },
   };
 
   return (
@@ -69,7 +66,6 @@ const BoxLayout = () => {
             </View>
           ),
           headerBackTitleVisible: false,
-
           ...defaultHeaderOptions,
           headerLeft: () => null,
         }}
