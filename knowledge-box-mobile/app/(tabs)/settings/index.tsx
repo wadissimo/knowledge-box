@@ -20,6 +20,7 @@ import { getLocale, i18n, setLocale } from '@/src/lib/i18n';
 import { Setting, SettingCategory, useSettingsModel } from '@/src/data/SettingsModel';
 import { Href, router } from 'expo-router';
 import { resetAISetup } from '@/src/service/AIService';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 type Option = {
   label: string;
@@ -147,6 +148,7 @@ const SettingsTab = () => {
   const { upsertSetting, getAllCategories, getAllSettings } = useSettingsModel();
   const [categories, setCategories] = useState<SettingCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { themeName, setThemeName, themeColors, setThemeColors } = useThemeColors();
 
   useEffect(() => {
     async function loadData() {
@@ -183,6 +185,11 @@ const SettingsTab = () => {
     if (lang && lang !== getLocale()) {
       setShowReloadInfo(true);
       setLocale(lang);
+    }
+    const theme = settings.find(setting => setting.id === 'theme')?.value;
+    if (theme && theme !== themeName) {
+      console.log('theme changed to', theme);
+      setThemeName(theme);
     }
     console.log('Saved settings:', settings);
   };

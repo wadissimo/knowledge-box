@@ -6,18 +6,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '@react-navigation/native';
 import { Sizes } from '@/src/constants/Sizes';
 import { i18n } from '@/src/lib/i18n';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const BoxLayout = () => {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { themeColors } = useThemeColors();
 
   const headerTitleStyle = {
-    color: '#fff', // White text for contrast
-    fontSize: 28, // Slightly smaller for balance
+    color: themeColors.headerText,
+    fontSize: 28,
     fontWeight: 'bold' as 'bold',
     height: 100,
     letterSpacing: 0.5,
-    textShadowColor: '#1565c0', // Subtle shadow for visibility
+    textShadowColor: '#1565c0',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   };
@@ -42,7 +43,7 @@ const BoxLayout = () => {
     headerShadowVisible: false,
     headerStyle: {
       height: Sizes.headerHeight,
-      backgroundColor: '#2196f3', // Brighter blue
+      backgroundColor: themeColors.headerBg,
       borderBottomWidth: 0,
       elevation: 0,
       shadowOpacity: 0,
@@ -58,8 +59,20 @@ const BoxLayout = () => {
           title: '',
           headerTitle: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="cube-outline" size={28} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#fff', letterSpacing: 0.5 }}>
+              <Ionicons
+                name="cube-outline"
+                size={28}
+                color={themeColors.headerText}
+                style={{ marginRight: 8 }}
+              />
+              <Text
+                style={{
+                  fontSize: 28,
+                  fontWeight: 'bold',
+                  color: themeColors.headerText,
+                  letterSpacing: 0.5,
+                }}
+              >
                 {i18n.t('boxes.myBoxesTitle')}
               </Text>
             </View>

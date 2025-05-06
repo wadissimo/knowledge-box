@@ -2,7 +2,7 @@
   "hello": "Hello %{name}!",
   "menu": {
     "boxes": "My Boxes",
-    "profil": "Profile",
+    "profile": "Profile",
     "settings": "Settings"
   },
   "common": {

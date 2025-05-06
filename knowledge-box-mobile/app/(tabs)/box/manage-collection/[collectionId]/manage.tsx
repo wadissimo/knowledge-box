@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     //backgroundColor: '#e3f2fd',
-    backgroundColor: '#b3e5fc',
+    backgroundColor: '#b3e5fc', //7dc5f5
   },
   colNameTxt: {
     fontWeight: 'bold',
