@@ -61,9 +61,7 @@ export default function BoxesPage() {
               position: 'relative',
             }}
           >
-            <View
-              style={{ position: 'absolute', bottom: 72, left: 0, right: 0, alignItems: 'center' }}
-            >
+            <View style={styles.boxBtnContainer}>
               <TouchableOpacity onPress={handleAddPress} activeOpacity={0.85}>
                 <View style={[styles.addBoxBtn, { backgroundColor: themeColors.primaryBtnBg }]}>
                   <Ionicons name="add" color={themeColors.primaryBtnText} size={36} />
@@ -106,6 +104,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
   },
+  boxBtnContainer: { position: 'absolute', bottom: 24, left: 0, right: 0, alignItems: 'center' },
   addBoxBtn: {
     width: 64,
     height: 64,
@@ -117,6 +116,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.16,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 10,
   },
 });

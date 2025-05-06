@@ -1,7 +1,7 @@
 {
   "hello": "Hallo %{name}!",
   "menu": {
-    "boxes": "Meine Boxen",
+    "boxes": "Boxen",
     "profile": "Profil",
     "settings": "Einstellungen"
   },
@@ -31,7 +31,7 @@
     "loading": "Lädt..."
   },
   "boxes": {
-    "myBoxesTitle": "Meine Boxen",
+    "myBoxesTitle": "Meine Wissensboxen",
     "notes": "Notizen",
     "tools": "Tools",
     "conversations": "Gespräche",

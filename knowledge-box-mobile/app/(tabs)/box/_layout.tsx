@@ -16,7 +16,7 @@ const BoxLayout = () => {
     color: themeColors.headerText,
     fontSize: 28,
     fontWeight: 'bold' as 'bold',
-    height: 100,
+
     letterSpacing: 0.5,
     textShadowColor: '#1565c0',
     textShadowOffset: { width: 0, height: 1 },
@@ -63,27 +63,13 @@ const BoxLayout = () => {
                 name="cube-outline"
                 size={28}
                 color={themeColors.headerText}
-                style={{ marginRight: 8 }}
+                style={[headerTitleStyle, { marginRight: 8 }]}
               />
-              <Text
-                style={{
-                  fontSize: 28,
-                  fontWeight: 'bold',
-                  color: themeColors.headerText,
-                  letterSpacing: 0.5,
-                }}
-              >
-                {i18n.t('boxes.myBoxesTitle')}
-              </Text>
+              <Text style={headerTitleStyle}>{i18n.t('boxes.myBoxesTitle')}</Text>
             </View>
           ),
           headerBackTitleVisible: false,
-          headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: 'transparent',
-            elevation: 0,
-            shadowOpacity: 0,
-          },
+
           ...defaultHeaderOptions,
           headerLeft: () => null,
         }}
