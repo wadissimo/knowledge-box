@@ -10,6 +10,7 @@ import {
   Platform,
   Modal,
   Pressable,
+  KeyboardTypeOptions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -17,7 +18,7 @@ import { useTheme } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { getLocale, i18n, setLocale } from '@/src/lib/i18n';
 import { Setting, SettingCategory, useSettingsModel } from '@/src/data/SettingsModel';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 
 type Option = {
   label: string;
@@ -192,7 +193,7 @@ const SettingsTab = () => {
 
   const handleLinkClick = (id: string, link: string) => {
     console.log('Link clicked:', id, link);
-    router.push(link);
+    router.push(link as Href);
   };
 
   const handleButtonClick = (id: string) => {
@@ -236,14 +237,14 @@ const SettingsTab = () => {
             value={setting.value}
             onChangeText={text => handleChange(setting.id, text)}
             placeholder={i18n.t(setting.label)}
-            keyboardType={setting.keyboardType || 'default'}
+            keyboardType={(setting.keyboardType || 'default') as KeyboardTypeOptions}
             placeholderTextColor="#90caf9"
           />
         );
       case 'switch':
         return (
           <Switch
-            value={setting.value}
+            value={setting.value === 'true'}
             onValueChange={value => handleChange(setting.id, value)}
             thumbColor={setting.value ? '#1976d2' : '#bdbdbd'}
             trackColor={{ false: '#bdbdbd', true: '#90caf9' }}
@@ -323,7 +324,7 @@ const SettingsTab = () => {
                 activeOpacity={0.8}
               >
                 <Ionicons
-                  name={category.icon}
+                  name={category.icon as any}
                   size={24}
                   color="#1976d2"
                   style={{ marginRight: 8 }}
