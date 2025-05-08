@@ -6,6 +6,7 @@ import { Box, useBoxModel } from '@/src/data/BoxModel';
 import { useIsFocused, useTheme } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
 
 export default function BoxesPage() {
   const router = useRouter();
@@ -30,48 +31,39 @@ export default function BoxesPage() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient
-        colors={[themeColors.headerBg, themeColors.subHeaderBg]}
-        style={{ flex: 1 }}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <View style={{ flex: 1 }}>
-          <ScrollView style={{ flex: 1 }}>
-            {boxes.length === 0 && <Text>No boxes yet. Tap + to add one!</Text>}
-            {boxes.map(box => (
-              <TouchableOpacity
-                onPress={() => handleBoxPress(box.id)}
-                key={`box_${box.id}`}
-                activeOpacity={0.85}
-                style={[styles.box, { backgroundColor: themeColors.cardBg }]}
-              >
-                <Text style={[styles.boxText, { color: themeColors.cardText }]}>{box.name}</Text>
-                <Ionicons name="chevron-forward" size={26} color={themeColors.cardText} />
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 12,
-              backgroundColor: 'transparent',
-              position: 'relative',
-            }}
+    <ScreenContainer>
+      <ScrollView style={{ flex: 1 }}>
+        {boxes.length === 0 && <Text>No boxes yet. Tap + to add one!</Text>}
+        {boxes.map(box => (
+          <TouchableOpacity
+            onPress={() => handleBoxPress(box.id)}
+            key={`box_${box.id}`}
+            activeOpacity={0.85}
+            style={[styles.box, { backgroundColor: themeColors.cardBg }]}
           >
-            <View style={styles.boxBtnContainer}>
-              <TouchableOpacity onPress={handleAddPress} activeOpacity={0.85}>
-                <View style={[styles.addBoxBtn, { backgroundColor: themeColors.primaryBtnBg }]}>
-                  <Ionicons name="add" color={themeColors.primaryBtnText} size={36} />
-                </View>
-              </TouchableOpacity>
+            <Text style={[styles.boxText, { color: themeColors.cardText }]}>{box.name}</Text>
+            <Ionicons name="chevron-forward" size={26} color={themeColors.cardText} />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 12,
+          backgroundColor: 'transparent',
+          position: 'relative',
+        }}
+      >
+        <View style={styles.boxBtnContainer}>
+          <TouchableOpacity onPress={handleAddPress} activeOpacity={0.85}>
+            <View style={[styles.addBoxBtn, { backgroundColor: themeColors.primaryBtnBg }]}>
+              <Ionicons name="add" color={themeColors.primaryBtnText} size={36} />
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+      </View>
+    </ScreenContainer>
   );
 }
 

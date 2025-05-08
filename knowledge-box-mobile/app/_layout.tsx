@@ -15,13 +15,17 @@ import { darkTheme, lightTheme } from '@/src/hooks/useAppTheme';
 import { MenuProvider } from 'react-native-popup-menu';
 import { migrateDbIfNeeded } from '@/src/data/DbUtils';
 import { darkColors, defaultColors, ThemeContext } from '@/src/context/ThemeContext';
+import { Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Poppins_400Regular,
+    Poppins_700Bold,
   });
+
   const [database, dbLoaded] = useDatabaseFromAsset();
   const currentTheme = lightTheme;
   const [themeName, setThemeName] = useState('light');
