@@ -25,6 +25,8 @@ import { ManageCollectionMainMenu } from './ManageCollectionMainMenu';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const SCROLL_ARROW_SIZE = 32;
 
@@ -44,7 +46,7 @@ export default function ManageCollectionScreen() {
   // --- AI Modal State ---
   const [aiModalVisible, setAiModalVisible] = useState(false);
 
-  const { colors } = useAppTheme();
+  const { themeColors } = useThemeColors();
 
   const router = useRouter();
   const { collectionId, affectedCardId } = useLocalSearchParams<{
@@ -222,242 +224,217 @@ export default function ManageCollectionScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      {cards.length === 0 ? (
-        <View style={styles.container}>
-          <View style={[styles.colNameContainer]}>
-            <Text style={styles.colNameTxt}>{collection?.name}</Text>
-          </View>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Ionicons
-              name="albums-outline"
-              size={56}
-              color={Colors.light.tint}
-              style={{ marginBottom: 16 }}
-            />
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: 'bold',
-                color: Colors.light.text,
-                marginBottom: 12,
-                textAlign: 'center',
-              }}
-            >
-              {i18n.t('cards.noCardsYet')}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                color: '#666',
-                marginBottom: 18,
-                textAlign: 'center',
-                maxWidth: 320,
-              }}
-            >
-              {i18n.t('cards.noCardsHint')}
-              <Ionicons name="ellipsis-horizontal" size={20} color={Colors.light.tint} />
-              {i18n.t('cards.noCardsHint2')}
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                color: Colors.light.tint,
-                marginBottom: 28,
-                textAlign: 'center',
-                maxWidth: 320,
-              }}
-            >
-              {i18n.t('cards.noCardsAIHint')}
-            </Text>
-            <View style={{ position: 'absolute', right: 80, bottom: 35, alignItems: 'center' }}>
+    <>
+      <View style={[styles.colNameContainer, { backgroundColor: themeColors.subHeaderBg }]}>
+        <Text style={[styles.colNameTxt, { color: themeColors.subHeaderText }]}>
+          {collection?.name}
+        </Text>
+      </View>
+      <ScreenContainer>
+        {cards.length === 0 ? (
+          <>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons
-                name="arrow-down"
-                size={40}
-                color={Colors.light.tint}
-                style={{ transform: [{ rotate: '-45deg' }] }}
+                name="albums-outline"
+                size={56}
+                color={themeColors.text}
+                style={{ marginBottom: 16 }}
               />
+              <Text
+                style={{
+                  fontSize: 22,
+                  fontWeight: 'bold',
+                  color: themeColors.text,
+                  marginBottom: 12,
+                  textAlign: 'center',
+                }}
+              >
+                {i18n.t('cards.noCardsYet')}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: '#666',
+                  marginBottom: 18,
+                  textAlign: 'center',
+                  maxWidth: 320,
+                }}
+              >
+                {i18n.t('cards.noCardsHint')}
+                <Ionicons name="ellipsis-horizontal" size={20} color={Colors.light.tint} />
+                {i18n.t('cards.noCardsHint2')}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: Colors.light.tint,
+                  marginBottom: 28,
+                  textAlign: 'center',
+                  maxWidth: 320,
+                }}
+              >
+                {i18n.t('cards.noCardsAIHint')}
+              </Text>
+              <View style={{ position: 'absolute', right: 80, bottom: 35, alignItems: 'center' }}>
+                <Ionicons
+                  name="arrow-down"
+                  size={40}
+                  color={Colors.light.tint}
+                  style={{ transform: [{ rotate: '-45deg' }] }}
+                />
+              </View>
             </View>
-          </View>
-          <View style={styles.cardCountFooter}>
-            <Ionicons name="albums-outline" size={16} color="#fff" style={{ marginRight: 4 }} />
-            <Text style={styles.cardCountText}>
-              {cards.length} {i18n.t('cards.numCards')}
-            </Text>
-          </View>
-          <ManageCollectionMainMenu
-            visible={mainMenuVisible}
-            onOpen={openMainMenu}
-            onClose={closeMainMenu}
-            onAddCard={handleAddCardPress}
-            onAskAI={() => {
-              closeMainMenu();
-              setAiModalVisible(true);
-            }}
-            onEditCollection={handleEditCollection}
-            onDeleteCollection={handleDeleteCollection}
-          />
-          <AIManager
-            visible={aiModalVisible}
-            onClose={() => setAiModalVisible(false)}
-            collectionId={collectionId ?? undefined}
-            collectionName={collection?.name ?? undefined}
-            collectionDescription={collection?.description ?? undefined}
-            onCardsAccepted={fetchCards}
-            setAiModalVisible={setAiModalVisible}
-          />
-        </View>
-      ) : (
-        <>
-          {/* --- Header: only collection name --- */}
-          <View style={[styles.colNameContainer]}>
-            <Text style={styles.colNameTxt}>{collection.name}</Text>
-          </View>
-
-          {/* --- Move edit/menu button (FAB) to bottom right --- */}
-          <ManageCollectionMainMenu
-            visible={mainMenuVisible}
-            onOpen={openMainMenu}
-            onClose={closeMainMenu}
-            onAddCard={handleAddCardPress}
-            onAskAI={() => {
-              closeMainMenu();
-              console.log('Ask AI');
-              setAiModalVisible(true);
-            }}
-            onEditCollection={handleEditCollection}
-            onDeleteCollection={handleDeleteCollection}
-          />
-          <LinearGradient
-            colors={['#b3e5fc', '#cbefff']}
-            style={{ flex: 1 }}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <View style={{ flex: 1 }}>
-              <View style={styles.cardGridNoOutline}>
-                {/* FlashList of cards */}
-                <FlashList
-                  ref={flashListRef}
-                  data={cards}
-                  keyExtractor={item => item.id.toString()}
-                  numColumns={Platform.OS === 'web' ? 3 : 1}
-                  renderItem={({ item }) => (
-                    <View
-                      style={[
-                        styles.cardGridItem,
-                        item.id === selectedCard && styles.selectedCardGridItem,
-                        {
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          position: 'relative',
-                        },
-                      ]}
-                    >
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.cardGridFront}>{item.front}</Text>
-                        <Text style={styles.cardGridBack}>{item.back}</Text>
-                      </View>
-                      <Menu>
-                        <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
-                          <Ionicons
-                            name="ellipsis-vertical"
-                            size={24}
-                            style={styles.cardMenuDots}
-                          />
-                        </MenuTrigger>
-                        <MenuOptions
+          </>
+        ) : (
+          <>
+            <View style={styles.cardGridNoOutline}>
+              <FlashList
+                ref={flashListRef}
+                data={cards}
+                keyExtractor={item => item.id.toString()}
+                numColumns={Platform.OS === 'web' ? 3 : 1}
+                renderItem={({ item }) => (
+                  <View
+                    style={[
+                      styles.cardGridItem,
+                      item.id === selectedCard && styles.selectedCardGridItem,
+                      {
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        position: 'relative',
+                        backgroundColor: themeColors.cardBg,
+                      },
+                    ]}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.cardGridFront, { color: themeColors.cardText }]}>
+                        {item.front}
+                      </Text>
+                      <Text style={[styles.cardGridBack, { color: themeColors.cardText }]}>
+                        {item.back}
+                      </Text>
+                    </View>
+                    <Menu>
+                      <MenuTrigger customStyles={{ TriggerTouchableComponent: Pressable }}>
+                        <Ionicons name="ellipsis-vertical" size={24} style={styles.cardMenuDots} />
+                      </MenuTrigger>
+                      <MenuOptions
+                        customStyles={{
+                          optionsContainer: {
+                            borderRadius: 14,
+                            padding: 2,
+                            minWidth: 140,
+                            backgroundColor: themeColors.popupBg,
+                          },
+                        }}
+                      >
+                        <MenuOption onSelect={() => handleEditCardPress(item.id)}>
+                          <View style={styles.menuOptionRow}>
+                            <Ionicons
+                              name="create-outline"
+                              size={20}
+                              color={themeColors.headerBg}
+                              style={{ marginRight: 6 }}
+                            />
+                            <Text style={{ color: themeColors.popupText }}>
+                              {i18n.t('cards.editCardBtn')}
+                            </Text>
+                          </View>
+                        </MenuOption>
+                        <MenuOption
+                          onSelect={() => handleDeleteCardPress(item.id)}
                           customStyles={{
-                            optionsContainer: { borderRadius: 14, padding: 2, minWidth: 140 },
+                            optionWrapper: {
+                              backgroundColor: themeColors.popupBg,
+                              borderRadius: 10,
+                            },
                           }}
                         >
-                          <MenuOption onSelect={() => handleEditCardPress(item.id)}>
-                            <View style={styles.menuOptionRow}>
-                              <Ionicons
-                                name="create-outline"
-                                size={20}
-                                color={Colors.light.tint}
-                                style={{ marginRight: 6 }}
-                              />
-                              <Text>{i18n.t('cards.editCardBtn')}</Text>
-                            </View>
-                          </MenuOption>
-                          <MenuOption
-                            onSelect={() => handleDeleteCardPress(item.id)}
-                            customStyles={{
-                              optionWrapper: {
-                                backgroundColor: Colors.light.deleteBtn + '22',
-                                borderRadius: 10,
-                              },
-                            }}
-                          >
-                            <View style={styles.menuOptionRow}>
-                              <Ionicons
-                                name="trash-outline"
-                                size={20}
-                                color={Colors.light.deleteBtn}
-                                style={{ marginRight: 6 }}
-                              />
-                              <Text style={{ color: Colors.light.deleteBtn, fontWeight: 'bold' }}>
-                                {i18n.t('cards.deleteCardBtn')}
-                              </Text>
-                            </View>
-                          </MenuOption>
-                        </MenuOptions>
-                      </Menu>
-                    </View>
-                  )}
-                  estimatedItemSize={120}
-                  ListFooterComponent={null}
-                  onScroll={handleScroll}
-                  scrollEventThrottle={16}
-                  contentContainerStyle={{
-                    paddingBottom: totalBottomPadding,
-                  }}
-                />
-                {/* Floating arrow buttons */}
-                {showScrollTop && (
-                  <TouchableOpacity
-                    style={styles.fabScrollTop}
-                    onPress={scrollToTop}
-                    accessibilityLabel="Scroll to top"
-                    activeOpacity={0.85}
-                  >
-                    <Ionicons name="arrow-up" size={SCROLL_ARROW_SIZE} color="#222" />
-                  </TouchableOpacity>
+                          <View style={styles.menuOptionRow}>
+                            <Ionicons
+                              name="trash-outline"
+                              size={20}
+                              color={themeColors.deleteBtnBg}
+                              style={{ marginRight: 6 }}
+                            />
+                            <Text style={{ color: themeColors.deleteBtnBg, fontWeight: 'bold' }}>
+                              {i18n.t('cards.deleteCardBtn')}
+                            </Text>
+                          </View>
+                        </MenuOption>
+                      </MenuOptions>
+                    </Menu>
+                  </View>
                 )}
-                {showScrollBottom && (
-                  <TouchableOpacity
-                    style={styles.fabScrollBottom}
-                    onPress={scrollToBottom}
-                    accessibilityLabel="Scroll to bottom"
-                    activeOpacity={0.85}
-                  >
-                    <Ionicons name="arrow-down" size={SCROLL_ARROW_SIZE} color="#222" />
-                  </TouchableOpacity>
-                )}
-              </View>
-              <View style={[styles.cardCountFooter]}>
-                <Ionicons name="albums-outline" size={16} color="#fff" style={{ marginRight: 4 }} />
-                <Text style={styles.cardCountText}>
-                  {cards.length} {i18n.t('cards.numCards')}
-                </Text>
-              </View>
+                estimatedItemSize={120}
+                ListFooterComponent={null}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                contentContainerStyle={{
+                  paddingBottom: totalBottomPadding,
+                }}
+              />
+              {/* Floating arrow buttons */}
+              {showScrollTop && (
+                <TouchableOpacity
+                  style={styles.fabScrollTop}
+                  onPress={scrollToTop}
+                  accessibilityLabel="Scroll to top"
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="arrow-up" size={SCROLL_ARROW_SIZE} color="#222" />
+                </TouchableOpacity>
+              )}
+              {showScrollBottom && (
+                <TouchableOpacity
+                  style={styles.fabScrollBottom}
+                  onPress={scrollToBottom}
+                  accessibilityLabel="Scroll to bottom"
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="arrow-down" size={SCROLL_ARROW_SIZE} color="#222" />
+                </TouchableOpacity>
+              )}
             </View>
-          </LinearGradient>
-        </>
-      )}
-      <AIManager
-        visible={aiModalVisible}
-        onClose={() => setAiModalVisible(false)}
-        collectionId={collectionId ?? undefined}
-        collectionName={collection?.name ?? undefined}
-        collectionDescription={collection?.description ?? undefined}
-        onCardsAccepted={fetchCards}
-        setAiModalVisible={setAiModalVisible}
+          </>
+        )}
+
+        <AIManager
+          visible={aiModalVisible}
+          onClose={() => setAiModalVisible(false)}
+          collectionId={collectionId ?? undefined}
+          collectionName={collection?.name ?? undefined}
+          collectionDescription={collection?.description ?? undefined}
+          onCardsAccepted={fetchCards}
+          setAiModalVisible={setAiModalVisible}
+        />
+      </ScreenContainer>
+      <ManageCollectionMainMenu
+        visible={mainMenuVisible}
+        onOpen={openMainMenu}
+        onClose={closeMainMenu}
+        onAddCard={handleAddCardPress}
+        onAskAI={() => {
+          closeMainMenu();
+          console.log('Ask AI');
+          setAiModalVisible(true);
+        }}
+        onEditCollection={handleEditCollection}
+        onDeleteCollection={handleDeleteCollection}
       />
-    </View>
+      <View style={[styles.cardCountFooter, { backgroundColor: themeColors.headerBg }]}>
+        <Ionicons
+          name="albums-outline"
+          size={16}
+          color={themeColors.headerText}
+          style={{ marginRight: 4 }}
+        />
+        <Text style={[styles.cardCountText, { color: themeColors.headerText }]}>
+          {cards.length} {i18n.t('cards.numCards')}
+        </Text>
+      </View>
+    </>
   );
 }
 

@@ -1,27 +1,29 @@
-import { View, Text, StyleSheet, FlatList, Switch } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { View, Text, StyleSheet, FlatList, Switch, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { useTheme } from "@react-navigation/native";
-import { Button } from "react-native";
-import { Collection } from "@/src/data/CollectionModel";
-import { Card } from "@/src/data/CardModel";
+import { useTheme } from '@react-navigation/native';
+import { Button } from 'react-native';
+import { Collection } from '@/src/data/CollectionModel';
+import { Card } from '@/src/data/CardModel';
 
-import useSyncService from "@/src/service/CollectionRemoteService";
-import { i18n } from "@/src/lib/i18n";
+import useSyncService from '@/src/service/CollectionRemoteService';
+import { i18n } from '@/src/lib/i18n';
+import { useThemeColors } from '@/src/context/ThemeContext';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
+import PrimaryButton from '@/src/components/common/PrimaryButton';
 
 const CollectionPreview = () => {
-  const { colors } = useTheme();
+  const { themeColors } = useThemeColors();
   const { boxId, previewColId } = useLocalSearchParams();
   const [collection, setCollection] = useState<Collection | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
   const [shuffleCollection, setShuffleCollection] = useState<boolean>(false);
   const router = useRouter();
-  const { error, loading, getCollectionPreview, addCollection } =
-    useSyncService();
+  const { error, loading, getCollectionPreview, addCollection } = useSyncService();
 
   useEffect(() => {
-    getCollectionPreview(Number(previewColId)).then((res) => {
+    getCollectionPreview(Number(previewColId)).then(res => {
       if (res !== null) {
         setCollection(res.collection);
         setCards(res.cards);
@@ -31,50 +33,64 @@ const CollectionPreview = () => {
 
   function handleAddCollection() {
     // Add collection and all it's cards and get back to the Box screen
-    addCollection(Number(boxId), Number(previewColId), shuffleCollection).then(
-      () => {
-        if (error) {
-          // TODO: Error should be shown on UI
-          console.log("Add Collection Failed");
-        } else {
-          router.back();
-          router.back();
-        }
+    addCollection(Number(boxId), Number(previewColId), shuffleCollection).then(() => {
+      if (error) {
+        // TODO: Error should be shown on UI
+        console.log('Add Collection Failed');
+      } else {
+        router.back();
+        router.back();
       }
-    );
+    });
   }
 
+  if (loading) return <ActivityIndicator size="large" color={themeColors.text} />;
   if (!collection) return null;
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       <View>
-        <Text style={styles.sectionHeaderText}>
-          {i18n.t("cards.collection")}:
+        <Text style={[styles.sectionHeaderText, { color: themeColors.text }]}>
+          {i18n.t('cards.collection')}:
         </Text>
       </View>
-      <View style={[styles.collectionBox, styles.elevation, styles.shadowProp]}>
-        <Text style={styles.collectionNameTxt}>{collection.name}</Text>
-        <Text style={styles.collectionDescrTxt}>{collection.description}</Text>
-        <Text>Cards: {collection.cardsNumber}</Text>
+      <View
+        style={[
+          styles.collectionBox,
+          styles.elevation,
+          styles.shadowProp,
+          { backgroundColor: themeColors.cardBg },
+        ]}
+      >
+        <Text style={[styles.collectionNameTxt, { color: themeColors.text }]}>
+          {collection.name}
+        </Text>
+        <Text style={[styles.collectionDescrTxt, { color: themeColors.text }]}>
+          {collection.description}
+        </Text>
+        <Text style={[styles.collectionDescrTxt, { color: themeColors.text }]}>
+          Cards: {collection.cardsNumber}
+        </Text>
       </View>
-      <View>
-        <Text style={styles.sectionHeaderText}>{i18n.t("cards.sample")}:</Text>
+      <View style={{ marginTop: 16 }}>
+        <Text style={[styles.sectionHeaderText, { color: themeColors.text }]}>
+          {i18n.t('cards.sample')}:
+        </Text>
       </View>
       <View style={styles.cardPreviewList}>
         <FlatList
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={item => item.id.toString()}
           data={cards}
           renderItem={({ item }) => (
             <View
-              style={styles.row}
+              style={[styles.row, { backgroundColor: themeColors.cardBg }]}
               //onTouchEnd={() => setSelectedCard(item.id)}
             >
               {/* <Text style={styles.rowItem}>{item.id}</Text> */}
-              <Text style={styles.rowItem} numberOfLines={1}>
+              <Text style={[styles.rowItem, { color: themeColors.text }]} numberOfLines={1}>
                 {item.front}
               </Text>
-              <Text style={styles.rowItem} numberOfLines={1}>
+              <Text style={[styles.rowItem, { color: themeColors.text }]} numberOfLines={1}>
                 {item.back}
               </Text>
             </View>
@@ -82,28 +98,29 @@ const CollectionPreview = () => {
         />
       </View>
       <View>
-        <Text style={styles.sectionHeaderText}>
-          {i18n.t("common.options")}:
+        <Text style={[styles.sectionHeaderText, { color: themeColors.text }]}>
+          {i18n.t('common.options')}:
         </Text>
       </View>
-      <View style={[styles.shuffle, { backgroundColor: colors.card }]}>
-        <Text style={styles.shuffleTxt}>
-          {i18n.t("collection.shuffleCardsOption")}
+      <View style={[styles.shuffle, { backgroundColor: themeColors.cardBg }]}>
+        <Text style={[styles.shuffleTxt, { color: themeColors.cardText }]}>
+          {i18n.t('collection.shuffleCardsOption')}
         </Text>
         <Switch
           value={shuffleCollection}
           onValueChange={setShuffleCollection}
-          thumbColor={colors.primary}
+          thumbColor={themeColors.primaryBtnBg}
         />
       </View>
-      <View>
-        <Button
-          title={i18n.t("cards.addCollection")}
+      <View style={{ marginTop: 16, marginBottom: 8 }}>
+        <PrimaryButton text={i18n.t('cards.addCollection')} onClick={handleAddCollection} />
+        {/* <Button
+          title={i18n.t('cards.addCollection')}
           onPress={handleAddCollection}
-          color={colors.primary}
-        ></Button>
+          color={themeColors.primaryBtnText}
+        ></Button> */}
       </View>
-    </View>
+    </ScreenContainer>
   );
 };
 
@@ -112,58 +129,57 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: '#F5F5F5',
   },
 
   collectionBox: {
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "lightgrey",
-    backgroundColor: "#c2fbc4",
+    backgroundColor: '#c2fbc4',
     margin: 5,
   },
   collectionNameTxt: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   collectionDescrTxt: {
     fontSize: 14,
   },
 
   shadowProp: {
-    shadowColor: "#171717",
+    shadowColor: '#171717',
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   elevation: {
     elevation: 5,
-    shadowColor: "#52006A",
+    shadowColor: '#52006A',
   },
   sectionHeaderText: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
   row: {
-    flexDirection: "row",
-    backgroundColor: "#c2fbc4",
-    borderColor: "lightgrey",
-    borderWidth: 1,
+    flexDirection: 'row',
+    backgroundColor: '#c2fbc4',
+    marginBottom: 1,
   },
   selectedRow: {
-    borderColor: "orange",
+    borderColor: 'orange',
     borderWidth: 1,
   },
   rowItem: { flex: 1, padding: 5 },
   cardPreviewList: {
+    marginVertical: 5,
     flex: 1,
   },
   shuffle: {
     height: 40,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
   },
   shuffleTxt: {
