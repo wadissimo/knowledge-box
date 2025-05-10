@@ -1,4 +1,6 @@
+import { Platform } from 'react-native';
+
 export const Sizes = {
-  tabBarHeight: 50,
+  tabBarHeight: Platform.OS === 'ios' ? 90 : 50,
   headerHeight: 80,
 };

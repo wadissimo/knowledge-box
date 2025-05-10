@@ -1,6 +1,6 @@
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView,View } from 'react-native';
 
 const ScreenContainer = ({ children }: { children: React.ReactNode }) => {
   const { themeColors } = useThemeColors();
@@ -11,7 +11,12 @@ const ScreenContainer = ({ children }: { children: React.ReactNode }) => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView style={styles.container}>{children}</SafeAreaView>
+      <SafeAreaView style={{flex:1}}>
+        <View style={styles.container}>
+
+        {children}
+        </View>
+      </SafeAreaView>
     </LinearGradient>
   );
 };

@@ -242,6 +242,8 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (13.0.2):
     - ExpoModulesCore
+  - ExpoLinearGradient (13.0.2):
+    - ExpoModulesCore
   - ExpoLocalization (15.0.3):
     - ExpoModulesCore
   - ExpoModulesCore (1.12.26):
@@ -1529,6 +1531,31 @@ PODS:
     - React-logger (= 0.74.5)
     - React-perflogger (= 0.74.5)
     - React-utils (= 0.74.5)
+  - RNCAsyncStorage (2.1.2):
+    - React-Core
+  - RNCPicker (2.11.0):
+    - React-Core
+  - RNFlashList (1.8.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNGestureHandler (2.16.2):
     - DoubleConversion
     - glog
@@ -1663,6 +1690,7 @@ DEPENDENCIES:
   - ExpoImage (from `../node_modules/expo-image/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
+  - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoSQLite (from `../node_modules/expo-sqlite/ios`)
@@ -1728,6 +1756,9 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
+  - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -1788,6 +1819,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-image-picker/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
+  ExpoLinearGradient:
+    :path: "../node_modules/expo-linear-gradient/ios"
   ExpoLocalization:
     :path: "../node_modules/expo-localization/ios"
   ExpoModulesCore:
@@ -1915,6 +1948,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNCPicker:
+    :path: "../node_modules/@react-native-picker/picker"
+  RNFlashList:
+    :path: "../node_modules/@shopify/flash-list"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNReanimated:
@@ -1949,6 +1988,7 @@ SPEC CHECKSUMS:
   ExpoImage: 8fe3bbd2cae98bc004efec6fc4387837c9d30e10
   ExpoImagePicker: 517a47896adf5d55d0a1c159e5d1e312af12e57c
   ExpoKeepAwake: dd02e65d49f1cfd9194640028ae2857e536eb1c9
+  ExpoLinearGradient: 4c44b3803b441724874b232e6520b51ca6a50db1
   ExpoLocalization: 1b4195ed48148c7f52ce790d3965cc19483fcbf2
   ExpoModulesCore: c11bcbf466b123a92eb66ab2ae9e0eaef61b7e97
   ExpoSQLite: 9ed0c4fb3b432f68dee65e795ccd630a7cfabd3c
@@ -2015,6 +2055,9 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 914607b0f1a58e1a8366c13f8d2efb49c17d57d1
   React-utils: 3c4b8677afc614f15357ad66fcc3e61bc21a42db
   ReactCommon: cfb89afbdafafbf049c719db9cb61ac4d38af434
+  RNCAsyncStorage: b9f5f78da5d16a853fe3dc22e8268d932fc45a83
+  RNCPicker: 124b4fb5859ba1a3fd53a91e16d1e7a0fc016e59
+  RNFlashList: 38a780eae2eee73f9482e537cbdb974706d97564
   RNGestureHandler: 5d95b0a3cffed8325ed0c181f4f411c1dcd49317
   RNReanimated: f6c3a3aa35de5a312c01b9256a61f23eed660b34
   RNScreens: 5b35d863db10f9be81da4e8f4e08096ee7644f8c

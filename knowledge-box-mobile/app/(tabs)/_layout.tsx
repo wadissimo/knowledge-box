@@ -4,42 +4,45 @@ import { Sizes } from '@/src/constants/Sizes';
 import { i18n } from '@/src/lib/i18n';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useThemeColors } from '@/src/context/ThemeContext';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const _layout = () => {
   const { themeColors } = useThemeColors();
-
+  const insets = useSafeAreaInsets();
+  console.log("insets", insets);
   return (
     <Tabs
-      screenOptions={{
-        tabBarStyle: {
-          backgroundColor: themeColors.tabsBg,
-          height: Sizes.tabBarHeight + 8,
-          // borderTopLeftRadius: 20,
-          // borderTopRightRadius: 20,
-          shadowColor: '#0288d1',
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.13,
-          shadowRadius: 16,
-          elevation: 12,
-          // position: 'absolute',
-          // left: 0,
-          // right: 0,
-          // bottom: 0,
-          borderTopWidth: 0,
-        },
-        tabBarActiveTintColor: themeColors.activeTintColor,
-        tabBarInactiveTintColor: '#b0bec5',
-        tabBarShowLabel: true,
-        tabBarLabelStyle: {
-          fontSize: 13,
-          fontWeight: '600',
-          marginBottom: 2,
-        },
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
-      }}
-    >
+  screenOptions={{
+    tabBarStyle: {
+      backgroundColor: themeColors.tabsBg,
+      height: Sizes.tabBarHeight,
+
+
+      shadowColor: '#0288d1',
+      shadowOffset: { width: 0, height: -3 },
+      shadowOpacity: 0.13,
+      shadowRadius: 16,
+      elevation: 12,
+      borderTopWidth: 0,
+      
+      
+      
+    },
+    
+    tabBarActiveTintColor: themeColors.activeTintColor,
+    tabBarInactiveTintColor: '#b0bec5',
+    tabBarShowLabel: true,
+    tabBarLabelStyle: {
+      fontSize: 13,
+      fontWeight: '600',
+      marginBottom: 2,
+    },
+    tabBarIconStyle: {
+       marginTop: 4
+    },
+    tabBarLabelPosition: 'below-icon', // <- add this
+   
+  }}
+>
       <Tabs.Screen
         name="index"
         options={{
