@@ -130,6 +130,7 @@ export default function ManageCollectionScreen() {
   };
 
   const handleEditCollection = () => {
+    closeMainMenu();
     if (!collectionId) {
       console.error('collectionId is undefined');
       return;

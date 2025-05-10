@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,28 +10,29 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Image,
-} from "react-native";
-import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
+} from 'react-native';
+import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 
-import { Card, useCardModel } from "@/src/data/CardModel";
+import { Card, useCardModel } from '@/src/data/CardModel';
 
-import useMediaDataService from "@/src/service/MediaDataService";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { i18n } from "@/src/lib/i18n";
-import { useAppTheme } from "@/src/hooks/useAppTheme";
-import * as ImagePicker from "expo-image-picker";
-import { useImageModel } from "@/src/data/ImageModel";
-import LocalImage from "@/src/components/utils/LocalImage";
-import * as DocumentPicker from "expo-document-picker";
+import useMediaDataService from '@/src/service/MediaDataService';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { i18n } from '@/src/lib/i18n';
+import { useAppTheme } from '@/src/hooks/useAppTheme';
+import * as ImagePicker from 'expo-image-picker';
+import { useImageModel } from '@/src/data/ImageModel';
+import LocalImage from '@/src/components/utils/LocalImage';
+import * as DocumentPicker from 'expo-document-picker';
+import { useThemeColors } from '@/src/context/ThemeContext';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
+import PrimaryButton from '@/src/components/common/PrimaryButton';
 
 const EditFlashcard = () => {
   const router = useRouter();
-  const { colors } = useAppTheme();
-
+  const { themeColors } = useThemeColors();
   const { collectionId, cardId } = useLocalSearchParams();
 
-  const { getCardById, newCard, updateCardFrontBack, updateCard } =
-    useCardModel();
+  const { getCardById, newCard, updateCardFrontBack, updateCard } = useCardModel();
 
   const navigation = useNavigation();
   const { getImageById } = useImageModel();
@@ -54,7 +55,7 @@ const EditFlashcard = () => {
   const [soundUriFront, setSoundUriFront] = useState<string | null>(null);
   const [soundUriBack, setSoundUriBack] = useState<string | null>(null);
 
-  const [selectedTab, setSelectedTab] = useState<string>("front");
+  const [selectedTab, setSelectedTab] = useState<string>('front');
   const [card, setCard] = useState<Partial<Card> | null>(null);
 
   async function handlePlaySound(soundUri: string) {
@@ -62,13 +63,13 @@ const EditFlashcard = () => {
   }
   useEffect(() => {
     async function fetchCards() {
-      if (cardId === "new") {
+      if (cardId === 'new') {
         navigation.setOptions({
-          title: i18n.t("cards.newCardTitle"),
+          title: i18n.t('cards.newCardTitle'),
         });
         setCard({
-          front: "",
-          back: "",
+          front: '',
+          back: '',
         });
       } else {
         const card = await getCardById(Number(cardId));
@@ -93,7 +94,7 @@ const EditFlashcard = () => {
         setUpdateSoundBack(false);
 
         navigation.setOptions({
-          title: i18n.t("cards.editCardTitle"),
+          title: i18n.t('cards.editCardTitle'),
         });
       }
     }
@@ -103,12 +104,8 @@ const EditFlashcard = () => {
   const handleSave = async () => {
     if (card === null) return;
     var dbCardId: number;
-    if (cardId === "new") {
-      const cardId = await newCard(
-        Number(collectionId),
-        card.front ?? "",
-        card.back ?? ""
-      );
+    if (cardId === 'new') {
+      const cardId = await newCard(Number(collectionId), card.front ?? '', card.back ?? '');
       if (cardId === null) throw new Error("can't find card");
       dbCardId = cardId;
     } else {
@@ -121,11 +118,11 @@ const EditFlashcard = () => {
         ...card,
       };
       if (updateImgFront) {
-        console.log("uploading front");
+        console.log('uploading front');
         if (imageUriFront !== null) {
           const imgData = await newImageFromLocalUri(imageUriFront);
           if (imgData === null) {
-            throw new Error("error uploading image");
+            throw new Error('error uploading image');
           }
           updatedCard.frontImg = imgData.id;
         } else {
@@ -133,11 +130,11 @@ const EditFlashcard = () => {
         }
       }
       if (updateImgBack) {
-        console.log("uploading back");
+        console.log('uploading back');
         if (imageUriBack !== null) {
           const imgData = await newImageFromLocalUri(imageUriBack);
           if (imgData === null) {
-            throw new Error("error uploading image");
+            throw new Error('error uploading image');
           }
           updatedCard.backImg = imgData.id;
         } else {
@@ -149,7 +146,7 @@ const EditFlashcard = () => {
         if (soundUriFront !== null) {
           const soundData = await newSoundFromLocalUri(soundUriFront);
           if (soundData === null) {
-            throw new Error("error uploading sound");
+            throw new Error('error uploading sound');
           }
           updatedCard.frontSound = soundData.id;
         } else {
@@ -160,7 +157,7 @@ const EditFlashcard = () => {
         if (soundUriBack !== null) {
           const soundData = await newSoundFromLocalUri(soundUriBack);
           if (soundData === null) {
-            throw new Error("error uploading sound");
+            throw new Error('error uploading sound');
           }
           updatedCard.backSound = soundData.id;
         } else {
@@ -196,54 +193,106 @@ const EditFlashcard = () => {
 
   if (card === null) return null;
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior="padding">
-      <View style={styles.tabBarContainer}>
-        <TouchableOpacity
-          style={[styles.tabBarItem, selectedTab === "front" && styles.tabBarItemActive]}
-          onPress={() => handleSelectedTabClick("front")}
-        >
-          <Text style={selectedTab === "front" ? styles.tabBarTextActive : styles.tabBarText}>{i18n.t("cards.frontSide")}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tabBarItem, selectedTab === "back" && styles.tabBarItemActive]}
-          onPress={() => handleSelectedTabClick("back")}
-        >
-          <Text style={selectedTab === "back" ? styles.tabBarTextActive : styles.tabBarText}>{i18n.t("cards.backSide")}</Text>
-        </TouchableOpacity>
-      </View>
-      {/* Remove green line, add subtle divider */}
-      <View style={{ height: 1, backgroundColor: '#e0e0e0', width: '100%' }} />
-      <ScrollView contentContainerStyle={styles.cardContentContainer} keyboardShouldPersistTaps="handled">
-        {selectedTab === "front" && (
-          <FrontBackEdit
-            card={card}
-            front={true}
-            setCard={setCard}
-            image={imageUriFront}
-            setUploadedImage={updateUploadedImageFront}
-            sound={soundUriFront}
-            setUploadSound={updateUploadedSoundFront}
-            playSound={handlePlaySound}
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <ScreenContainer>
+        <View style={styles.tabBarContainer}>
+          <TouchableOpacity
+            style={[
+              styles.tabBarItem,
+              selectedTab === 'front' && styles.tabBarItemActive,
+              {
+                backgroundColor:
+                  selectedTab === 'front' ? themeColors.headerBg : themeColors.subHeaderBg,
+              },
+            ]}
+            onPress={() => handleSelectedTabClick('front')}
+          >
+            <Text
+              style={[
+                selectedTab === 'front' ? styles.tabBarTextActive : styles.tabBarText,
+                {
+                  color:
+                    selectedTab === 'front' ? themeColors.headerText : themeColors.subHeaderText,
+                },
+              ]}
+            >
+              {i18n.t('cards.frontSide')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.tabBarItem,
+              selectedTab === 'back' && styles.tabBarItemActive,
+              {
+                backgroundColor:
+                  selectedTab === 'back' ? themeColors.headerBg : themeColors.subHeaderBg,
+              },
+            ]}
+            onPress={() => handleSelectedTabClick('back')}
+          >
+            <Text
+              style={[
+                selectedTab === 'back' ? styles.tabBarTextActive : styles.tabBarText,
+                {
+                  color:
+                    selectedTab === 'back' ? themeColors.headerText : themeColors.subHeaderText,
+                },
+              ]}
+            >
+              {i18n.t('cards.backSide')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ height: 1, flexDirection: 'row' }}>
+          <View
+            style={{
+              backgroundColor: selectedTab === 'back' ? themeColors.headerText : 'transparent',
+              width: '50%',
+            }}
           />
-        )}
-        {selectedTab === "back" && (
-          <FrontBackEdit
-            card={card}
-            front={false}
-            setCard={setCard}
-            image={imageUriBack}
-            setUploadedImage={updateUploadedImageBack}
-            sound={soundUriBack}
-            setUploadSound={updateUploadedSoundBack}
-            playSound={handlePlaySound}
+          <View
+            style={{
+              backgroundColor: selectedTab === 'front' ? themeColors.headerText : 'transparent',
+              width: '50%',
+            }}
           />
-        )}
-      </ScrollView>
-      <View style={styles.saveButtonContainer}>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>{i18n.t(cardId === "new" ? "cards.createCardBtn" : "cards.saveCardBtn")}</Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+        <ScrollView
+          contentContainerStyle={styles.cardContentContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          {selectedTab === 'front' && (
+            <FrontBackEdit
+              card={card}
+              front={true}
+              setCard={setCard}
+              image={imageUriFront}
+              setUploadedImage={updateUploadedImageFront}
+              sound={soundUriFront}
+              setUploadSound={updateUploadedSoundFront}
+              playSound={handlePlaySound}
+            />
+          )}
+          {selectedTab === 'back' && (
+            <FrontBackEdit
+              card={card}
+              front={false}
+              setCard={setCard}
+              image={imageUriBack}
+              setUploadedImage={updateUploadedImageBack}
+              sound={soundUriBack}
+              setUploadSound={updateUploadedSoundBack}
+              playSound={handlePlaySound}
+            />
+          )}
+        </ScrollView>
+        <View style={styles.saveButtonContainer}>
+          <PrimaryButton
+            text={i18n.t(cardId === 'new' ? 'cards.createCardBtn' : 'cards.saveCardBtn')}
+            onClick={handleSave}
+          />
+        </View>
+      </ScreenContainer>
     </KeyboardAvoidingView>
   );
 };
@@ -267,7 +316,7 @@ const FrontBackEdit = ({
   setUploadSound: Function;
   playSound: Function;
 }) => {
-  const { colors } = useAppTheme();
+  const { themeColors } = useThemeColors();
 
   const textValue = front ? card.front : card.back;
   const setTextValue = (val: string) => {
@@ -291,7 +340,7 @@ const FrontBackEdit = ({
     });
     if (!result.canceled) {
       setUploadedImage(result.assets[0].uri);
-      console.log("image selected", result.assets[0].uri);
+      console.log('image selected', result.assets[0].uri);
     }
   };
   const clearImage = () => {
@@ -299,11 +348,11 @@ const FrontBackEdit = ({
   };
   const pickSound = async () => {
     const result = await DocumentPicker.getDocumentAsync({
-      type: "audio/*",
+      type: 'audio/*',
       copyToCacheDirectory: true,
     });
     if (!result.canceled) {
-      console.log("pick sound", result.assets[0].uri);
+      console.log('pick sound', result.assets[0].uri);
       setUploadSound(result.assets[0].uri);
     }
   };
@@ -316,7 +365,7 @@ const FrontBackEdit = ({
         style={styles.input}
         value={textValue}
         onChangeText={setTextValue}
-        placeholder={i18n.t("common.text")}
+        placeholder={i18n.t('common.text')}
         multiline
         numberOfLines={3}
       />
@@ -326,48 +375,58 @@ const FrontBackEdit = ({
           {image ? (
             <LocalImage uri={image} maxHeight={120} maxWidth={200} />
           ) : (
-            <Text>{i18n.t("cards.noImage")}</Text>
+            <Text style={[{ color: themeColors.text }]}>{i18n.t('cards.noImage')}</Text>
           )}
         </View>
         {image ? (
           <TouchableOpacity onPress={clearImage} style={styles.iconView}>
-            <View style={styles.uploadIcon}>
-              <Icon name="close-circle" size={42} color={"#444"} />
-              <Text style={styles.iconTxt}>{i18n.t("common.remove")}</Text>
+            <View style={[styles.uploadIcon, { backgroundColor: themeColors.primaryBtnBg }]}>
+              <Icon name="close-circle" size={42} color={themeColors.primaryBtnText} />
+              <Text style={[styles.iconTxt, { color: themeColors.primaryBtnText }]}>
+                {i18n.t('common.remove')}
+              </Text>
             </View>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity onPress={pickImage} style={styles.iconView}>
-            <View style={styles.uploadIcon}>
-              <Icon name="file-upload-outline" size={42} color={"#444"} />
-              <Text style={styles.iconTxt}>{i18n.t("common.image")}</Text>
+            <View style={[styles.uploadIcon, { backgroundColor: themeColors.primaryBtnBg }]}>
+              <Icon name="file-upload-outline" size={42} color={themeColors.primaryBtnText} />
+              <Text style={[styles.iconTxt, { color: themeColors.primaryBtnText }]}>
+                {i18n.t('common.image')}
+              </Text>
             </View>
           </TouchableOpacity>
         )}
       </View>
 
-      <View style={styles.soundUploadContainer}>
-        <View style={styles.mediaView}>
+      <View style={[styles.soundUploadContainer]}>
+        <View style={[styles.mediaView]}>
           {sound ? (
             <TouchableOpacity onPress={() => playSound(sound)}>
-              <Icon name="play-circle-outline" size={42} color="#444" />
+              <View style={[styles.playIcon, { backgroundColor: themeColors.primaryBtnBg }]}>
+                <Icon name="play-circle-outline" size={42} color={themeColors.primaryBtnText} />
+              </View>
             </TouchableOpacity>
           ) : (
-            <Text>{i18n.t("cards.noSound")}</Text>
+            <Text style={[{ color: themeColors.text }]}>{i18n.t('cards.noSound')}</Text>
           )}
         </View>
         {sound ? (
           <TouchableOpacity onPress={clearSound} style={styles.iconView}>
-            <View style={styles.uploadIcon}>
-              <Icon name="close-circle" size={42} color={"#444"} />
-              <Text style={styles.iconTxt}>{i18n.t("common.remove")}</Text>
+            <View style={[styles.uploadIcon, { backgroundColor: themeColors.primaryBtnBg }]}>
+              <Icon name="close-circle" size={42} color={themeColors.primaryBtnText} />
+              <Text style={[styles.iconTxt, { color: themeColors.primaryBtnText }]}>
+                {i18n.t('common.remove')}
+              </Text>
             </View>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity onPress={pickSound} style={styles.iconView}>
-            <View style={styles.uploadIcon}>
-              <Icon name="file-upload-outline" size={42} color={"#444"} />
-              <Text style={styles.iconTxt}>{i18n.t("common.sound")}</Text>
+            <View style={[styles.uploadIcon, { backgroundColor: themeColors.primaryBtnBg }]}>
+              <Icon name="file-upload-outline" size={42} color={themeColors.primaryBtnText} />
+              <Text style={[styles.iconTxt, { color: themeColors.primaryBtnText }]}>
+                {i18n.t('common.sound')}
+              </Text>
             </View>
           </TouchableOpacity>
         )}
@@ -424,81 +483,75 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255,255,255,0.95)',
     padding: 16,
-    borderTopWidth: 1,
-    borderColor: '#eee',
     alignItems: 'center',
   },
-  saveButton: {
-    backgroundColor: '#222',
-    borderRadius: 24,
-    paddingVertical: 14,
-    paddingHorizontal: 48,
-    alignItems: 'center',
-    elevation: 2,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
-  },
+
   input: {
-    backgroundColor: "#FFF",
-    borderColor: "#ccc",
+    backgroundColor: '#FFF',
+    borderColor: '#ccc',
     borderWidth: 1,
     padding: 20,
     borderRadius: 8,
     marginBottom: 20,
     fontSize: 16,
-    color: "#555",
-    textAlignVertical: "top",
+    color: '#555',
+    textAlignVertical: 'top',
     height: 120,
   },
   imageUploadContainer: {
     height: 120,
     marginBottom: 20,
     padding: 10,
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   soundUploadContainer: {
     height: 120,
     marginBottom: 20,
     padding: 10,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   mediaView: {
     flex: 0.8,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   iconView: {
-    flex: 0.3,
-    justifyContent: "center",
-    alignItems: "center",
+    flex: 0.4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   uploadIcon: {
-    padding: 3,
-    margin: 5,
-    borderRadius: 8,
+    padding: 5,
+    borderRadius: 16,
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    borderWidth: 1,
-    borderColor: '#ccc',
     flexDirection: 'row',
     minWidth: 120,
     minHeight: 44,
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
+    elevation: 10,
+    shadowColor: '#0288d1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+
+  playIcon: {
+    padding: 5,
+    borderRadius: 32,
+    alignItems: 'center',
+    flexDirection: 'row',
+
+    justifyContent: 'center',
+    elevation: 10,
+    shadowColor: '#0288d1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   iconTxt: {
     color: '#444',
