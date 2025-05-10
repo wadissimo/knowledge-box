@@ -27,45 +27,41 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import { isAISetupCompleted } from '@/src/utils/aiSetup';
+import { SETTING_IDS, useSettingsModel } from '@/src/data/SettingsModel';
 
 const SCROLL_ARROW_SIZE = 32;
 
 export default function ManageCollectionScreen() {
-  // --- State for menus (must be before any return/conditional logic) ---
-  const [mainMenuVisible, setMainMenuVisible] = useState(false);
-
-  // --- Menu handlers ---
-  const openMainMenu = () => setMainMenuVisible(true);
-  const closeMainMenu = () => setMainMenuVisible(false);
-
-  // --- FlashList ref and scroll arrows state (must be declared at the top level, not conditionally) ---
-  const flashListRef = React.useRef<any>(null);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [showScrollBottom, setShowScrollBottom] = useState(true);
-
-  // --- AI Modal State ---
-  const [aiModalVisible, setAiModalVisible] = useState(false);
-
   const { themeColors } = useThemeColors();
-
   const router = useRouter();
   const { collectionId, affectedCardId } = useLocalSearchParams<{
     collectionId?: string;
     affectedCardId?: string;
   }>();
   console.log('collectionId', collectionId);
+
+  const [mainMenuVisible, setMainMenuVisible] = useState(false);
+  const openMainMenu = () => setMainMenuVisible(true);
+  const closeMainMenu = () => setMainMenuVisible(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(true);
+  const [aiModalVisible, setAiModalVisible] = useState(false);
+  const flashListRef = React.useRef<any>(null);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [collection, setCollection] = useState<Collection | null>(null);
 
   const { getCollectionById, deleteCollection } = useCollectionModel();
   const { getCards, deleteCard, newCards } = useCardModel();
-  const [cards, setCards] = useState<Card[]>([]);
-  const [collection, setCollection] = useState<Collection | null>(null);
+  const { getSettingById } = useSettingsModel();
 
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
   const totalBottomPadding = insets.bottom + tabBarHeight;
   console.log('totalBottomPadding', totalBottomPadding);
+
   const numCards = cards.length;
 
   const handleCardPress = (id: number) => {
@@ -127,6 +123,19 @@ export default function ManageCollectionScreen() {
       ],
       { cancelable: true }
     );
+  };
+
+  const handleAskAI = async () => {
+    closeMainMenu();
+    const setupCompleted = await isAISetupCompleted();
+    const apiKey = await getSettingById(SETTING_IDS.apiKey);
+    console.log('[manage.tsx] AI setup completed:', setupCompleted);
+    if (!setupCompleted || !apiKey || !apiKey.value) {
+      if (setAiModalVisible) setAiModalVisible(false);
+      router.push('./AISetup');
+      return;
+    }
+    setAiModalVisible(true);
   };
 
   const handleEditCollection = () => {
@@ -416,11 +425,7 @@ export default function ManageCollectionScreen() {
         onOpen={openMainMenu}
         onClose={closeMainMenu}
         onAddCard={handleAddCardPress}
-        onAskAI={() => {
-          closeMainMenu();
-          console.log('Ask AI');
-          setAiModalVisible(true);
-        }}
+        onAskAI={handleAskAI}
         onEditCollection={handleEditCollection}
         onDeleteCollection={handleDeleteCollection}
       />
