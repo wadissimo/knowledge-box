@@ -1,16 +1,18 @@
-import { View, Text, StyleSheet, TextInput, Alert, Button } from "react-native";
-import React, { useState } from "react";
-import { useTheme } from "@react-navigation/native";
-import { i18n } from "@/src/lib/i18n";
+import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { i18n } from '@/src/lib/i18n';
+import PrimaryButton from '../common/PrimaryButton';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const CreateCollectionForm: React.FC<{
   onCreate: Function;
 }> = ({ onCreate }) => {
-  const { colors } = useTheme();
-  const [name, setName] = useState<string>("");
+  const { themeColors } = useThemeColors();
+  const [name, setName] = useState<string>('');
+
   const handleSave = async () => {
     if (!name) {
-      Alert.alert("Error", "Name must be filled.");
+      Alert.alert('Error', 'Name must be filled.');
       return;
     }
     onCreate(name);
@@ -18,20 +20,18 @@ const CreateCollectionForm: React.FC<{
 
   return (
     <View style={styles.newColContainer}>
-      <Text style={styles.label}>{i18n.t("cards.createCollection")}</Text>
+      <Text style={[styles.label, { color: themeColors.text }]}>
+        {i18n.t('cards.createCollection')}
+      </Text>
 
       <TextInput
         style={styles.input}
         value={name}
         onChangeText={setName}
-        placeholder={i18n.t("cards.collectionName")}
+        placeholder={i18n.t('cards.collectionName')}
       />
 
-      <Button
-        title={i18n.t("common.create")}
-        onPress={handleSave}
-        color={colors.primary}
-      />
+      <PrimaryButton text={i18n.t('common.create')} onClick={handleSave} />
     </View>
   );
 };
@@ -40,28 +40,28 @@ const styles = StyleSheet.create({
   newColContainer: {},
 
   input: {
-    backgroundColor: "#FFF",
-    borderColor: "#DDD",
+    backgroundColor: '#FFF',
+    borderColor: '#DDD',
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
     marginBottom: 20,
     fontSize: 16,
-    color: "#333",
-    textAlignVertical: "top",
+    color: '#333',
+    textAlignVertical: 'top',
   },
 
   label: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginVertical: 10,
     //textAlign: "center",
-    color: "#333",
+    color: '#333',
   },
   multilineInput: {},
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "grey",
+    backgroundColor: 'grey',
     marginVertical: 1,
   },
 });

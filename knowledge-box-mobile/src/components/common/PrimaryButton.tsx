@@ -18,12 +18,12 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     //fontFamily: 'Poppins_400Regular',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: 14,
   },
 
   btn: {
-    padding: 6,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#007AFF',
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 10,
   },
 });
 

@@ -19,8 +19,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useCollectionRemoteService from '@/src/service/CollectionRemoteService';
 import SearchTags from '@/src/components/collections/SearchTags';
 import { i18n } from '@/src/lib/i18n';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const AddCollection = () => {
+  const { themeColors } = useThemeColors();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<Collection[]>([]);
 
@@ -69,11 +72,13 @@ const AddCollection = () => {
   };
   console.log('rendering addCollections');
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <ScreenContainer>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.searchContainer}>
-            <Text style={styles.searchText}>{i18n.t('cards.search')}</Text>
+            <Text style={[styles.searchText, { color: themeColors.text }]}>
+              {i18n.t('cards.search')}
+            </Text>
             <View style={styles.searchBar}>
               <TextInput
                 style={styles.input}
@@ -95,22 +100,33 @@ const AddCollection = () => {
             <View style={styles.searchResult}>
               {noResults ? (
                 <View>
-                  <Text>{i18n.t('cards.searchNoResults')}</Text>
+                  <Text style={{ color: themeColors.text }}>{i18n.t('cards.searchNoResults')}</Text>
                 </View>
               ) : (
                 searchResults.map(searchResult => (
                   <View
                     key={`sr_${searchResult.id}`}
-                    style={[styles.searchResultBox, styles.elevation, styles.shadowProp]}
+                    style={[
+                      styles.searchResultBox,
+                      styles.elevation,
+                      styles.shadowProp,
+                      { backgroundColor: themeColors.cardBg },
+                    ]}
                   >
                     <TouchableOpacity onPress={() => handleCollectionPress(searchResult.id)}>
-                      <Text style={styles.searchResultNameTxt} numberOfLines={1}>
+                      <Text
+                        style={[styles.searchResultNameTxt, { color: themeColors.text }]}
+                        numberOfLines={1}
+                      >
                         {searchResult.name}
                       </Text>
-                      <Text style={styles.searchResultDescrTxt} numberOfLines={3}>
+                      <Text
+                        style={[styles.searchResultDescrTxt, { color: themeColors.text }]}
+                        numberOfLines={3}
+                      >
                         {searchResult.description}
                       </Text>
-                      <Text>
+                      <Text style={[styles.searchResultDescrTxt, { color: themeColors.text }]}>
                         {i18n.t('cards.numCards')}: {searchResult.cardsNumber}
                       </Text>
                     </TouchableOpacity>
@@ -123,7 +139,7 @@ const AddCollection = () => {
           <CreateCollectionForm onCreate={handleCollectionCreate} />
         </View>
       </TouchableWithoutFeedback>
-    </SafeAreaView>
+    </ScreenContainer>
   );
 };
 
@@ -182,8 +198,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: 'lightgrey',
+
     backgroundColor: '#c2fbc4',
     margin: 5,
     height: 100,
