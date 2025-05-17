@@ -1,51 +1,48 @@
-import { View, Text, Button, StyleSheet } from "react-native";
-import React from "react";
-// import auth from "@react-native-firebase/auth";
-import { useTheme } from "@react-navigation/native";
+import { View, Text, Button, StyleSheet } from 'react-native';
+import React from 'react';
+import { getAuth } from '@react-native-firebase/auth';
+import { useTheme } from '@react-navigation/native';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
 const UserPage = () => {
   const { colors } = useTheme();
-  return null;
-  // const user = auth().currentUser;
-  // return (
-  //   <View style={styles.container}>
-  //     <View style={[styles.header, { backgroundColor: colors.background }]}>
-  //       <Text>Welcome, {user?.email}</Text>
-  //       <Button
-  //         title="Sign out"
-  //         onPress={() => auth().signOut()}
-  //         color={colors.primary}
-  //       />
-  //     </View>
-  //     <View style={styles.mainContainer}>
-  //       <View style={styles.statsContainer}>
-  //         <View>
-  //           <Text>Stats</Text>
-  //         </View>
-  //         <View>
-  //           <Text>Total cards: XXX</Text>
-  //         </View>
-  //         <View>
-  //           <Text>Studying: XXX</Text>
-  //         </View>
-  //         <View>
-  //           <Text>Total XP: XXX</Text>
-  //         </View>
-  //         <View>
-  //           <Text>Time Spent: X days XX hrs XX mins</Text>
-  //         </View>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
+  // return null;
+  const user = getAuth().currentUser;
+  return (
+    <ScreenContainer>
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
+        <Text>Welcome, {user?.email}</Text>
+        <Button title="Sign out" onPress={() => getAuth().signOut()} color={colors.primary} />
+      </View>
+      <View style={styles.mainContainer}>
+        <View style={styles.statsContainer}>
+          <View>
+            <Text>Stats</Text>
+          </View>
+          <View>
+            <Text>Total cards: XXX</Text>
+          </View>
+          <View>
+            <Text>Studying: XXX</Text>
+          </View>
+          <View>
+            <Text>Total XP: XXX</Text>
+          </View>
+          <View>
+            <Text>Time Spent: X days XX hrs XX mins</Text>
+          </View>
+        </View>
+      </View>
+    </ScreenContainer>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   header: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 5,
   },
