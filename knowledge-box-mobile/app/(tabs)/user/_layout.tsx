@@ -4,8 +4,11 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { getAuth } from '@react-native-firebase/auth';
+import { useTheme } from '@react-navigation/native';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const UserLayout = () => {
+  const { themeColors } = useThemeColors();
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
 
@@ -27,7 +30,9 @@ const UserLayout = () => {
     console.log('initializing');
     if (initializing) return;
 
-    const inAuthGroup = '(auth)' in segments;
+    console.log('segments', segments);
+    const inAuthGroup = segments.includes('(auth)' as never);
+    console.log('inAuthGroup', inAuthGroup);
     if (user && !inAuthGroup) {
       console.log('userpage');
       router.replace('/(tabs)/user/userpage');
@@ -55,17 +60,17 @@ const UserLayout = () => {
           headerShown: true,
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()}>
-              <Icon name="chevron-left" size={42} color="white" />
+              <Icon name="chevron-left" size={42} color={themeColors.headerText} />
             </TouchableOpacity>
           ),
           headerBackVisible: false,
           headerShadowVisible: false,
 
           headerStyle: {
-            backgroundColor: '#1da422',
+            backgroundColor: themeColors.headerBg,
           },
           headerTitleStyle: {
-            color: 'white',
+            color: themeColors.headerText,
             fontSize: 32,
             fontWeight: 'bold',
           },

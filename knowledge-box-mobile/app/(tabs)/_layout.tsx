@@ -8,41 +8,36 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const _layout = () => {
   const { themeColors } = useThemeColors();
   const insets = useSafeAreaInsets();
-  console.log("insets", insets);
+  console.log('insets', insets);
   return (
     <Tabs
-  screenOptions={{
-    tabBarStyle: {
-      backgroundColor: themeColors.tabsBg,
-      height: Sizes.tabBarHeight,
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: themeColors.tabsBg,
+          height: Sizes.tabBarHeight,
 
+          shadowColor: '#0288d1',
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.13,
+          shadowRadius: 16,
+          elevation: 12,
+          borderTopWidth: 0,
+        },
 
-      shadowColor: '#0288d1',
-      shadowOffset: { width: 0, height: -3 },
-      shadowOpacity: 0.13,
-      shadowRadius: 16,
-      elevation: 12,
-      borderTopWidth: 0,
-      
-      
-      
-    },
-    
-    tabBarActiveTintColor: themeColors.activeTintColor,
-    tabBarInactiveTintColor: '#b0bec5',
-    tabBarShowLabel: true,
-    tabBarLabelStyle: {
-      fontSize: 13,
-      fontWeight: '600',
-      marginBottom: 2,
-    },
-    tabBarIconStyle: {
-       marginTop: 4
-    },
-    tabBarLabelPosition: 'below-icon', // <- add this
-   
-  }}
->
+        tabBarActiveTintColor: themeColors.activeTintColor,
+        tabBarInactiveTintColor: '#b0bec5',
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontSize: 13,
+          fontWeight: '600',
+          marginBottom: 2,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
+        },
+        tabBarLabelPosition: 'below-icon', // <- add this
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -76,7 +71,7 @@ const _layout = () => {
               style={focused ? { shadowColor: '#0288d1', shadowOpacity: 0.2, shadowRadius: 6 } : {}}
             />
           ),
-          headerShown: true,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
