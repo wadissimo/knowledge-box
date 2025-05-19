@@ -98,7 +98,7 @@
     },
     "noImage": "Kein Bild hochgeladen",
     "noSound": "Kein Audio hochgeladen",
-    "askAiTitle": "KI: Karten automatisch generieren",
+
     "askAiPrompt": "Beschreiben Sie, welche Karten Sie brauchen:",
     "askAiBtn": "KI fragen",
     "generating": "Generiere...",
@@ -111,12 +111,11 @@
     "aiCardTryAgain": "Erneut versuchen",
     "noSuggestedCardsTitle": "Keine Karten vorgeschlagen",
     "noSuggestedCardsMsg": "Es wurden keine Karten von der KI vorgeschlagen. Bitte ändern Sie Ihren Prompt und versuchen Sie es erneut.",
-    "askAiBtn": "KI zum Generieren auffordern",
+
     "askAiTitle": "KI zum Generieren von Karten auffordern",
-    "askAiPrompt": "Beschreiben Sie, welche Karten Sie benötigen:",
+
     "aiPreview": "Vorgeschlagene Karten überprüfen:",
-    "generating": "Generiere...",
-    "aiSuccess": "Neue Karten generiert!",
+
     "save": "Speichern",
     "aiError": "KI-Fehler",
     "tryAgain": "Eingabe bearbeiten & erneut versuchen",
@@ -199,5 +198,13 @@
     "learnCards": "Anzahl zu lernender Karten",
     "apiKey": "API Key",
     "model": "Model"
+  },
+  "user": {
+    "email": "Email",
+    "password": "Passwort",
+    "login": "Anmeldung",
+    "signOut": "Abmelden",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren"
   }
 }

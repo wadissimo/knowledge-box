@@ -5,13 +5,15 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { getAuth } from '@react-native-firebase/auth';
 import { useTheme } from '@react-navigation/native';
-import { useThemeColors } from '@/src/context/ThemeContext';
+import { useHeaderOptions, useHeaderTitleStyle, useThemeColors } from '@/src/context/ThemeContext';
+import { i18n } from '@/src/lib/i18n';
 
 const UserLayout = () => {
   const { themeColors } = useThemeColors();
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
-
+  const headerTitleStyle = useHeaderTitleStyle();
+  const defaultHeaderOptions = useHeaderOptions();
   const router = useRouter();
   const segments = useSegments();
 
@@ -56,27 +58,14 @@ const UserLayout = () => {
       <Stack.Screen
         name="login"
         options={{
-          title: 'Login',
-          headerShown: true,
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()}>
-              <Icon name="chevron-left" size={42} color={themeColors.headerText} />
-            </TouchableOpacity>
-          ),
-          headerBackVisible: false,
-          headerShadowVisible: false,
-
-          headerStyle: {
-            backgroundColor: themeColors.headerBg,
-          },
-          headerTitleStyle: {
-            color: themeColors.headerText,
-            fontSize: 32,
-            fontWeight: 'bold',
-          },
+          ...defaultHeaderOptions,
+          title: i18n.t('user.login'),
         }}
       />
-      <Stack.Screen name="(auth)/userpage" options={{ headerShown: true }} />
+      <Stack.Screen
+        name="(auth)/userpage"
+        options={{ ...defaultHeaderOptions, title: i18n.t('menu.profile'), headerLeft: () => null }}
+      />
     </Stack>
   );
 };

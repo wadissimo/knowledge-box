@@ -1,4 +1,8 @@
+import { useRouter } from 'expo-router';
 import { createContext, useContext, useState } from 'react';
+import { TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Sizes } from '../constants/Sizes';
 
 interface ThemeContextType {
   themeColors: typeof defaultColors;
@@ -56,4 +60,58 @@ export function useThemeColors() {
     throw new Error('useThemeColors must be used within ThemeContextProvider');
   }
   return context;
+}
+
+export function useHeaderTitleStyle() {
+  const { themeColors } = useThemeColors();
+
+  const headerTitleStyle = {
+    color: themeColors.headerText,
+    fontSize: 28,
+    fontWeight: 'bold' as 'bold',
+
+    letterSpacing: 0.5,
+    textShadowColor: '#1565c0',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  };
+
+  return headerTitleStyle;
+}
+
+export function useHeaderOptions() {
+  const { themeColors } = useThemeColors();
+  const router = useRouter();
+
+  const headerTitleStyle = useHeaderTitleStyle();
+
+  return {
+    headerShown: true,
+    headerLeft: () => (
+      <TouchableOpacity onPress={() => router.back()}>
+        <Icon
+          name="chevron-left"
+          size={38}
+          color={themeColors.headerText}
+          style={headerTitleStyle}
+        />
+      </TouchableOpacity>
+    ),
+    headerBackVisible: false,
+    headerShadowVisible: false,
+    headerStyle: {
+      height: Sizes.headerHeight,
+      backgroundColor: themeColors.headerBg,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+    },
+    headerTitleStyle,
+    headerLeftContainerStyle: {
+      backgroundColor: themeColors.headerBg,
+    },
+    headerRightContainerStyle: {
+      backgroundColor: themeColors.headerBg,
+    },
+  };
 }

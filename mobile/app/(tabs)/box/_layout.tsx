@@ -3,50 +3,13 @@ import React from 'react';
 import { Href, Link, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '@react-navigation/native';
-import { Sizes } from '@/src/constants/Sizes';
 import { i18n } from '@/src/lib/i18n';
-import { useThemeColors } from '@/src/context/ThemeContext';
+import { useHeaderOptions, useHeaderTitleStyle, useThemeColors } from '@/src/context/ThemeContext';
 
 const BoxLayout = () => {
-  const router = useRouter();
   const { themeColors } = useThemeColors();
-
-  const headerTitleStyle = {
-    color: themeColors.headerText,
-    fontSize: 28,
-    fontWeight: 'bold' as 'bold',
-
-    letterSpacing: 0.5,
-    textShadowColor: '#1565c0',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  };
-
-  const defaultHeaderOptions = {
-    headerShown: true,
-    headerLeft: () => (
-      <TouchableOpacity onPress={() => router.back()}>
-        <Icon name="chevron-left" size={38} color="#fff" style={headerTitleStyle} />
-      </TouchableOpacity>
-    ),
-    headerBackVisible: false,
-    headerShadowVisible: false,
-    headerStyle: {
-      height: Sizes.headerHeight,
-      backgroundColor: themeColors.headerBg,
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOpacity: 0,
-    },
-    headerTitleStyle,
-    headerLeftContainerStyle: {
-      backgroundColor: themeColors.headerBg,
-    },
-    headerRightContainerStyle: {
-      backgroundColor: themeColors.headerBg,
-    },
-  };
+  const defaultHeaderOptions = useHeaderOptions();
+  const headerTitleStyle = useHeaderTitleStyle();
 
   return (
     <Stack>
@@ -65,7 +28,7 @@ const BoxLayout = () => {
               <Text style={headerTitleStyle}>{i18n.t('boxes.myBoxesTitle')}</Text>
             </View>
           ),
-          headerBackTitleVisible: false,
+
           ...defaultHeaderOptions,
           headerLeft: () => null,
         }}

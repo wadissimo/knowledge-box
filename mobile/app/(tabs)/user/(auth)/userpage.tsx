@@ -3,8 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { getAuth } from '@react-native-firebase/auth';
 import { useTheme } from '@react-navigation/native';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
+import { useThemeColors } from '@/src/context/ThemeContext';
+import { i18n } from '@/src/lib/i18n';
+import PrimaryButton from '@/src/components/common/PrimaryButton';
 const UserPage = () => {
-  const { colors } = useTheme();
+  const { themeColors } = useThemeColors();
   const [user, setUser] = useState(getAuth().currentUser);
   // return null;
   useEffect(() => {
@@ -22,28 +25,30 @@ const UserPage = () => {
   if (!user) return null;
   return (
     <ScreenContainer>
-      <View style={[styles.header, { backgroundColor: colors.background }]}>
-        <Text>Welcome, {user?.email}</Text>
-        <Button title="Sign out" onPress={signOut} color={colors.primary} />
+      <View style={[styles.header, { backgroundColor: themeColors.subHeaderBg }]}>
+        <Text style={{ color: themeColors.subHeaderText }}>Welcome, {user?.email}</Text>
       </View>
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, { backgroundColor: themeColors.cardBg }]}>
         <View style={styles.statsContainer}>
           <View>
-            <Text>Stats</Text>
+            <Text style={{ color: themeColors.cardText }}>Stats</Text>
           </View>
           <View>
-            <Text>Total cards: XXX</Text>
+            <Text style={{ color: themeColors.cardText }}>Total cards: XXX</Text>
           </View>
           <View>
-            <Text>Studying: XXX</Text>
+            <Text style={{ color: themeColors.cardText }}>Studying: XXX</Text>
           </View>
           <View>
-            <Text>Total XP: XXX</Text>
+            <Text style={{ color: themeColors.cardText }}>Total XP: XXX</Text>
           </View>
           <View>
-            <Text>Time Spent: X days XX hrs XX mins</Text>
+            <Text style={{ color: themeColors.cardText }}>Time Spent: X days XX hrs XX mins</Text>
           </View>
         </View>
+      </View>
+      <View>
+        <PrimaryButton onClick={signOut} text={i18n.t('user.signOut')} />
       </View>
     </ScreenContainer>
   );

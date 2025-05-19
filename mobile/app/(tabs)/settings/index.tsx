@@ -21,6 +21,7 @@ import { Href, router } from 'expo-router';
 import { resetAISetup } from '@/src/service/AIService';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { useSettings } from '@/src/context/SettingsContext';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
 
 type Option = {
   label: string;
@@ -66,7 +67,6 @@ const SettingsTab = () => {
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      //Parallelize
       const [categories, settings] = await Promise.all([getAllCategories(), getAllSettings()]);
       setSettings(settings);
       setCategories(categories);
@@ -227,12 +227,7 @@ const SettingsTab = () => {
   }
 
   return (
-    <LinearGradient
-      colors={['#2196f3', '#7dc5f5']}
-      style={{ flex: 1 }}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
+    <ScreenContainer>
       <View style={{ flex: 1, paddingBottom: 96 }}>
         <ScrollView
           contentContainerStyle={{ paddingVertical: 16 }}
@@ -299,7 +294,7 @@ const SettingsTab = () => {
           </Pressable>
         </Pressable>
       </Modal>
-    </LinearGradient>
+    </ScreenContainer>
   );
 };
 

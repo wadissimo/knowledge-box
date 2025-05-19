@@ -189,5 +189,13 @@
     "learnCards": "Learn Cards Count",
     "apiKey": "API Key",
     "model": "Model"
+  },
+  "user": {
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "signOut": "Sign Out",
+    "signIn": "Sign In",
+    "signUp": "Sign Up"
   }
 }

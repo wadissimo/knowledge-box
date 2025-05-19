@@ -8,22 +8,19 @@ import {
 } from 'react-native';
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { useTheme } from '@react-navigation/native';
 import { getAuth } from '@react-native-firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import PrimaryButton from '@/src/components/common/PrimaryButton';
+import { useThemeColors } from '@/src/context/ThemeContext';
+import { i18n } from '@/src/lib/i18n';
 
 const Login = () => {
-  const { colors } = useTheme();
+  const { themeColors } = useThemeColors();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  // return (
-  //   <View style={styles.container}>
-  //     <Text>Login1</Text>
-  //   </View>
-  // );
+
   const signUp = async () => {
     setLoading(true);
     try {
@@ -57,21 +54,21 @@ const Login = () => {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            placeholder="Email"
+            placeholder={i18n.t('user.email')}
           />
           <TextInput
             style={styles.input}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            placeholder="Password"
+            placeholder={i18n.t('user.password')}
           />
           {loading ? (
             <ActivityIndicator size={'small'} style={{ margin: 28 }} />
           ) : (
             <View style={styles.btns}>
-              <PrimaryButton text="Sing Up" onClick={signUp} />
-              <PrimaryButton text="Sing In" onClick={signIn} />
+              <PrimaryButton text={i18n.t('user.signUp')} onClick={signUp} />
+              <PrimaryButton text={i18n.t('user.signIn')} onClick={signIn} />
             </View>
           )}
         </KeyboardAvoidingView>
