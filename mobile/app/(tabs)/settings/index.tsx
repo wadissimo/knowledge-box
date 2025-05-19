@@ -14,13 +14,13 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useTheme } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { getLocale, i18n, setLocale } from '@/src/lib/i18n';
 import { Setting, SettingCategory, useSettingsModel } from '@/src/data/SettingsModel';
 import { Href, router } from 'expo-router';
 import { resetAISetup } from '@/src/service/AIService';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import { useSettings } from '@/src/context/SettingsContext';
 
 type Option = {
   label: string;
@@ -54,14 +54,14 @@ const OPTIONS: Options = {
 type OptionCategory = keyof typeof OPTIONS;
 
 const SettingsTab = () => {
-  const { colors } = useTheme();
   const [expandedCategories, setExpandedCategories] = useState<boolean[]>([]);
   const [settings, setSettings] = useState<Setting[]>([]);
   const [showReloadInfo, setShowReloadInfo] = useState(false);
   const { upsertSetting, getAllCategories, getAllSettings } = useSettingsModel();
   const [categories, setCategories] = useState<SettingCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { themeName, setThemeName, themeColors, setThemeColors } = useThemeColors();
+  const { themeColors, setThemeColors } = useThemeColors();
+  const { theme, setTheme, language, setLanguage } = useSettings();
 
   useEffect(() => {
     async function loadData() {
@@ -94,15 +94,15 @@ const SettingsTab = () => {
     settings.forEach(setting => {
       upsertSetting(setting);
     });
-    const lang = settings.find(setting => setting.id === 'language')?.value;
-    if (lang && lang !== getLocale()) {
+    const curLanguage = settings.find(setting => setting.id === 'language')?.value;
+    if (curLanguage && curLanguage !== language) {
       setShowReloadInfo(true);
-      setLocale(lang);
+      setLanguage(curLanguage);
     }
-    const theme = settings.find(setting => setting.id === 'theme')?.value;
-    if (theme && theme !== themeName) {
-      console.log('theme changed to', theme);
-      setThemeName(theme);
+    const curTheme = settings.find(setting => setting.id === 'theme')?.value;
+    if (curTheme && curTheme !== theme) {
+      console.log('theme changed to', curTheme);
+      setTheme(curTheme);
     }
     console.log('Saved settings:', settings);
   };

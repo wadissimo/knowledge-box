@@ -1,4 +1,5 @@
 import { useThemeColors } from '@/src/context/ThemeContext';
+import { TextInputProps } from 'react-native';
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
 const TextInputCard = ({
@@ -8,6 +9,7 @@ const TextInputCard = ({
   placeholder,
   multiline,
   numberOfLines,
+  style,
 }: {
   header: string;
   value: string;
@@ -15,6 +17,7 @@ const TextInputCard = ({
   placeholder?: string;
   multiline?: boolean;
   numberOfLines?: number;
+  style?: TextInputProps['style'];
 }) => {
   const { themeColors } = useThemeColors();
   return (
@@ -24,7 +27,7 @@ const TextInputCard = ({
       </View>
       <View style={styles.cardBody}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, style]}
           value={value}
           onChangeText={setValue}
           placeholder={placeholder}

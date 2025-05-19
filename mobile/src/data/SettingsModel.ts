@@ -87,6 +87,10 @@ function useSettingsModel() {
     return result;
   };
 
+  const updateSettingById = async (settingId: string, value: string) => {
+    await db.runAsync(`UPDATE settings SET value = ? WHERE id = ?`, [value, settingId]);
+  };
+
   const getAllCategories = async (): Promise<SettingCategory[]> => {
     const result = await db.getAllAsync<SettingCategory>(`SELECT * FROM setting_categories`);
     return result;
@@ -98,6 +102,7 @@ function useSettingsModel() {
     getAllSettingsByCategory,
     deleteSetting,
     getSettingById,
+    updateSettingById,
     getAllCategories,
   };
 }

@@ -1,22 +1,64 @@
-import { Slot, Stack, Tabs, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font';
 import 'react-native-reanimated';
 
 import { SQLiteProvider } from 'expo-sqlite';
-import { Text, useColorScheme } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 
 import { DATABASE_NAME, useDatabaseFromAsset } from '@/src/hooks/useDatabaseFromAsset';
-
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
 import { MenuProvider } from 'react-native-popup-menu';
 import { migrateDbIfNeeded } from '@/src/data/DbUtils';
-import { darkColors, defaultColors, ThemeContext } from '@/src/context/ThemeContext';
+
 import { Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 
+import { SettingsProvider, useSettings } from '@/src/context/SettingsContext';
+import { ThemeContext, defaultColors, darkColors } from '@/src/context/ThemeContext';
+import { setLocale } from '@/src/lib/i18n';
+
 SplashScreen.preventAutoHideAsync();
+
+function AppContent() {
+  const { isLoaded: settingsLoaded, theme, language } = useSettings();
+  const [themeColors, setThemeColors] = useState(defaultColors);
+
+  useEffect(() => {
+    if (!settingsLoaded) return;
+    if (theme === 'dark') {
+      setThemeColors(darkColors);
+    } else {
+      setThemeColors(defaultColors);
+    }
+  }, [settingsLoaded, theme]);
+
+  console.log('loaded theme', theme);
+  console.log('loaded language', language);
+
+  useEffect(() => {
+    if (language) {
+      console.log('setting language to', language);
+      setLocale(language);
+    }
+  }, [language]);
+
+  if (!settingsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <ThemeContext.Provider value={{ themeColors, setThemeColors }}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </ThemeContext.Provider>
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -27,53 +69,30 @@ export default function RootLayout() {
 
   const [database, dbLoaded] = useDatabaseFromAsset();
 
-  const [themeName, setThemeName] = useState('light');
-  const [themeColors, setThemeColors] = useState(defaultColors);
-  console.log('root layout: themeName', themeName);
-  console.log('root layout: themeColors', themeColors);
-
-  // select theme
   useEffect(() => {
-    if (themeName === 'dark') {
-      setThemeColors(darkColors);
-    } else if (themeName === 'light') {
-      setThemeColors(defaultColors);
-    } else {
-      console.log('root layout: unknown themeName', themeName);
-      setThemeColors(defaultColors);
-    }
-  }, [themeName]);
-
-  // hide splash screen
-  useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && dbLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, dbLoaded]);
 
-  // wait for db to load
+  // Show spinner until fonts and DB are ready
   if (!fontsLoaded || !dbLoaded || !database) {
-    return null;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
-    <GestureHandlerRootView>
-      <ThemeContext.Provider value={{ themeColors, setThemeColors, themeName, setThemeName }}>
-        <MenuProvider>
-          <Suspense fallback={<Text>Loading...</Text>}>
-            <SQLiteProvider
-              databaseName={DATABASE_NAME}
-              useSuspense={true}
-              onInit={migrateDbIfNeeded}
-              // assetSource={{ assetId: require("@/assets/userdata.db") }}
-            >
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              </Stack>
-            </SQLiteProvider>
-          </Suspense>
-        </MenuProvider>
-      </ThemeContext.Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <MenuProvider>
+        <SQLiteProvider databaseName={DATABASE_NAME} useSuspense={true} onInit={migrateDbIfNeeded}>
+          <SettingsProvider>
+            <AppContent />
+          </SettingsProvider>
+        </SQLiteProvider>
+      </MenuProvider>
     </GestureHandlerRootView>
   );
 }

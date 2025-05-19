@@ -1,10 +1,8 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 interface ThemeContextType {
   themeColors: typeof defaultColors;
   setThemeColors: React.Dispatch<React.SetStateAction<typeof defaultColors>>;
-  themeName: string;
-  setThemeName: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // Default colors for the theme
