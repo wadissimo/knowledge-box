@@ -20,6 +20,43 @@ import { setLocale } from '@/src/lib/i18n';
 
 SplashScreen.preventAutoHideAsync();
 
+export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Poppins_400Regular,
+    Poppins_700Bold,
+  });
+
+  const [database, dbLoaded] = useDatabaseFromAsset();
+
+  useEffect(() => {
+    if (fontsLoaded && dbLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, dbLoaded]);
+
+  // Show spinner until fonts and DB are ready
+  if (!fontsLoaded || !dbLoaded || !database) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <MenuProvider>
+        <SQLiteProvider databaseName={DATABASE_NAME} useSuspense={true} onInit={migrateDbIfNeeded}>
+          <SettingsProvider>
+            <AppContent />
+          </SettingsProvider>
+        </SQLiteProvider>
+      </MenuProvider>
+    </GestureHandlerRootView>
+  );
+}
+
 function AppContent() {
   const { isLoaded: settingsLoaded, theme, language } = useSettings();
   const [themeColors, setThemeColors] = useState(defaultColors);
@@ -57,42 +94,5 @@ function AppContent() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </ThemeContext.Provider>
-  );
-}
-
-export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    Poppins_400Regular,
-    Poppins_700Bold,
-  });
-
-  const [database, dbLoaded] = useDatabaseFromAsset();
-
-  useEffect(() => {
-    if (fontsLoaded && dbLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, dbLoaded]);
-
-  // Show spinner until fonts and DB are ready
-  if (!fontsLoaded || !dbLoaded || !database) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <MenuProvider>
-        <SQLiteProvider databaseName={DATABASE_NAME} useSuspense={true} onInit={migrateDbIfNeeded}>
-          <SettingsProvider>
-            <AppContent />
-          </SettingsProvider>
-        </SQLiteProvider>
-      </MenuProvider>
-    </GestureHandlerRootView>
   );
 }

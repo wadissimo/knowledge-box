@@ -139,9 +139,12 @@ const SettingsTab = () => {
           <Picker
             selectedValue={setting.value}
             onValueChange={itemValue => handleChange(setting.id, itemValue)}
-            style={styles.picker}
-            itemStyle={styles.pickerItem}
-            dropdownIconColor="#1976d2"
+            style={[
+              styles.picker,
+              { backgroundColor: themeColors.inputBg, color: themeColors.inputText },
+            ]}
+            itemStyle={[styles.pickerItem, { color: themeColors.inputText }]}
+            dropdownIconColor={themeColors.inputText}
             mode="dropdown"
           >
             {OPTIONS[setting.options as OptionCategory].map((opt: Option) => (
@@ -155,12 +158,15 @@ const SettingsTab = () => {
       case 'input':
         return (
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              { backgroundColor: themeColors.inputBg, color: themeColors.inputText },
+            ]}
             value={setting.value}
             onChangeText={text => handleChange(setting.id, text)}
             placeholder={i18n.t(setting.label)}
             keyboardType={(setting.keyboardType || 'default') as KeyboardTypeOptions}
-            placeholderTextColor="#90caf9"
+            placeholderTextColor={themeColors.inputText}
           />
         );
       case 'switch':
@@ -168,8 +174,8 @@ const SettingsTab = () => {
           <Switch
             value={setting.value === 'true'}
             onValueChange={value => handleChange(setting.id, value)}
-            thumbColor={setting.value ? '#1976d2' : '#bdbdbd'}
-            trackColor={{ false: '#bdbdbd', true: '#90caf9' }}
+            thumbColor={setting.value ? '#1976d2' : '#f00'}
+            trackColor={{ false: '#f00', true: '#90caf9' }}
           />
         );
       case 'select':
@@ -178,13 +184,20 @@ const SettingsTab = () => {
             {OPTIONS[setting.options as OptionCategory].map((opt: Option) => (
               <TouchableOpacity
                 key={opt.value}
-                style={[styles.selectOption, setting.value === opt.value && styles.selectedOption]}
+                style={[
+                  styles.selectOption,
+                  { backgroundColor: themeColors.secondaryBtnBg },
+                  setting.value === opt.value && {
+                    backgroundColor: themeColors.primaryBtnBg,
+                  },
+                ]}
                 onPress={() => handleChange(setting.id, opt.value)}
               >
                 <Text
                   style={[
                     styles.selectOptionText,
-                    setting.value === opt.value && styles.selectedOptionText,
+                    { color: themeColors.secondaryBtnText },
+                    setting.value === opt.value && { color: themeColors.primaryBtnText },
                   ]}
                 >
                   {opt.label}
@@ -196,10 +209,12 @@ const SettingsTab = () => {
       case 'button':
         return (
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: '#1976d2' }]}
+            style={[styles.button, { backgroundColor: themeColors.primaryBtnBg }]}
             onPress={() => handleButtonClick(setting.id)}
           >
-            <Text style={styles.buttonText}>{i18n.t(setting.label)}</Text>
+            <Text style={[styles.buttonText, { color: themeColors.primaryBtnText }]}>
+              {i18n.t(setting.label)}
+            </Text>
           </TouchableOpacity>
         );
       case 'link':
@@ -234,33 +249,37 @@ const SettingsTab = () => {
           showsVerticalScrollIndicator={false}
         >
           {categories.map((category, idx) => (
-            <View key={category.id} style={styles.groupContainer}>
+            <View key={category.id} style={[styles.groupContainer]}>
               <TouchableOpacity
-                style={styles.groupHeader}
+                style={[styles.groupHeader, { backgroundColor: themeColors.cardHeaderBg }]}
                 onPress={() => handleExpand(idx)}
                 activeOpacity={0.8}
               >
                 <Ionicons
                   name={category.icon as any}
                   size={24}
-                  color="#1976d2"
+                  color={themeColors.activeTintColor}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={styles.groupTitle}>{i18n.t(category.title)}</Text>
+                <Text style={[styles.groupTitle, { color: themeColors.cardHeaderText }]}>
+                  {i18n.t(category.title)}
+                </Text>
                 <View style={{ flex: 1 }} />
                 <Ionicons
                   name={expandedCategories[idx] ? 'chevron-up' : 'chevron-down'}
                   size={24}
-                  color="#1976d2"
+                  color={themeColors.activeTintColor}
                 />
               </TouchableOpacity>
               {expandedCategories[idx] && (
-                <View style={styles.card}>
+                <View style={[styles.card, { backgroundColor: themeColors.cardBg }]}>
                   {settings
                     .filter(setting => setting.category === category.id)
                     .map(setting => (
                       <View key={setting.id} style={styles.settingRow}>
-                        <Text style={styles.settingLabel}>{i18n.t(setting.label)}</Text>
+                        <Text style={[styles.settingLabel, { color: themeColors.cardText }]}>
+                          {i18n.t(setting.label)}
+                        </Text>
                         {renderSetting(setting)}
                       </View>
                     ))}
