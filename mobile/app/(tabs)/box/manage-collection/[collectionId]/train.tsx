@@ -18,6 +18,7 @@ import TrainingResults from '@/src/components/TrainingResults';
 import { i18n } from '@/src/lib/i18n';
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
 
 const stripTimeFromDate = (date: Date): string => {
   return date.toISOString().split('T')[0]; // This will return the date in YYYY-MM-DD format
@@ -156,10 +157,8 @@ const TrainCollection = () => {
   }
 
   async function updateSession() {
-    console.log('updateSession');
     if (!collectionId || !trainerReady) return;
     const curDateStripped = stripTimeFromDate(new Date());
-
     var session = await trainer.getSession(curDateStripped);
     var existingSession = true;
     if (session === null) {
@@ -211,6 +210,7 @@ const TrainCollection = () => {
   }
 
   function handleEditMenu() {
+    console.log('handleEditMenu');
     if (currentCard !== null) router.push(`./${currentCard.id}`);
   }
 
@@ -234,10 +234,14 @@ const TrainCollection = () => {
   if (loading || loadingTrainingData) return null;
   if (session === null) return null;
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       <View style={[styles.topPanel, { backgroundColor: themeColors.subHeaderBg }]}>
-        <Text style={styles.topPanelTxt}>{collection ? collection.name : ''}</Text>
-        <Text>{totalCards !== null ? `${remainingCards} / ${totalCards}` : ''}</Text>
+        <Text style={[styles.topPanelTxt, { color: themeColors.subHeaderText }]}>
+          {collection ? collection.name : ''}
+        </Text>
+        <Text style={[{ color: themeColors.subHeaderText }]}>
+          {totalCards !== null ? `${remainingCards} / ${totalCards}` : ''}
+        </Text>
         {currentCard && (
           <CardMenu
             onEdit={handleEditMenu}
@@ -246,60 +250,62 @@ const TrainCollection = () => {
           />
         )}
       </View>
-      {currentCard ? (
-        <CardComponent
-          currentCard={currentCard}
-          onUserResponse={handleUserResponse}
-          cardDimensions={{ height: 500, width: 300 }}
-          playSound={playSound}
-          getImageSource={getImageSource}
-        />
-      ) : (
-        <View style={{ flex: 1 }}>
-          <View style={{ flex: 0.9 }}>
-            <TrainingResults session={session} onResetTraining={resetTraining} />
+      <ScreenContainer>
+        {currentCard ? (
+          <CardComponent
+            currentCard={currentCard}
+            onUserResponse={handleUserResponse}
+            cardDimensions={{ height: 500, width: 300 }}
+            playSound={playSound}
+            getImageSource={getImageSource}
+          />
+        ) : (
+          <View style={{ flex: 1 }}>
+            <View style={{ flex: 0.9 }}>
+              <TrainingResults session={session} onResetTraining={resetTraining} />
+            </View>
+            <View>
+              <Button
+                title={i18n.t('common.navBack')}
+                onPress={() => router.back()}
+                color={themeColors.primaryBtnBg}
+              />
+            </View>
           </View>
-          <View>
-            <Button
-              title={i18n.t('common.navBack')}
-              onPress={() => router.back()}
-              color={themeColors.primaryBtnBg}
-            />
-          </View>
-        </View>
-      )}
-      {DEBUG && (
-        <>
-          <ScrollView style={styles.scrollView}>
-            {sessionCards.map((card: Card) => {
-              return (
-                <View style={{ flexDirection: 'row', gap: 1 }} key={`card-${card.id}`}>
-                  <View style={{ flex: 1 }}>
-                    <Text>{card?.front}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text>{card?.status}</Text>
-                  </View>
+        )}
+        {DEBUG && (
+          <>
+            <ScrollView style={styles.scrollView}>
+              {sessionCards.map((card: Card) => {
+                return (
+                  <View style={{ flexDirection: 'row', gap: 1 }} key={`card-${card.id}`}>
+                    <View style={{ flex: 1 }}>
+                      <Text>{card?.front}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text>{card?.status}</Text>
+                    </View>
 
-                  <View style={{ flex: 1 }}>
-                    <Text>{card?.repeatTime}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text>{card?.repeatTime}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text>{formatInterval(card?.interval ?? 0)}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text>{card?.easeFactor?.toFixed(2)}</Text>
+                    </View>
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Text>{formatInterval(card?.interval ?? 0)}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text>{card?.easeFactor?.toFixed(2)}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </ScrollView>
+                );
+              })}
+            </ScrollView>
 
-          <View>
-            <Button title="Reset Training" onPress={resetTraining} />
-          </View>
-        </>
-      )}
+            <View>
+              <Button title="Reset Training" onPress={resetTraining} />
+            </View>
+          </>
+        )}
+      </ScreenContainer>
     </View>
   );
 };
@@ -318,17 +324,22 @@ const CardMenu = ({
   return (
     <Menu>
       <MenuTrigger>
-        <Icon name="dots-vertical" color={'black'} size={32} style={styles.topPanelMenuIcon} />
+        <Icon
+          name="dots-vertical"
+          color={themeColors.subHeaderText}
+          size={32}
+          style={styles.topPanelMenuIcon}
+        />
       </MenuTrigger>
-      <MenuOptions>
-        <MenuOption style={{ backgroundColor: themeColors.popupBg }} onSelect={() => onEdit()}>
+      <MenuOptions customStyles={{ optionWrapper: { backgroundColor: themeColors.popupBg } }}>
+        <MenuOption onSelect={() => onEdit()}>
           <Text>{i18n.t('cards.popupMenu.editCard')}</Text>
         </MenuOption>
 
-        <MenuOption style={{ backgroundColor: themeColors.popupBg }} onSelect={() => onPostpone()}>
+        <MenuOption onSelect={() => onPostpone()}>
           <Text>{i18n.t('cards.popupMenu.postpone')}</Text>
         </MenuOption>
-        <MenuOption style={{ backgroundColor: themeColors.popupBg }} onSelect={() => onMarkEasy()}>
+        <MenuOption onSelect={() => onMarkEasy()}>
           <Text>{i18n.t('cards.popupMenu.tooEasy')}</Text>
         </MenuOption>
       </MenuOptions>

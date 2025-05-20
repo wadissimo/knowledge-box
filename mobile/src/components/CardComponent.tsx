@@ -1,28 +1,35 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
-import { SessionCard } from "@/src/data/SessionCardModel";
-import { Card } from "@/src/data/CardModel";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { Image } from "expo-image";
-import * as FileSystem from "expo-file-system";
-import useMediaDataService from "../service/MediaDataService";
-import { i18n } from "../lib/i18n";
-import { runOnJS, useSharedValue, useAnimatedStyle, withSpring, default as Animated } from "react-native-reanimated";
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SessionCard } from '@/src/data/SessionCardModel';
+import { Card } from '@/src/data/CardModel';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Image } from 'expo-image';
+import * as FileSystem from 'expo-file-system';
+import useMediaDataService from '../service/MediaDataService';
+import { i18n } from '../lib/i18n';
+import {
+  runOnJS,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  default as Animated,
+} from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useThemeColors } from '../context/ThemeContext';
 
 const blurhash =
-  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 const DRAG_THRESHOLD = 8; // px, distinguish tap from drag
 
-const FEEDBACK_KEYS = ["again", "hard", "good", "easy"] as const;
-type FeedbackKey = typeof FEEDBACK_KEYS[number];
+const FEEDBACK_KEYS = ['again', 'hard', 'good', 'easy'] as const;
+type FeedbackKey = (typeof FEEDBACK_KEYS)[number];
 
 const FEEDBACK_OPTIONS: { key: FeedbackKey; color: string; label: string }[] = [
-  { key: "again", color: "#fa4b4b", label: i18n.t("trainer.responses.dontknow") },
-  { key: "hard", color: "#f7b731", label: i18n.t("trainer.responses.hard") },
-  { key: "good", color: "#4b82fa", label: i18n.t("trainer.responses.good") },
-  { key: "easy", color: "#26de81", label: i18n.t("trainer.responses.easy") },
+  { key: 'again', color: '#fa4b4b', label: i18n.t('trainer.responses.dontknow') },
+  { key: 'hard', color: '#f7b731', label: i18n.t('trainer.responses.hard') },
+  { key: 'good', color: '#4b82fa', label: i18n.t('trainer.responses.good') },
+  { key: 'easy', color: '#26de81', label: i18n.t('trainer.responses.easy') },
 ];
 const FEEDBACK_BUTTON_COUNT = 4; // Keep in sync with FEEDBACK_OPTIONS
 
@@ -32,13 +39,8 @@ const CardComponent: React.FC<{
   cardDimensions?: { height: number; width: number };
   playSound: Function;
   getImageSource: Function;
-}> = ({
-  currentCard,
-  onUserResponse,
-  cardDimensions,
-  playSound,
-  getImageSource,
-}) => {
+}> = ({ currentCard, onUserResponse, cardDimensions, playSound, getImageSource }) => {
+  const { themeColors } = useThemeColors();
   const [cardFlip, setCardFlip] = useState(false);
   const [answerShown, setAnswerShown] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -51,8 +53,10 @@ const CardComponent: React.FC<{
   const isDragging = useSharedValue(false);
   const dragMoved = useSharedValue(false);
   const hoveredButtonIndex = useSharedValue(-1);
-  const [cardRootLayout, setCardRootLayout] = useState({x: 0, y: 0, width: 0, height: 0});
-  const buttonLayouts = useSharedValue<{x: number, y: number, width: number, height: number}[]>([]);
+  const [cardRootLayout, setCardRootLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const buttonLayouts = useSharedValue<{ x: number; y: number; width: number; height: number }[]>(
+    []
+  );
 
   useEffect(() => {
     translateX.value = 0;
@@ -88,7 +92,7 @@ const CardComponent: React.FC<{
   }, [currentCard]);
 
   function handleCardFlip() {
-    setCardFlip((flip) => !flip);
+    setCardFlip(flip => !flip);
     setAnswerShown(true);
   }
 
@@ -100,7 +104,10 @@ const CardComponent: React.FC<{
   }
 
   // Helper to update button layouts (called from onLayout via runOnJS)
-  const updateButtonLayouts = (i: number, layout: {x: number, y: number, width: number, height: number}) => {
+  const updateButtonLayouts = (
+    i: number,
+    layout: { x: number; y: number; width: number; height: number }
+  ) => {
     // Update shared value (for worklet)
     const arr = buttonLayouts.value.slice();
     arr[i] = { ...layout, x: layout.x + cardRootLayout.x, y: layout.y + cardRootLayout.y };
@@ -120,16 +127,19 @@ const CardComponent: React.FC<{
       isDragging.value = true;
       hoveredButtonIndex.value = -1;
     })
-    .onUpdate((e) => {
-      if (!dragMoved.value && (Math.abs(e.translationX) > DRAG_THRESHOLD || Math.abs(e.translationY) > DRAG_THRESHOLD)) {
+    .onUpdate(e => {
+      if (
+        !dragMoved.value &&
+        (Math.abs(e.translationX) > DRAG_THRESHOLD || Math.abs(e.translationY) > DRAG_THRESHOLD)
+      ) {
         dragMoved.value = true;
       }
       if (dragMoved.value) {
         translateX.value = e.translationX;
         translateY.value = e.translationY;
         // Card center position
-        const cardCenterX = cardRootLayout.x + cardRootLayout.width/2 + e.translationX;
-        const cardCenterY = cardRootLayout.y + cardRootLayout.height/2 + e.translationY;
+        const cardCenterX = cardRootLayout.x + cardRootLayout.width / 2 + e.translationX;
+        const cardCenterY = cardRootLayout.y + cardRootLayout.height / 2 + e.translationY;
         // Only activate if card center is below drag start Y + threshold
         if (e.translationY >= DRAG_THRESHOLD) {
           const containerLeft = cardRootLayout.x;
@@ -179,12 +189,30 @@ const CardComponent: React.FC<{
 
   // --- FEEDBACK BUTTONS (RELATIVE TO CARD CONTAINER, NOT SCREEN) ---
   const renderFeedbackButtons = () => (
-    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 8, zIndex: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end' }}>
-      <View style={[styles.feedbackRow, { backgroundColor: 'transparent', alignItems: 'flex-end' }]}> 
+    <View
+      pointerEvents="box-none"
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 8,
+        zIndex: 30,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+      }}
+    >
+      <View
+        style={[styles.feedbackRow, { backgroundColor: 'transparent', alignItems: 'flex-end' }]}
+      >
         {FEEDBACK_OPTIONS.map((opt, i) => (
           <Animated.View
             key={opt.key}
-            style={[styles.feedbackBtnWrap, {height: 54, alignItems: 'center', justifyContent: 'center', marginHorizontal: 8}, feedbackButtonAnimatedStyles[i]]}
+            style={[
+              styles.feedbackBtnWrap,
+              { height: 54, alignItems: 'center', justifyContent: 'center', marginHorizontal: 8 },
+              feedbackButtonAnimatedStyles[i],
+            ]}
           >
             <TouchableOpacity
               style={[
@@ -202,11 +230,7 @@ const CardComponent: React.FC<{
               onPress={() => onUserResponse(opt.key)}
               activeOpacity={0.8}
             >
-              <Text
-                style={styles.feedbackBtnText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
+              <Text style={styles.feedbackBtnText} numberOfLines={1} ellipsizeMode="tail">
                 {opt.label}
               </Text>
             </TouchableOpacity>
@@ -219,17 +243,30 @@ const CardComponent: React.FC<{
   if (loading) return null;
 
   return (
-    <View style={styles.cardContainer} onLayout={(e: any) => setCardRootLayout({
-      x: e.nativeEvent.layout.x,
-      y: e.nativeEvent.layout.y,
-      width: e.nativeEvent.layout.width,
-      height: e.nativeEvent.layout.height
-    })}>
+    <View
+      style={styles.cardContainer}
+      onLayout={(e: any) =>
+        setCardRootLayout({
+          x: e.nativeEvent.layout.x,
+          y: e.nativeEvent.layout.y,
+          width: e.nativeEvent.layout.width,
+          height: e.nativeEvent.layout.height,
+        })
+      }
+    >
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.card, animatedStyle, {
-          height: cardDimensions?.height ?? styles.card.height,
-          width: cardDimensions?.width ?? styles.card.width,
-        }, styles.elevation, styles.shadowProp]}
+        <Animated.View
+          style={[
+            styles.card,
+            animatedStyle,
+            {
+              height: cardDimensions?.height ?? styles.card.height,
+              width: cardDimensions?.width ?? styles.card.width,
+            },
+            styles.elevation,
+            styles.shadowProp,
+            { backgroundColor: themeColors.cardBg },
+          ]}
         >
           <TouchableOpacity
             activeOpacity={0.95}
@@ -269,10 +306,12 @@ const CardFrontSide = ({
   onSoundPlay: (soundId: number | null, e?: any) => void;
   imgSrc: string | null;
 }) => {
+  const { themeColors } = useThemeColors();
+
   return (
     <View style={styles.sideContainer}>
       <View style={styles.frontBackTextView}>
-        <Text style={styles.frontBackText}>Front</Text>
+        <Text style={[styles.frontBackText, { color: themeColors.cardText }]}>Front</Text>
       </View>
       {imgSrc && (
         <View style={styles.imageContainer}>
@@ -285,12 +324,12 @@ const CardFrontSide = ({
         </View>
       )}
       <View style={styles.cardTextView}>
-        <Text style={styles.cardText}>{currentCard?.front}</Text>
+        <Text style={[styles.cardText, { color: themeColors.cardText }]}>{currentCard?.front}</Text>
       </View>
       {currentCard && currentCard.frontSound && (
         <View style={styles.soundContainer}>
-          <TouchableOpacity onPress={(e) => onSoundPlay(currentCard.frontSound, e)}>
-            <Icon name="play-circle-outline" size={48} color="black" />
+          <TouchableOpacity onPress={e => onSoundPlay(currentCard.frontSound, e)}>
+            <Icon name="play-circle-outline" size={48} color={themeColors.cardText} />
           </TouchableOpacity>
         </View>
       )}
@@ -307,10 +346,12 @@ const CardBackSide = ({
   onSoundPlay: (soundId: number | null, e?: any) => void;
   imgSrc: string | null;
 }) => {
+  const { themeColors } = useThemeColors();
+
   return (
     <View style={styles.sideContainer}>
       <View style={styles.frontBackTextView}>
-        <Text style={styles.frontBackText}>Back</Text>
+        <Text style={[styles.frontBackText, { color: themeColors.cardText }]}>Back</Text>
       </View>
       {imgSrc && (
         <View style={styles.imageContainer}>
@@ -323,12 +364,12 @@ const CardBackSide = ({
         </View>
       )}
       <View style={styles.cardTextView}>
-        <Text style={styles.cardText}>{currentCard?.back}</Text>
+        <Text style={[styles.cardText, { color: themeColors.cardText }]}>{currentCard?.back}</Text>
       </View>
       {currentCard && currentCard.backSound && (
         <View style={styles.soundContainer}>
-          <TouchableOpacity onPress={(e) => onSoundPlay(currentCard.backSound, e)}>
-            <Icon name="play-circle-outline" size={48} color="black" />
+          <TouchableOpacity onPress={e => onSoundPlay(currentCard.backSound, e)}>
+            <Icon name="play-circle-outline" size={48} color={themeColors.cardText} />
           </TouchableOpacity>
         </View>
       )}
@@ -339,27 +380,27 @@ const CardBackSide = ({
 const styles = StyleSheet.create({
   imageContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   image: {
     flex: 1,
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   cardContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     margin: 20,
   },
   card: {
     padding: 10,
     height: 500,
     width: 300,
-    backgroundColor: "#c2fbc4",
+    backgroundColor: '#c2fbc4',
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   feedbackRow: {
     flexDirection: 'row',
@@ -392,73 +433,73 @@ const styles = StyleSheet.create({
   },
   cardBtnsContainer: {
     margin: 10,
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 10,
   },
   cardBtn: {
     flex: 1,
     padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 10,
   },
   greenCardBtn: {
-    backgroundColor: "#4b82fa",
-    color: "white",
+    backgroundColor: '#4b82fa',
+    color: 'white',
   },
   redCardBtn: {
-    backgroundColor: "#fa4b4b",
-    color: "white",
+    backgroundColor: '#fa4b4b',
+    color: 'white',
   },
   cardBtnText: {
-    color: "white",
+    color: 'white',
   },
   frontBackTextView: {
     marginBottom: 5,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   frontBackText: {
     fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   cardTextView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   cardText: {
     fontSize: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   soundContainer: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
-    width: "100%",
+    width: '100%',
   },
   shadowProp: {
-    shadowColor: "#171717",
+    shadowColor: '#171717',
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   elevation: {
     elevation: 5,
-    shadowColor: "#52006A",
+    shadowColor: '#52006A',
   },
   editIcon: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
     right: 5,
   },
   sideContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
 });
 
