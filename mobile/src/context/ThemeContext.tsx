@@ -14,6 +14,7 @@ export const defaultColors = {
   dark: false,
   headerBg: '#2196f3',
   headerText: '#fff',
+  headerTextShadowColor: '#1565c0',
   subHeaderBg: '#b3e5fc',
   subHeaderText: '#0288d1',
   cardHeaderBg: '#e3f2fd',
@@ -25,6 +26,7 @@ export const defaultColors = {
   text: '#000',
   primaryBtnBg: '#1976d2', //'#1660f5',
   primaryBtnText: '#fff',
+  primaryBtnShadow: '#0288d1',
   secondaryBtnBg: '#e3f2fd',
   secondaryBtnText: '#1976d2',
   deleteBtnBg: '#d93125',
@@ -39,6 +41,7 @@ export const darkColors = {
   dark: true,
   headerBg: '#000',
   headerText: '#f00',
+  headerTextShadowColor: '#555',
   subHeaderBg: '#444',
   subHeaderText: '#f00',
   cardHeaderBg: '#444',
@@ -48,8 +51,9 @@ export const darkColors = {
   inputBg: '#444',
   inputText: '#fff',
   text: '#fff',
-  primaryBtnBg: '#555',
+  primaryBtnBg: '#666',
   primaryBtnText: '#f00',
+  primaryBtnShadow: '#888',
   secondaryBtnBg: '#bbb',
   secondaryBtnText: '#000',
   deleteBtnBg: '#f00',
@@ -58,6 +62,8 @@ export const darkColors = {
   popupText: '#fff',
   activeTintColor: '#fff',
   tabsBg: '#000',
+
+  //todo: shadows
 };
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -79,7 +85,7 @@ export function useHeaderTitleStyle() {
     fontWeight: 'bold' as 'bold',
 
     letterSpacing: 0.5,
-    textShadowColor: '#1565c0',
+    textShadowColor: themeColors.headerTextShadowColor,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   };

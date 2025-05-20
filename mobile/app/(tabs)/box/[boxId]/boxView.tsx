@@ -112,6 +112,8 @@ const BoxView = () => {
     );
   }
 
+  console.log('BoxView');
+
   return (
     <ScreenContainer>
       {collections.length === 0 && (

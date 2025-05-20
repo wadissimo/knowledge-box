@@ -57,7 +57,15 @@ export default function BoxesPage() {
       >
         <View style={styles.boxBtnContainer}>
           <TouchableOpacity onPress={handleAddPress} activeOpacity={0.85}>
-            <View style={[styles.addBoxBtn, { backgroundColor: themeColors.primaryBtnBg }]}>
+            <View
+              style={[
+                styles.addBoxBtn,
+                {
+                  backgroundColor: themeColors.primaryBtnBg,
+                  shadowColor: themeColors.primaryBtnShadow,
+                },
+              ]}
+            >
               <Ionicons name="add" color={themeColors.primaryBtnText} size={36} />
             </View>
           </TouchableOpacity>

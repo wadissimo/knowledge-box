@@ -40,6 +40,7 @@ const TrainOptions = () => {
       });
     }
   }
+  console.log('TrainOptions: collectionId', collectionId);
   return (
     <View style={styles.container}>
       <View style={styles.formLine}>

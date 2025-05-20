@@ -27,7 +27,10 @@ export const AddToBoxModal = ({ boxId }: { boxId: number }) => {
 
   return (
     <TouchableOpacity
-      style={[styles.addFab, { backgroundColor: themeColors.primaryBtnBg }]}
+      style={[
+        styles.addFab,
+        { backgroundColor: themeColors.primaryBtnBg, shadowColor: themeColors.primaryBtnShadow },
+      ]}
       onPress={() => setShowAddModal(true)}
     >
       <Icon name="plus" size={32} color={themeColors.primaryBtnText} />

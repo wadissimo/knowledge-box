@@ -8,6 +8,8 @@ import { Collection, CollectionTrainingData, useCollectionModel } from '@/src/da
 import { i18n } from '@/src/lib/i18n';
 import { CardStatus, useCardModel } from '@/src/data/CardModel';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import PrimaryButton from '@/src/components/common/PrimaryButton';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
 
 const CollectionView = () => {
   const { themeColors } = useThemeColors();
@@ -50,60 +52,57 @@ const CollectionView = () => {
     router.push(`/(tabs)/box/manage-collection/${collectionId}/train`);
   }
   function handleTrainOptions() {
-    router.push('./trainOptions');
+    router.push(`/(tabs)/box/manage-collection/${collectionId}/trainOptions`);
   }
+  console.log('CollectionView', collectionId);
 
   if (collection === null) return null;
   return (
     <View style={styles.container}>
       <View style={[styles.colNameContainer, { backgroundColor: themeColors.subHeaderBg }]}>
-        <Text style={styles.colNameTxt}>{collection.name}</Text>
+        <Text style={[styles.colNameTxt, { color: themeColors.subHeaderText }]}>
+          {collection.name}
+        </Text>
       </View>
-      <View style={styles.statsContainer}>
-        <View style={[styles.stats, { backgroundColor: themeColors.cardBg }]}>
-          <Text style={styles.statsHeaderTxt}>{i18n.t('collection.train.stats')}</Text>
+      <ScreenContainer>
+        <View style={styles.statsContainer}>
+          <View style={[styles.stats, { backgroundColor: themeColors.cardBg }]}>
+            <Text style={styles.statsHeaderTxt}>{i18n.t('collection.train.stats')}</Text>
 
-          <Text style={styles.statsTxt}>
-            {i18n.t('collection.train.cardViews')} {trainingData?.totalCardViews ?? 0}
-          </Text>
+            <Text style={styles.statsTxt}>
+              {i18n.t('collection.train.cardViews')} {trainingData?.totalCardViews ?? 0}
+            </Text>
 
-          <Text style={styles.statsTxt}>
-            {i18n.t('collection.stats.newCards')} {newCardCount}
-          </Text>
-          <Text style={styles.statsTxt}>
-            {i18n.t('collection.stats.reviewCards')} {reviewCardCount + learningCardCount}
-          </Text>
+            <Text style={styles.statsTxt}>
+              {i18n.t('collection.stats.newCards')} {newCardCount}
+            </Text>
+            <Text style={styles.statsTxt}>
+              {i18n.t('collection.stats.reviewCards')} {reviewCardCount + learningCardCount}
+            </Text>
 
-          <Text style={styles.statsTxt}>
-            {i18n.t('collection.train.score')} {trainingData?.totalScore ?? 0}
-          </Text>
-          <Text style={styles.statsTxt}>
-            {i18n.t('collection.train.streak')} {trainingData?.streak ?? 0}
-          </Text>
+            <Text style={styles.statsTxt}>
+              {i18n.t('collection.train.score')} {trainingData?.totalScore ?? 0}
+            </Text>
+            <Text style={styles.statsTxt}>
+              {i18n.t('collection.train.streak')} {trainingData?.streak ?? 0}
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.trainOptBtnContainer}>
-        <Button
-          title={i18n.t('collection.train.options')}
-          color={themeColors.primaryBtnBg}
-          onPress={handleTrainOptions}
-        />
-      </View>
-      <View style={styles.trainBtnContainer}>
-        <Button
-          title={i18n.t('collection.train.trainBtn')}
-          color={themeColors.primaryBtnBg}
-          onPress={handleTrainPress}
-        />
-      </View>
+        <View style={styles.trainOptBtnContainer}>
+          <PrimaryButton text={i18n.t('collection.train.options')} onClick={handleTrainOptions} />
+        </View>
+        <View style={styles.trainBtnContainer}>
+          <PrimaryButton text={i18n.t('collection.train.trainBtn')} onClick={handleTrainPress} />
+        </View>
 
-      {/* <View style={styles.mngBtnContainer}>
+        {/* <View style={styles.mngBtnContainer}>
         <Button
           title={i18n.t("cards.manageCollection")}
           color={colors.primary}
           onPress={handleManageCollectionPress}
         />
       </View> */}
+      </ScreenContainer>
     </View>
   );
 };

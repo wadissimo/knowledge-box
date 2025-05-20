@@ -47,14 +47,7 @@ const BoxLayout = () => {
           ...defaultHeaderOptions,
         }}
       />
-      <Stack.Screen name="[boxId]/boxTest" options={{ title: 'Box', headerShown: false }} />
-      <Stack.Screen
-        name="[boxId]/boxTest2"
-        options={{
-          title: '',
-          ...defaultHeaderOptions,
-        }}
-      />
+
       <Stack.Screen
         name="newBox"
         options={{
@@ -77,7 +70,7 @@ const BoxLayout = () => {
         }}
       />
       <Stack.Screen
-        name="manage-collection/[collectionId]/index"
+        name="manage-collection/[collectionId]/main"
         options={{
           title: i18n.t('cards.collection'),
           ...defaultHeaderOptions,
@@ -88,7 +81,7 @@ const BoxLayout = () => {
                 size={32}
                 color="#fff"
                 style={{
-                  textShadowColor: '#1565c0',
+                  textShadowColor: themeColors.headerTextShadowColor,
                   textShadowOffset: { width: 0, height: 1 },
                   textShadowRadius: 2,
                 }}

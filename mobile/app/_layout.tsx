@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font';
@@ -17,10 +17,12 @@ import { Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins'
 import { SettingsProvider, useSettings } from '@/src/context/SettingsContext';
 import { ThemeContext, defaultColors, darkColors } from '@/src/context/ThemeContext';
 import { setLocale } from '@/src/lib/i18n';
+import { StatusBar } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const segments = useSegments();
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     Poppins_400Regular,
@@ -43,6 +45,7 @@ export default function RootLayout() {
       </View>
     );
   }
+  console.log('segments', segments);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -90,6 +93,7 @@ function AppContent() {
 
   return (
     <ThemeContext.Provider value={{ themeColors, setThemeColors }}>
+      <StatusBar hidden={false} backgroundColor={themeColors.headerBg} barStyle={'light-content'} />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>

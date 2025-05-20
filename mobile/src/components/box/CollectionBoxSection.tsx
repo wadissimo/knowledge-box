@@ -122,7 +122,7 @@ const CollectionBoxSection = ({
   };
 
   const handleTrainCollection = () => {
-    router.push(`/(tabs)/box/manage-collection/${col.id}`);
+    router.push(`/(tabs)/box/manage-collection/${col.id}/main`);
   };
 
   function handleCollectionClick() {

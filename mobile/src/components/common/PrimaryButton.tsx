@@ -6,7 +6,12 @@ const PrimaryButton = ({ text, onClick }: { text: string; onClick: () => void })
   const { themeColors } = useThemeColors();
   return (
     <TouchableOpacity onPress={onClick}>
-      <View style={[styles.btn, { backgroundColor: themeColors.primaryBtnBg }]}>
+      <View
+        style={[
+          styles.btn,
+          { backgroundColor: themeColors.primaryBtnBg, shadowColor: themeColors.primaryBtnShadow },
+        ]}
+      >
         <Text style={[styles.btnText, { color: themeColors.primaryBtnText }]}>{text}</Text>
       </View>
     </TouchableOpacity>
