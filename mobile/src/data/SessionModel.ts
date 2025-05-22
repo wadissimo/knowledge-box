@@ -1,4 +1,4 @@
-import * as SQLite from "expo-sqlite";
+import * as SQLite from 'expo-sqlite';
 
 enum SessionStatus {
   Started = 0,
@@ -77,25 +77,35 @@ function useSessionModel() {
 
   // Delete
   const deleteSession = async (sessionId: number) => {
-    await db.runAsync("DELETE FROM sessions where id=?", sessionId);
+    await db.runAsync('DELETE FROM sessions where id=?', sessionId);
   };
 
   // Read
-  const getStartedSession = async (
-    collectionId: number,
-    dateString: string
-  ) => {
+  const getStartedSession = async (collectionId: number, dateString: string) => {
     const result = await db.getFirstAsync<Session | null>(
-      "SELECT * FROM sessions where collectionId=? and trainingDate = ? and status = ?",
+      'SELECT * FROM sessions where collectionId=? and trainingDate = ? and status = ?',
       collectionId,
       dateString,
       SessionStatus.Started
     );
     return result;
   };
+
+  const getSessionsByCollectionId = async (
+    collectionId: number,
+    limit: number = 20
+  ): Promise<Session[] | null> => {
+    const result = await db.getAllAsync<Session>(
+      'SELECT * FROM sessions where collectionId=? LIMIT ?',
+      collectionId,
+      limit
+    );
+    return result;
+  };
+
   const getSessionById = async (sessionId: number) => {
     const result = await db.getFirstAsync<Session | null>(
-      "SELECT * FROM sessions where id=?",
+      'SELECT * FROM sessions where id=?',
       sessionId
     );
     return result;
@@ -107,6 +117,7 @@ function useSessionModel() {
     deleteSession,
     getStartedSession,
     getSessionById,
+    getSessionsByCollectionId,
   };
 }
 

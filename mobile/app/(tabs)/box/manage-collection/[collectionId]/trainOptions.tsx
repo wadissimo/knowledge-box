@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { Button } from 'react-native';
 import { i18n } from '@/src/lib/i18n';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { Collection, CollectionTrainingData, useCollectionModel } from '@/src/data/CollectionModel';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
+import PrimaryButton from '@/src/components/common/PrimaryButton';
 
 const TrainOptions = () => {
   const { themeColors } = useThemeColors();
@@ -42,7 +43,7 @@ const TrainOptions = () => {
   }
   console.log('TrainOptions: collectionId', collectionId);
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       <View style={styles.formLine}>
         <Text style={styles.label}>{i18n.t('collection.train.newCardsCnt')}</Text>
 
@@ -58,18 +59,12 @@ const TrainOptions = () => {
 
         <TextInput style={styles.input} value={learnCardsCnt} onChangeText={setLearnCardsCnt} />
       </View>
-
-      <Button title={i18n.t('common.save')} onPress={handleSave} color={themeColors.primaryBtnBg} />
-    </View>
+      <PrimaryButton text={i18n.t('common.save')} onClick={handleSave} />
+    </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#F5F5F5',
-  },
   label: {
     fontSize: 18,
     fontWeight: '500',

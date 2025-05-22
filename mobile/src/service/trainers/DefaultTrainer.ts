@@ -55,6 +55,7 @@ export default function useDefaultTrainer(
   }
 
   async function getSession(key: string): Promise<Session | null> {
+    console.log('DefaultTrainer getSession');
     const session = await getStartedSession(collectionId, key);
     if (session === null) {
       return null;
