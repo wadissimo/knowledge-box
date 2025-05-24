@@ -14,7 +14,7 @@ export default function BoxesPage() {
   const isFocused = useIsFocused();
   const [boxes, setBoxes] = useState<Box[]>([]);
   const { themeColors } = useThemeColors();
-
+  console.log('boxes.tsx: rendering', isFocused);
   useEffect(() => {
     if (isFocused) {
       fetchBoxes().then(res => {
@@ -29,6 +29,7 @@ export default function BoxesPage() {
   const handleBoxPress = (boxId: number) => {
     router.push(`/(tabs)/box/${boxId}/boxView`);
   };
+  if (!isFocused) return null;
 
   return (
     <ScreenContainer>

@@ -10,8 +10,9 @@ import { CardStatus, useCardModel } from '@/src/data/CardModel';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import PrimaryButton from '@/src/components/common/PrimaryButton';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
-import { Session, useSessionModel } from '@/src/data/SessionModel';
+import { Session, SessionStatus, useSessionModel } from '@/src/data/SessionModel';
 import { ScrollView } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
 
 const CollectionView = () => {
   const { themeColors } = useThemeColors();
@@ -32,6 +33,7 @@ const CollectionView = () => {
   useEffect(() => {
     if (collectionId && isFocused) {
       const colId = Number(collectionId);
+      console.log('manage-collection\main: collectionId', colId);
       Promise.all([
         getCollectionById(colId),
         getCollectionTrainingData(colId),
@@ -39,14 +41,18 @@ const CollectionView = () => {
         getCardCountByStatus(colId, CardStatus.Review),
         getCardCountByStatus(colId, CardStatus.Learning),
         getSessionsByCollectionId(colId),
-      ]).then(([col, data, newCount, reviewCount, learningCount, sessions]) => {
-        setCollection(col);
-        setTrainingData(data);
-        setNewCardCount(newCount);
-        setReviewCardCount(reviewCount);
-        setLearningCardCount(learningCount);
-        setSessions(sessions);
-      });
+      ])
+        .then(([col, data, newCount, reviewCount, learningCount, sessions]) => {
+          setCollection(col);
+          setTrainingData(data);
+          setNewCardCount(newCount);
+          setReviewCardCount(reviewCount);
+          setLearningCardCount(learningCount);
+          setSessions(sessions);
+        })
+        .catch(error => {
+          console.error('Error fetching collection data:', error);
+        });
       //getCollectionById(Number(collectionId)).then((col) => setCollection(col));
     }
   }, [collectionId, isFocused]);
@@ -104,22 +110,12 @@ const CollectionView = () => {
         <View style={styles.sessionsContainer}>
           <View>
             <Text style={[styles.sessionsHeader, { color: themeColors.text }]}>
-              Study Sessions:
+              {i18n.t('collection.train.sessionsHeader')}
             </Text>
           </View>
           <ScrollView>
             {sessions?.map(session => (
-              <View
-                key={`session${session.id}`}
-                style={[styles.sessionCard, { backgroundColor: themeColors.cardBg }]}
-              >
-                <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
-                  Date: {session.trainingDate}
-                </Text>
-                <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
-                  Score: {session.score}
-                </Text>
-              </View>
+              <SessionCard key={`session${session.id}`} session={session} />
             ))}
           </ScrollView>
         </View>
@@ -135,6 +131,66 @@ const CollectionView = () => {
     </View>
   );
 };
+
+const SessionCard = ({ session }: { session: Session }) => {
+  const { themeColors } = useThemeColors();
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <View
+      style={[
+        styles.sessionCard,
+        {
+          backgroundColor: themeColors.cardBg,
+        },
+      ]}
+    >
+      <TouchableOpacity onPress={() => setExpanded(!expanded)} style={{ flex: 1 }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+            Date: {session.trainingDate}
+          </Text>
+          <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+            Score: {session.score}
+          </Text>
+          {session.status === SessionStatus.Started && (
+            <Ionicons name="timer-outline" size={24} color={themeColors.cardText} />
+          )}
+        </View>
+        {expanded && (
+          <View>
+            <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+              New Cards: {session.newCards}
+            </Text>
+            <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+              Review Cards: {session.reviewCards}
+            </Text>
+            <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+              Learning Cards: {session.learningCards}
+            </Text>
+            <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+              Total Views: {session.totalViews}
+            </Text>
+            <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+              Success Responses: {session.successResponses}
+            </Text>
+            <Text style={[styles.sessionCardText, { color: themeColors.cardText }]}>
+              Failed Responses: {session.failedResponses}
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

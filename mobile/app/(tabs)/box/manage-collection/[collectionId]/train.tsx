@@ -35,7 +35,7 @@ const TrainCollection = () => {
   const { collectionId } = useLocalSearchParams();
 
   const { learnCardLater } = useCardModel();
-  const { updateSession: updateSessionDb, getStartedSession } = useSessionModel();
+  const { newSession, updateSession: updateSessionDb, getStartedSession } = useSessionModel();
   const { getCurrentCards } = useCardTrainingService();
   const { playSound, getImageSource } = useMediaDataService();
   const { getCollectionById, getCollectionTrainingData, updateCollectionTrainingData } =
@@ -54,21 +54,6 @@ const TrainCollection = () => {
   const [error, setError] = useState<string>('');
 
   // Load trainingData on mount or collectionId change
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchTrainingData() {
-      setLoadingTrainingData(true);
-      if (collectionId) {
-        const data = await getCollectionTrainingData(Number(collectionId));
-        if (isMounted) setTrainingData(data);
-      }
-      setLoadingTrainingData(false);
-    }
-    fetchTrainingData();
-    return () => {
-      isMounted = false;
-    };
-  }, [collectionId]);
 
   // Only create trainer after trainingData is loaded
   const trainer = useDefaultTrainer(
@@ -81,48 +66,91 @@ const TrainCollection = () => {
 
   const isFocused = useIsFocused();
   useEffect(() => {
-    if (trainerReady && isFocused) selectNextCard();
+    if (trainerReady && isFocused) {
+      console.log('train.tsx: useEffect trainerReady isFocused selectNextCard start');
+      selectNextCard();
+      console.log('train.tsx: useEffect trainerReady isFocused selectNextCard end');
+    }
   }, [session, isFocused, trainerReady]);
 
   useEffect(() => {
     if (trainerReady) {
+      console.log('train.tsx: useEffect trainerReady updateSession start');
       updateSession();
+      console.log('train.tsx: useEffect trainerReady updateSession end');
     }
   }, [trainerReady]);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchTrainingData() {
+      try {
+        setLoadingTrainingData(true);
+        if (collectionId) {
+          const data = await getCollectionTrainingData(Number(collectionId));
+          if (isMounted) setTrainingData(data);
+        }
+      } catch (e) {
+        console.log('ERROR: train.tsx: USE EFFECT:isMounted - error', e);
+        throw e;
+      } finally {
+        setLoadingTrainingData(false);
+      }
+    }
+    fetchTrainingData();
+    return () => {
+      isMounted = false;
+    };
+  }, [collectionId]);
+
+  // useEffect(() => {
+  //   if (trainerReady && isFocused) {
+  //     const run = async () => {
+  //       try {
+  //         console.log(
+  //           'train.tsx: USE EFFECT: trainerReady + isFocused - starting updateSession then selectNextCard'
+  //         );
+  //         console.log('update Session started');
+  //         await updateSession(); // make sure this is awaited
+  //         console.log('update Session completed');
+  //         await selectNextCard();
+  //       } catch (e) {
+  //         console.log('ERROR: train.tsx: USE EFFECT: trainerReady + isFocused - error', e);
+  //         throw e;
+  //       }
+  //     };
+  //     run();
+  //   }
+  // }, [trainerReady, isFocused]);
 
   const totalCards = session
     ? session.newCards + session.reviewCards + session.learningCards
     : null;
   const remainingCards = sessionCards.length;
 
-  function selectNextCard() {
+  async function selectNextCard() {
+    console.log('train.tsx: selectNextCard start');
+    console.log('train.tsx: selectNextCard session', session);
+    console.log('train.tsx: selectNextCard trainerReady', trainerReady);
     if (session === null || !trainerReady) {
       setCurrentCard(null);
       return;
     }
+
     setLoading(true);
-    trainer
-      .getNextCard(session.id)
-      .then(card => {
-        if (card === null) {
-          completeTraining()
-            .then(() => {
-              setCurrentCard(null);
-              setLoading(false);
-            })
-            .catch(e => {
-              setError('Error in completing training');
-              setLoading(false);
-            });
-        } else {
-          setCurrentCard(card);
-          setLoading(false);
-        }
-      })
-      .catch(e => {
-        setError('Error in fetching next card');
-        setLoading(false);
-      });
+    try {
+      const card = await trainer.getNextCard(session.id);
+      if (card === null) {
+        await completeTraining();
+      }
+      setCurrentCard(card);
+    } catch (e) {
+      console.log('train.tsx: selectNextCard error', e);
+      setError('Error in fetching next card');
+    } finally {
+      setLoading(false);
+    }
+    console.log('train.tsx: selectNextCard end');
   }
 
   function calcScore(session: Session) {
@@ -158,19 +186,33 @@ const TrainCollection = () => {
 
   async function updateSession() {
     if (!collectionId || !trainerReady) return;
-    const curDateStripped = stripTimeFromDate(new Date());
-    var session = await trainer.getSession(curDateStripped);
-    var existingSession = true;
-    if (session === null) {
-      existingSession = false;
-      session = await trainer.createSession(curDateStripped);
-    }
-    const sessionCards = await getCurrentCards(session.id);
+    try {
+      setLoading(true);
+      console.log('train.tsx: updateSession start');
+      const curDateStripped = stripTimeFromDate(new Date());
+      var session = await trainer.getSession(curDateStripped);
+      var existingSession = true;
 
-    setCollection(await getCollectionById(Number(collectionId)));
-    setSession(session);
-    setSessionCards(sessionCards);
-    setLoading(true);
+      if (session === null) {
+        existingSession = false;
+        console.log('train.tsx: creating session');
+        session = await trainer.createSession(curDateStripped);
+      }
+      console.log('train.tsx: session exists');
+      if (session === null) {
+        console.log('Error creating session');
+      }
+      const sessionCards = await getCurrentCards(session.id);
+
+      setCollection(await getCollectionById(Number(collectionId)));
+      setSession(session);
+      setSessionCards(sessionCards);
+      console.log('train.tsx: updateSession end');
+    } catch (e) {
+      console.log('train.tsx: updateSession error', e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const resetTraining = async () => {
@@ -206,7 +248,7 @@ const TrainCollection = () => {
 
     const newSessionCards = await getCurrentCards(session.id);
     setSessionCards(newSessionCards);
-    selectNextCard();
+    await selectNextCard();
   }
 
   function handleEditMenu() {
@@ -217,22 +259,29 @@ const TrainCollection = () => {
   async function handlePostponeMenu() {
     if (currentCard !== null && session !== null) {
       console.log('deleting session card', session.id, currentCard.id);
-
-      await Promise.all([
-        learnCardLater(currentCard),
-
-        deleteSessionCard(session.id, currentCard.id),
-      ]);
+      await learnCardLater(currentCard);
+      await deleteSessionCard(session.id, currentCard.id);
       const newSessionCards = await getCurrentCards(session.id);
       setSessionCards(newSessionCards);
-      selectNextCard();
+      await selectNextCard();
     }
   }
   function handleTooEasyMenu() {
     handleUserResponse('easy');
   }
+  console.log(
+    'train.tsx: loading',
+    loading,
+    'loadingTrainingData',
+    loadingTrainingData,
+    'session',
+    session,
+    'currentCard',
+    currentCard
+  );
   if (loading || loadingTrainingData) return null;
   if (session === null) return null;
+
   return (
     <View style={{ flex: 1 }}>
       <View style={[styles.topPanel, { backgroundColor: themeColors.subHeaderBg }]}>

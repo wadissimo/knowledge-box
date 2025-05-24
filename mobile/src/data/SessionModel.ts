@@ -83,7 +83,7 @@ function useSessionModel() {
   // Read
   const getStartedSession = async (collectionId: number, dateString: string) => {
     const result = await db.getFirstAsync<Session | null>(
-      'SELECT * FROM sessions where collectionId=? and trainingDate = ? and status = ?',
+      'SELECT * FROM sessions where collectionId=? and trainingDate = ? and status = ? order by trainingDate desc',
       collectionId,
       dateString,
       SessionStatus.Started
@@ -96,7 +96,7 @@ function useSessionModel() {
     limit: number = 20
   ): Promise<Session[] | null> => {
     const result = await db.getAllAsync<Session>(
-      'SELECT * FROM sessions where collectionId=? LIMIT ?',
+      'SELECT * FROM sessions where collectionId=? order by trainingDate desc LIMIT ? ',
       collectionId,
       limit
     );

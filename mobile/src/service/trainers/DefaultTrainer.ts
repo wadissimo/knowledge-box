@@ -136,63 +136,72 @@ export default function useDefaultTrainer(
   }
 
   async function createSession(key: string): Promise<Session> {
-    // Select new cards
-    console.log('select new cards');
-    var newCards = await selectNewTrainingCards(collectionId, maxNewCards);
-    // Select review cards
-    const cutOffTime = getTomorrowAsNumber() - 1;
-    console.log('select review cards');
-    var cardsToReview = await selectReviewCards(collectionId, cutOffTime, maxReviewCards);
-    // Select learning cards
-    console.log('select learning cards');
-    var cardsToLearn = await selectLearningCards(collectionId, maxLearningCards);
+    try {
+      // Select new cards
 
-    const seen = new Set<number>();
-    // Filter out duplicate cards based on 'id'
-    const uniqueCards = (cards: Card[]) => {
-      return cards.filter(card => {
-        if (seen.has(card.id)) return false;
-        seen.add(card.id);
-        return true;
+      console.log('DefaultTrainer: select new cards');
+      var newCards = await selectNewTrainingCards(collectionId, maxNewCards);
+      // Select review cards
+      const cutOffTime = getTomorrowAsNumber() - 1;
+      console.log('DefaultTrainer: select review cards');
+      var cardsToReview = await selectReviewCards(collectionId, cutOffTime, maxReviewCards);
+      // Select learning cards
+      console.log('DefaultTrainer: select learning cards');
+      var cardsToLearn = await selectLearningCards(collectionId, maxLearningCards);
+
+      const seen = new Set<number>();
+      // Filter out duplicate cards based on 'id'
+      const uniqueCards = (cards: Card[]) => {
+        return cards.filter(card => {
+          if (seen.has(card.id)) return false;
+          seen.add(card.id);
+          return true;
+        });
+      };
+
+      newCards = uniqueCards(newCards);
+      cardsToLearn = uniqueCards(cardsToLearn);
+      cardsToReview = uniqueCards(cardsToReview);
+
+      // interleave cards
+      const allCards = mergeCards(newCards, cardsToLearn, cardsToReview);
+      const curTime = new Date().getTime();
+
+      // update cards reviewTime
+      const deltaTime = Math.min(
+        20 * ONE_SEC,
+        Math.ceil(SESSION_DURATION_DEFAULT / allCards.length)
+      );
+      allCards.forEach((card, index) => {
+        card.repeatTime = curTime + index * deltaTime;
       });
-    };
 
-    newCards = uniqueCards(newCards);
-    cardsToLearn = uniqueCards(cardsToLearn);
-    cardsToReview = uniqueCards(cardsToReview);
+      // update DB
+      // update repeatTime
+      console.log('DefaultTrainer: create session');
+      const sessionId = await newSession(
+        collectionId,
+        key,
+        newCards.length,
+        cardsToReview.length,
+        cardsToLearn.length
+      );
+      console.log('DefaultTrainer: session ID ', sessionId);
+      const session = await getSessionById(sessionId);
+      if (session === null) {
+        throw new Error('Session not found.');
+      }
+      console.log('DefaultTrainer: bulk update');
 
-    // interleave cards
-    const allCards = mergeCards(newCards, cardsToLearn, cardsToReview);
-    const curTime = new Date().getTime();
-
-    // update cards reviewTime
-    const deltaTime = Math.min(20 * ONE_SEC, Math.ceil(SESSION_DURATION_DEFAULT / allCards.length));
-    allCards.forEach((card, index) => {
-      card.repeatTime = curTime + index * deltaTime;
-    });
-
-    // update DB
-    // update repeatTime
-    console.log('create session');
-    const sessionId = await newSession(
-      collectionId,
-      key,
-      newCards.length,
-      cardsToReview.length,
-      cardsToLearn.length
-    );
-    const session = await getSessionById(sessionId);
-    if (session === null) {
-      throw new Error('Session not found.');
+      await Promise.all([
+        bulkUpdateRepeatTime(allCards),
+        bulkInsertTrainingCards(sessionId, allCards),
+      ]);
+      return session;
+    } catch (e) {
+      console.log('DefaultTrainer: create session error', e);
+      throw e;
     }
-    console.log('builk update');
-
-    await Promise.all([
-      bulkUpdateRepeatTime(allCards),
-      bulkInsertTrainingCards(sessionId, allCards),
-    ]);
-
-    return session;
   }
   async function getNextCard(sessionId: number): Promise<Card | null> {
     return await getNextCardDb(sessionId);

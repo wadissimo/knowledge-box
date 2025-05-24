@@ -37,6 +37,24 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, dbLoaded]);
 
+  if (global.ErrorUtils) {
+    const defaultHandler = global.ErrorUtils.getGlobalHandler?.();
+
+    global.ErrorUtils.setGlobalHandler((error, isFatal) => {
+      console.log('[GlobalErrorHandler]', isFatal ? 'Fatal:' : 'Non-fatal:', error);
+
+      // Optional: rethrow to default handler if needed
+      if (defaultHandler) {
+        defaultHandler(error, isFatal);
+      }
+    });
+  }
+  if (typeof globalThis._unhandledPromiseRejectionHandler === 'undefined') {
+    globalThis._unhandledPromiseRejectionHandler = (reason, promise) => {
+      console.log('[UnhandledPromiseRejection]', reason);
+    };
+  }
+
   // Show spinner until fonts and DB are ready
   if (!fontsLoaded || !dbLoaded || !database) {
     return (

@@ -142,7 +142,8 @@
       "options": "Trainingsoptionen",
       "newCardsCnt": "Anzahl neuer Karten",
       "reviewCardsCnt": "Anzahl der Wiederholungskarten",
-      "learnCardsCnt": "Anzahl der Lernkarten"
+      "learnCardsCnt": "Anzahl der Lernkarten",
+      "sessionsHeader": "Lernsitzungen"
     },
     "stats": {
       "newCards": "Neue Karten:",
