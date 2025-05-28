@@ -1,4 +1,4 @@
-import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Button, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,236 +19,40 @@ import { i18n } from '@/src/lib/i18n';
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
-
-const stripTimeFromDate = (date: Date): string => {
-  return date.toISOString().split('T')[0]; // This will return the date in YYYY-MM-DD format
-};
-
-const NEW_CARDS_PER_DAY = 2;
-const LEARNING_CARDS_PER_DAY = 50;
-const REPEAT_CARDS_PER_DAY = 200;
-
-const DEBUG = false;
+import { useTrainingFlow } from '@/src/service/TrainingFlow';
 
 const TrainCollection = () => {
   const { themeColors } = useThemeColors();
   const { collectionId } = useLocalSearchParams();
-
-  const { learnCardLater } = useCardModel();
-  const { newSession, updateSession: updateSessionDb, getStartedSession } = useSessionModel();
-  const { getCurrentCards } = useCardTrainingService();
   const { playSound, getImageSource } = useMediaDataService();
-  const { getCollectionById, getCollectionTrainingData, updateCollectionTrainingData } =
-    useCollectionModel();
-  const { deleteSessionCard } = useSessionCardModel();
+  const [remainingCards, setRemainingCards] = useState(0);
 
   const router = useRouter();
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [session, setSession] = useState<Session | null>(null);
-  const [currentCard, setCurrentCard] = useState<Card | null>(null);
-  const [sessionCards, setSessionCards] = useState<Card[]>([]);
-  const [collection, setCollection] = useState<Collection | null>(null);
-  const [trainingData, setTrainingData] = useState<CollectionTrainingData | null>(null);
-  const [loadingTrainingData, setLoadingTrainingData] = useState(true);
-  const [error, setError] = useState<string>('');
-
-  // Load trainingData on mount or collectionId change
-
-  // Only create trainer after trainingData is loaded
-  const trainer = useDefaultTrainer(
-    collectionId !== null && collectionId !== '' ? Number(collectionId) : -1,
-    trainingData ? trainingData.maxNewCards : NEW_CARDS_PER_DAY,
-    trainingData ? trainingData.maxReviewCards : REPEAT_CARDS_PER_DAY,
-    trainingData ? trainingData.maxLearningCards : LEARNING_CARDS_PER_DAY
-  );
-  const trainerReady = !loadingTrainingData && collectionId !== null && collectionId !== '';
-
-  const isFocused = useIsFocused();
-  useEffect(() => {
-    if (trainerReady && isFocused) {
-      console.log('train.tsx: useEffect trainerReady isFocused selectNextCard start');
-      selectNextCard();
-      console.log('train.tsx: useEffect trainerReady isFocused selectNextCard end');
-    }
-  }, [session, isFocused, trainerReady]);
-
-  useEffect(() => {
-    if (trainerReady) {
-      console.log('train.tsx: useEffect trainerReady updateSession start');
-      updateSession();
-      console.log('train.tsx: useEffect trainerReady updateSession end');
-    }
-  }, [trainerReady]);
-
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchTrainingData() {
-      try {
-        setLoadingTrainingData(true);
-        if (collectionId) {
-          const data = await getCollectionTrainingData(Number(collectionId));
-          if (isMounted) setTrainingData(data);
-        }
-      } catch (e) {
-        console.log('ERROR: train.tsx: USE EFFECT:isMounted - error', e);
-        throw e;
-      } finally {
-        setLoadingTrainingData(false);
-      }
-    }
-    fetchTrainingData();
-    return () => {
-      isMounted = false;
-    };
-  }, [collectionId]);
-
-  // useEffect(() => {
-  //   if (trainerReady && isFocused) {
-  //     const run = async () => {
-  //       try {
-  //         console.log(
-  //           'train.tsx: USE EFFECT: trainerReady + isFocused - starting updateSession then selectNextCard'
-  //         );
-  //         console.log('update Session started');
-  //         await updateSession(); // make sure this is awaited
-  //         console.log('update Session completed');
-  //         await selectNextCard();
-  //       } catch (e) {
-  //         console.log('ERROR: train.tsx: USE EFFECT: trainerReady + isFocused - error', e);
-  //         throw e;
-  //       }
-  //     };
-  //     run();
-  //   }
-  // }, [trainerReady, isFocused]);
+  const {
+    trainingData,
+    isLoaded,
+    error,
+    collection,
+    session,
+    currentCard,
+    onUserResponse,
+    onResetTraining,
+  } = useTrainingFlow(collectionId !== null && collectionId !== '' ? Number(collectionId) : null);
 
   const totalCards = session
     ? session.newCards + session.reviewCards + session.learningCards
     : null;
-  const remainingCards = sessionCards.length;
-
-  async function selectNextCard() {
-    console.log('train.tsx: selectNextCard start');
-    console.log('train.tsx: selectNextCard session', session);
-    console.log('train.tsx: selectNextCard trainerReady', trainerReady);
-    if (session === null || !trainerReady) {
-      setCurrentCard(null);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const card = await trainer.getNextCard(session.id);
-      if (card === null) {
-        await completeTraining();
-      }
-      setCurrentCard(card);
-    } catch (e) {
-      console.log('train.tsx: selectNextCard error', e);
-      setError('Error in fetching next card');
-    } finally {
-      setLoading(false);
-    }
-    console.log('train.tsx: selectNextCard end');
-  }
 
   function calcScore(session: Session) {
     const score = session.newCards * 10 + session.reviewCards * 3 + session.totalViews;
     return score;
   }
-  async function completeTraining() {
-    if (session === null || session.status != SessionStatus.Started) return;
-
-    console.log('completeTraining calc stats');
-    session.status = SessionStatus.Completed;
-    const score = calcScore(session);
-    session.score = score;
-    //const trainingData = await getCollectionTrainingData(Number(collectionId));
-    if (trainingData !== null) {
-      const yesterday = getYesterdayAsNumber();
-      if (trainingData.lastTrainingDate === yesterday) {
-        trainingData.streak += 1;
-      } else {
-        trainingData.streak = 1;
-      }
-      trainingData.lastTrainingDate = getTodayAsNumber();
-      trainingData.totalScore = (trainingData.totalScore ?? 0) + score;
-      trainingData.totalCardViews += session.totalViews;
-      trainingData.totalFailedResponses += session.failedResponses;
-      trainingData.totalSuccessResponses += session.successResponses;
-
-      await updateCollectionTrainingData(trainingData);
-    }
-
-    await updateSessionDb(session);
-  }
-
-  async function updateSession() {
-    if (!collectionId || !trainerReady) return;
-    try {
-      setLoading(true);
-      console.log('train.tsx: updateSession start');
-      const curDateStripped = stripTimeFromDate(new Date());
-      var session = await trainer.getSession(curDateStripped);
-      var existingSession = true;
-
-      if (session === null) {
-        existingSession = false;
-        console.log('train.tsx: creating session');
-        session = await trainer.createSession(curDateStripped);
-      }
-      console.log('train.tsx: session exists');
-      if (session === null) {
-        console.log('Error creating session');
-      }
-      const sessionCards = await getCurrentCards(session.id);
-
-      setCollection(await getCollectionById(Number(collectionId)));
-      setSession(session);
-      setSessionCards(sessionCards);
-      console.log('train.tsx: updateSession end');
-    } catch (e) {
-      console.log('train.tsx: updateSession error', e);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const resetTraining = async () => {
-    if (!trainerReady) return;
-    console.log('training reset');
-    const curDateStripped = stripTimeFromDate(new Date());
-    var session = await getStartedSession(Number(collectionId), curDateStripped);
-    if (session !== null) {
-      session.status = SessionStatus.Abandoned;
-      await updateSessionDb(session);
-    }
-
-    await updateSession();
-  };
 
   async function handleUserResponse(userResponse: 'again' | 'hard' | 'good' | 'easy') {
-    if (session === null || currentCard === null || !trainerReady) return;
+    if (session === null || currentCard === null) return;
     console.log('user response', userResponse);
-    //increase view count
-    session.totalViews += 1;
-    switch (userResponse) {
-      case 'again':
-        session.failedResponses += 1;
-        break;
-      case 'good':
-      case 'easy':
-        session.successResponses += 1;
-        break;
-    }
-    await updateSessionDb(session);
-
-    await trainer.processUserResponse(session.id, currentCard, userResponse, sessionCards);
-
-    const newSessionCards = await getCurrentCards(session.id);
-    setSessionCards(newSessionCards);
-    await selectNextCard();
+    onUserResponse(userResponse);
   }
 
   function handleEditMenu() {
@@ -259,28 +63,33 @@ const TrainCollection = () => {
   async function handlePostponeMenu() {
     if (currentCard !== null && session !== null) {
       console.log('deleting session card', session.id, currentCard.id);
-      await learnCardLater(currentCard);
-      await deleteSessionCard(session.id, currentCard.id);
-      const newSessionCards = await getCurrentCards(session.id);
-      setSessionCards(newSessionCards);
-      await selectNextCard();
+      // await learnCardLater(currentCard);
+      // await deleteSessionCard(session.id, currentCard.id);
+      // const newSessionCards = await getCurrentCards(session.id);
+      // setSessionCards(newSessionCards);
+      // await selectNextCard();
     }
   }
+
   function handleTooEasyMenu() {
     handleUserResponse('easy');
   }
-  console.log(
-    'train.tsx: loading',
-    loading,
-    'loadingTrainingData',
-    loadingTrainingData,
-    'session',
-    session,
-    'currentCard',
-    currentCard
-  );
-  if (loading || loadingTrainingData) return null;
-  if (session === null) return null;
+  if (error)
+    return (
+      <View style={{ flex: 1 }}>
+        <Text style={{ color: 'red' }}>Error: {error}</Text>
+        <Button title="Reload" onPress={() => router.reload()} />
+      </View>
+    );
+  if (!isLoaded)
+    return (
+      <View style={{ flex: 1 }}>
+        <ActivityIndicator size="large" />
+        <Text>Loading...</Text>
+      </View>
+    );
+
+  console.log('currentCard', currentCard);
 
   return (
     <View style={{ flex: 1 }}>
@@ -310,49 +119,8 @@ const TrainCollection = () => {
           />
         ) : (
           <View style={{ flex: 1 }}>
-            <View style={{ flex: 0.9 }}>
-              <TrainingResults session={session} onResetTraining={resetTraining} />
-            </View>
-            <View>
-              <Button
-                title={i18n.t('common.navBack')}
-                onPress={() => router.back()}
-                color={themeColors.primaryBtnBg}
-              />
-            </View>
+            <TrainingResults session={session!} onResetTraining={onResetTraining} />
           </View>
-        )}
-        {DEBUG && (
-          <>
-            <ScrollView style={styles.scrollView}>
-              {sessionCards.map((card: Card) => {
-                return (
-                  <View style={{ flexDirection: 'row', gap: 1 }} key={`card-${card.id}`}>
-                    <View style={{ flex: 1 }}>
-                      <Text>{card?.front}</Text>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text>{card?.status}</Text>
-                    </View>
-
-                    <View style={{ flex: 1 }}>
-                      <Text>{card?.repeatTime}</Text>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text>{formatInterval(card?.interval ?? 0)}</Text>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text>{card?.easeFactor?.toFixed(2)}</Text>
-                    </View>
-                  </View>
-                );
-              })}
-            </ScrollView>
-
-            <View>
-              <Button title="Reset Training" onPress={resetTraining} />
-            </View>
-          </>
         )}
       </ScreenContainer>
     </View>

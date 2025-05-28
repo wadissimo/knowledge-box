@@ -28,7 +28,7 @@ const AGAIN_INTERVAL_FAILED_REVIEW = 5 * ONE_MIN;
 const STOP_LEARNING_INTERVAL = 2 * ONE_MIN;
 
 export default function useDefaultTrainer(
-  collectionId: number,
+  collectionId: number | null,
   maxNewCards: number,
   maxReviewCards: number,
   maxLearningCards: number
@@ -56,6 +56,7 @@ export default function useDefaultTrainer(
 
   async function getSession(key: string): Promise<Session | null> {
     console.log('DefaultTrainer getSession');
+    if (collectionId === null) return null;
     const session = await getStartedSession(collectionId, key);
     if (session === null) {
       return null;
@@ -136,6 +137,7 @@ export default function useDefaultTrainer(
   }
 
   async function createSession(key: string): Promise<Session> {
+    if (collectionId === null) throw new Error('DefaultTrainerCollection ID is null');
     try {
       // Select new cards
 

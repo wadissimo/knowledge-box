@@ -1,5 +1,5 @@
-import * as SQLite from "expo-sqlite";
-import { Collection } from "./CollectionModel";
+import * as SQLite from 'expo-sqlite';
+import { Collection } from './CollectionModel';
 
 type BoxCollection = {
   boxId: number;
@@ -12,7 +12,7 @@ function useBoxCollectionModel() {
   // Create
   const newBoxCollection = async (boxId: number, collectionId: number) => {
     await db.runAsync(
-      "INSERT INTO boxCollections (boxId, collectionId) VALUES (?, ?)",
+      'INSERT INTO boxCollections (boxId, collectionId) VALUES (?, ?)',
       boxId,
       collectionId
     );
@@ -22,7 +22,7 @@ function useBoxCollectionModel() {
   // Delete
   const deleteBoxCollection = async (boxId: number, collectionId: number) => {
     await db.runAsync(
-      "DELETE FROM boxCollections where boxId=?, collectionId=?",
+      'DELETE FROM boxCollections where boxId=?, collectionId=?',
       boxId,
       collectionId
     );
@@ -30,20 +30,16 @@ function useBoxCollectionModel() {
 
   // Read
 
-  const fetchBoxCollections = async (
-    boxId: number
-  ): Promise<BoxCollection[]> => {
+  const fetchBoxCollections = async (boxId: number): Promise<BoxCollection[]> => {
     return await db.getAllAsync<BoxCollection>(
-      "SELECT * FROM boxCollections where boxId = ?",
+      'SELECT * FROM boxCollections where boxId = ?',
       boxId
     );
   };
 
-  const fetchCollectionsByBoxId = async (
-    boxId: number
-  ): Promise<Collection[]> => {
+  const fetchCollectionsByBoxId = async (boxId: number): Promise<Collection[]> => {
     return await db.getAllAsync<Collection>(
-      "SELECT * FROM collections inner join boxCollections on collections.id = boxCollections.collectionId where boxId=? ",
+      'SELECT * FROM collections inner join boxCollections on collections.id = boxCollections.collectionId where boxId=? ',
       boxId
     );
   };
