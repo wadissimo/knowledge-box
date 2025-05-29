@@ -2,7 +2,7 @@ import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import CardComponent from '@/src/components/CardComponent';
+import CardComponent from '@/src/components/box/train/CardComponent';
 import { Card, useCardModel } from '@/src/data/CardModel';
 import { useIsFocused, useTheme } from '@react-navigation/native';
 import { Session, SessionStatus, useSessionModel } from '@/src/data/SessionModel';

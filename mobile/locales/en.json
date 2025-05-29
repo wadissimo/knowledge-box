@@ -135,7 +135,8 @@
       "newCardsCnt": "New Cards Count",
       "reviewCardsCnt": "Review Cards Count",
       "learnCardsCnt": "Learn Cards Count",
-      "sessionsHeader": "Study Sessions"
+      "sessionsHeader": "Study Sessions",
+      "trainingResults": "Training Results"
     },
     "stats": {
       "newCards": "New Cards:",

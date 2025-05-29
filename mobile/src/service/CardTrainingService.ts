@@ -54,7 +54,11 @@ function useCardTrainingService() {
   };
 
   const bulkInsertTrainingCards = async (sessionId: number, cards: Card[]): Promise<void> => {
-    await Promise.all(cards.map(card => sessionCardModel.newSessionCard(sessionId, card.id)));
+    await Promise.all(cards.map(card => sessionCardModel.newSessionCard(sessionId, card.id))).catch(
+      e => {
+        console.log('bulkInsertTrainingCards error', e);
+      }
+    );
   };
 
   const getNextCard = async (sessionId: number): Promise<Card | null> => {
@@ -72,12 +76,12 @@ function useCardTrainingService() {
     );
   };
 
-  const countSessionCards = async (sessionId: number): Promise<number> => {
-    const res = await db.getFirstAsync<number>(
+  const getSessionCardsCount = async (sessionId: number): Promise<number> => {
+    const res = await db.getFirstAsync<{ 'COUNT(*)': number }>(
       'SELECT COUNT(*) from sessionCards where sessionId = ?',
       sessionId
     );
-    return res ?? 0;
+    return res?.['COUNT(*)'] ?? 0;
   };
 
   const getCurrentSessionCards = async (sessionId: number): Promise<SessionCard[]> => {
@@ -98,6 +102,16 @@ function useCardTrainingService() {
     );
   };
 
+  const getCurrentCardsCount = async (sessionId: number): Promise<number> => {
+    const res = await db.getFirstAsync<{ 'COUNT(*)': number }>(
+      'SELECT COUNT(*) from cards inner join sessionCards on cards.id=sessionCards.cardId where sessionCards.sessionId = ? and sessionCards.status <> ? order by cards.repeatTime, cards.id',
+      sessionId,
+      SessionCardStatus.Complete
+    );
+
+    return res?.['COUNT(*)'] ?? 0;
+  };
+
   return {
     updateCardRepeatTime,
     selectNewTrainingCards,
@@ -107,9 +121,10 @@ function useCardTrainingService() {
     bulkInsertTrainingCards,
     getNextCard,
     getAllSessionCards,
-    countSessionCards,
+    getSessionCardsCount,
     getCurrentSessionCards,
     getCurrentCards,
+    getCurrentCardsCount,
   };
 }
 

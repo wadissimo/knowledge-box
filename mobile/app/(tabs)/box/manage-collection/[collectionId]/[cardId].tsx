@@ -18,7 +18,7 @@ import { Card, useCardModel } from '@/src/data/CardModel';
 import useMediaDataService from '@/src/service/MediaDataService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { i18n } from '@/src/lib/i18n';
-import { useAppTheme } from '@/src/hooks/useAppTheme';
+
 import * as ImagePicker from 'expo-image-picker';
 import { useImageModel } from '@/src/data/ImageModel';
 import LocalImage from '@/src/components/utils/LocalImage';

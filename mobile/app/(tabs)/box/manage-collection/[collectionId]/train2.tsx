@@ -1,24 +1,20 @@
-import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 
-import { useLocalSearchParams } from "expo-router";
-import CardComponent from "@/src/components/CardComponent";
-import { Card, useCardModel } from "@/src/data/CardModel";
-import { useTheme } from "@react-navigation/native";
-import {
-  Session,
-  SessionStatus,
-  useSessionModel,
-} from "@/src/data/SessionModel";
-import { SessionCard, useSessionCardModel } from "@/src/data/SessionCardModel";
-import { useCardTrainingService } from "@/src/service/CardTrainingService";
-import useDefaultTrainer from "@/src/service/trainers/DefaultTrainer";
-import { Trainer } from "@/src/service/trainers/Trainer";
-import { formatInterval } from "@/src/lib/TimeUtils";
-import useMediaDataService from "@/src/service/MediaDataService";
+import { useLocalSearchParams } from 'expo-router';
+import CardComponent from '@/src/components/box/train/CardComponent';
+import { Card, useCardModel } from '@/src/data/CardModel';
+import { useTheme } from '@react-navigation/native';
+import { Session, SessionStatus, useSessionModel } from '@/src/data/SessionModel';
+import { SessionCard, useSessionCardModel } from '@/src/data/SessionCardModel';
+import { useCardTrainingService } from '@/src/service/CardTrainingService';
+import useDefaultTrainer from '@/src/service/trainers/DefaultTrainer';
+import { Trainer } from '@/src/service/trainers/Trainer';
+import { formatInterval } from '@/src/lib/TimeUtils';
+import useMediaDataService from '@/src/service/MediaDataService';
 
 const stripTimeFromDate = (date: Date): string => {
-  return date.toISOString().split("T")[0]; // This will return the date in YYYY-MM-DD format
+  return date.toISOString().split('T')[0]; // This will return the date in YYYY-MM-DD format
 };
 
 const NEW_CARDS_PER_DAY = 10;
@@ -32,14 +28,13 @@ const TrainCollection = () => {
   const { collectionId } = useLocalSearchParams();
 
   const trainer: Trainer = useDefaultTrainer(
-    collectionId !== null && collectionId !== "" ? Number(collectionId) : -1,
+    collectionId !== null && collectionId !== '' ? Number(collectionId) : -1,
     NEW_CARDS_PER_DAY,
     REPEAT_CARDS_PER_DAY,
     LEARNING_CARDS_PER_DAY
   );
 
-  const { updateSession: updateSessionDb, getStartedSession } =
-    useSessionModel();
+  const { updateSession: updateSessionDb, getStartedSession } = useSessionModel();
   const { getCurrentCards } = useCardTrainingService();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -54,22 +49,22 @@ const TrainCollection = () => {
       return;
     }
     setLoading(true);
-    trainer.getNextCard(session.id).then((card) => {
-      console.log("curent card", card);
+    trainer.getNextCard(session.id).then(card => {
+      console.log('curent card', card);
       setCurrentCard(card);
       setLoading(false);
     });
   }
 
   async function updateSession() {
-    console.log("updateSession");
+    console.log('updateSession');
     if (!collectionId) return;
     const curDateStripped = stripTimeFromDate(new Date());
 
     var session = await trainer.getSession(curDateStripped);
     var existingSession = true;
     if (session === null) {
-      console.log("Creating a training session");
+      console.log('Creating a training session');
       existingSession = false;
       session = await trainer.createSession(curDateStripped);
     }
@@ -89,42 +84,32 @@ const TrainCollection = () => {
   }, [session]);
 
   const resetTraining = async () => {
-    console.log("training reset");
+    console.log('training reset');
     const curDateStripped = stripTimeFromDate(new Date());
-    var session = await getStartedSession(
-      Number(collectionId),
-      curDateStripped
-    );
+    var session = await getStartedSession(Number(collectionId), curDateStripped);
     if (session === null) throw Error("can't find session");
     session.status = SessionStatus.Abandoned;
     await updateSessionDb(session);
-    console.log("session removed: ", session.id);
+    console.log('session removed: ', session.id);
     await updateSession();
   };
 
-  async function handleUserResponse(
-    userResponse: "again" | "hard" | "good" | "easy"
-  ) {
+  async function handleUserResponse(userResponse: 'again' | 'hard' | 'good' | 'easy') {
     if (session === null || currentCard === null) return;
     //increase view count
     session.totalViews += 1;
     switch (userResponse) {
-      case "again":
+      case 'again':
         session.failedResponses += 1;
         break;
-      case "good":
-      case "easy":
+      case 'good':
+      case 'easy':
         session.successResponses += 1;
         break;
     }
     await updateSessionDb(session);
 
-    await trainer.processUserResponse(
-      session.id,
-      currentCard,
-      userResponse,
-      sessionCards
-    );
+    await trainer.processUserResponse(session.id, currentCard, userResponse, sessionCards);
 
     const newSessionCards = await getCurrentCards(session.id);
     setSessionCards(newSessionCards);
@@ -145,24 +130,16 @@ const TrainCollection = () => {
         />
       ) : (
         <View style={styles.noMoreCardsTextView}>
-          <Text style={styles.noMoreCardsText}>
-            Well done. Training complete!
-          </Text>
+          <Text style={styles.noMoreCardsText}>Well done. Training complete!</Text>
           <Text>Total Card Views: {session.totalViews}</Text>
           <Text>New Cards: {session.newCards}</Text>
-          <Text>
-            Review Cards: {session.reviewCards + session.learningCards}
-          </Text>
+          <Text>Review Cards: {session.reviewCards + session.learningCards}</Text>
           <Text>Successful Responses: {session.successResponses}</Text>
           <Text>Failed Responses: {session.failedResponses}</Text>
 
           <Text style={styles.scoreText}>Your score: XXX</Text>
           <View>
-            <Button
-              title="New Training"
-              onPress={resetTraining}
-              color={colors.primary}
-            />
+            <Button title="New Training" onPress={resetTraining} color={colors.primary} />
           </View>
         </View>
       )}
@@ -171,10 +148,7 @@ const TrainCollection = () => {
           <ScrollView style={styles.scrollView}>
             {sessionCards.map((card: Card) => {
               return (
-                <View
-                  style={{ flexDirection: "row", gap: 1 }}
-                  key={`card-${card.id}`}
-                >
+                <View style={{ flexDirection: 'row', gap: 1 }} key={`card-${card.id}`}>
                   <View style={{ flex: 1 }}>
                     <Text>{card?.front}</Text>
                   </View>
@@ -210,18 +184,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    backgroundColor: "lightgrey",
+    backgroundColor: 'lightgrey',
     marginHorizontal: 20,
   },
 
   noMoreCardsTextView: {
     flex: 2,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   noMoreCardsText: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     paddingBottom: 40,
   },
   scoreText: {

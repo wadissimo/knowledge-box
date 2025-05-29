@@ -107,7 +107,7 @@ const BoxLayout = () => {
       <Stack.Screen
         name="manage-collection/[collectionId]/[cardId]"
         options={{
-          title: i18n.t('cards.editCard'),
+          title: i18n.t('cards.editCardTitle'),
           ...defaultHeaderOptions,
         }}
       />
@@ -122,6 +122,13 @@ const BoxLayout = () => {
         name="manage-collection/[collectionId]/trainOptions"
         options={{
           title: i18n.t('collection.train.options'),
+          ...defaultHeaderOptions,
+        }}
+      />
+      <Stack.Screen
+        name="manage-collection/[collectionId]/trainingResults/[sessionId]"
+        options={{
+          title: i18n.t('collection.train.trainingResults'),
           ...defaultHeaderOptions,
         }}
       />

@@ -1,36 +1,29 @@
-import { View, Text, Button, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import CardComponent from '@/src/components/CardComponent';
-import { Card, useCardModel } from '@/src/data/CardModel';
-import { useIsFocused, useTheme } from '@react-navigation/native';
-import { Session, SessionStatus, useSessionModel } from '@/src/data/SessionModel';
-import { SessionCard, useSessionCardModel } from '@/src/data/SessionCardModel';
+import CardComponent from '@/src/components/box/train/CardComponent';
 import { useCardTrainingService } from '@/src/service/CardTrainingService';
-import useDefaultTrainer from '@/src/service/trainers/DefaultTrainer';
-import { Trainer } from '@/src/service/trainers/Trainer';
-import { formatInterval, getTodayAsNumber, getYesterdayAsNumber } from '@/src/lib/TimeUtils';
 import useMediaDataService from '@/src/service/MediaDataService';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Collection, CollectionTrainingData, useCollectionModel } from '@/src/data/CollectionModel';
+
 import TrainingResults from '@/src/components/TrainingResults';
 import { i18n } from '@/src/lib/i18n';
-import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useTrainingFlow } from '@/src/service/TrainingFlow';
+import CardMenu from '@/src/components/box/train/CardMenu';
 
 const TrainCollection = () => {
   const { themeColors } = useThemeColors();
   const { collectionId } = useLocalSearchParams();
   const { playSound, getImageSource } = useMediaDataService();
   const [remainingCards, setRemainingCards] = useState(0);
+  const [totalCards, setTotalCards] = useState(0);
+  const { getCurrentCardsCount, getSessionCardsCount } = useCardTrainingService();
 
   const router = useRouter();
 
   const {
-    trainingData,
     isLoaded,
     error,
     collection,
@@ -38,21 +31,35 @@ const TrainCollection = () => {
     currentCard,
     onUserResponse,
     onResetTraining,
+    onPostpone,
   } = useTrainingFlow(collectionId !== null && collectionId !== '' ? Number(collectionId) : null);
 
-  const totalCards = session
-    ? session.newCards + session.reviewCards + session.learningCards
-    : null;
+  useEffect(() => {
+    const run = async () => {
+      if (session !== null) {
+        setRemainingCards(await getCurrentCardsCount(session.id));
+        setTotalCards(await getSessionCardsCount(session.id));
+      }
+    };
+    run();
+  }, [session]);
 
-  function calcScore(session: Session) {
-    const score = session.newCards * 10 + session.reviewCards * 3 + session.totalViews;
-    return score;
-  }
+  useEffect(() => {
+    const run = async () => {
+      if (session !== null && isLoaded && currentCard == null) {
+        console.log('train.tsx training complete. redirect to results', session.id);
+        router.replace(`./trainingResults/${session.id}`);
+      }
+    };
+    run();
+  }, [currentCard, isLoaded]);
 
   async function handleUserResponse(userResponse: 'again' | 'hard' | 'good' | 'easy') {
     if (session === null || currentCard === null) return;
     console.log('user response', userResponse);
-    onUserResponse(userResponse);
+    await onUserResponse(userResponse);
+    setRemainingCards(await getCurrentCardsCount(session.id));
+    setTotalCards(await getSessionCardsCount(session.id));
   }
 
   function handleEditMenu() {
@@ -63,17 +70,24 @@ const TrainCollection = () => {
   async function handlePostponeMenu() {
     if (currentCard !== null && session !== null) {
       console.log('deleting session card', session.id, currentCard.id);
-      // await learnCardLater(currentCard);
-      // await deleteSessionCard(session.id, currentCard.id);
-      // const newSessionCards = await getCurrentCards(session.id);
-      // setSessionCards(newSessionCards);
-      // await selectNextCard();
+      await onPostpone();
+      setRemainingCards(await getCurrentCardsCount(session.id));
+      setTotalCards(await getSessionCardsCount(session.id));
     }
   }
 
   function handleTooEasyMenu() {
     handleUserResponse('easy');
   }
+
+  // async function handleTrainingReset() {
+  //   await onResetTraining();
+  //   if (session !== null) {
+  //     setRemainingCards(await getCurrentCardsCount(session.id));
+  //     setTotalCards(await getSessionCardsCount(session.id));
+  //   }
+  // }
+
   if (error)
     return (
       <View style={{ flex: 1 }}>
@@ -89,7 +103,9 @@ const TrainCollection = () => {
       </View>
     );
 
-  console.log('currentCard', currentCard);
+  if (session !== null) {
+    console.log('session Id', session.id);
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -109,7 +125,7 @@ const TrainCollection = () => {
         )}
       </View>
       <ScreenContainer>
-        {currentCard ? (
+        {currentCard && (
           <CardComponent
             currentCard={currentCard}
             onUserResponse={handleUserResponse}
@@ -117,59 +133,15 @@ const TrainCollection = () => {
             playSound={playSound}
             getImageSource={getImageSource}
           />
-        ) : (
-          <View style={{ flex: 1 }}>
-            <TrainingResults session={session!} onResetTraining={onResetTraining} />
-          </View>
         )}
       </ScreenContainer>
     </View>
   );
 };
 
-const CardMenu = ({
-  onEdit,
-  onPostpone,
-  onMarkEasy,
-}: {
-  onEdit: Function;
-  onPostpone: Function;
-  onMarkEasy: Function;
-}) => {
-  const { themeColors } = useThemeColors();
-
-  return (
-    <Menu>
-      <MenuTrigger>
-        <Icon
-          name="dots-vertical"
-          color={themeColors.subHeaderText}
-          size={32}
-          style={styles.topPanelMenuIcon}
-        />
-      </MenuTrigger>
-      <MenuOptions customStyles={{ optionWrapper: { backgroundColor: themeColors.popupBg } }}>
-        <MenuOption onSelect={() => onEdit()}>
-          <Text>{i18n.t('cards.popupMenu.editCard')}</Text>
-        </MenuOption>
-
-        <MenuOption onSelect={() => onPostpone()}>
-          <Text>{i18n.t('cards.popupMenu.postpone')}</Text>
-        </MenuOption>
-        <MenuOption onSelect={() => onMarkEasy()}>
-          <Text>{i18n.t('cards.popupMenu.tooEasy')}</Text>
-        </MenuOption>
-      </MenuOptions>
-    </Menu>
-  );
-};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  scrollView: {
-    backgroundColor: 'lightgrey',
-    marginHorizontal: 20,
   },
 
   noMoreCardsTextView: {

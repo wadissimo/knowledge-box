@@ -5,8 +5,8 @@ import { Card } from '@/src/data/CardModel';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Image } from 'expo-image';
 import * as FileSystem from 'expo-file-system';
-import useMediaDataService from '../service/MediaDataService';
-import { i18n } from '../lib/i18n';
+import useMediaDataService from '@/src/service/MediaDataService';
+import { i18n } from '@/src/lib/i18n';
 import {
   runOnJS,
   useSharedValue,
@@ -15,7 +15,7 @@ import {
   default as Animated,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useThemeColors } from '../context/ThemeContext';
+import { useThemeColors } from '@/src/context/ThemeContext';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
