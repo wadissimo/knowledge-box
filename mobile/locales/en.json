@@ -159,6 +159,8 @@
   "trainer": {
     "defaultTrainerName": "Long Term Memory",
     "defaultTrainerDescription": "Build your long term memory using spaced repetition and regular training",
+    "fsrsTrainerName": "FSRS v6",
+    "fsrsTrainerDescription": "Best algorithm for spaced repetition",
     "responses": {
       "dontknow": "Don't know",
       "hard": "Hard",

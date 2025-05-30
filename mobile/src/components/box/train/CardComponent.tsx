@@ -17,6 +17,7 @@ import {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useThemeColors } from '@/src/context/ThemeContext';
 
+const DEBUG = true;
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
@@ -121,6 +122,12 @@ const CardComponent: React.FC<{
     }
   };
 
+  const handleUserResponse = (response: 'again' | 'hard' | 'good' | 'easy') => {
+    setCardFlip(false);
+    setAnswerShown(false);
+    onUserResponse(response);
+  };
+
   const panGesture = Gesture.Pan()
     .onBegin(() => {
       dragMoved.value = false;
@@ -157,7 +164,7 @@ const CardComponent: React.FC<{
     .onEnd(() => {
       isDragging.value = false;
       if (hoveredButtonIndex.value !== -1) {
-        runOnJS(onUserResponse)(FEEDBACK_OPTIONS[hoveredButtonIndex.value].key);
+        runOnJS(handleUserResponse)(FEEDBACK_OPTIONS[hoveredButtonIndex.value].key);
       }
       hoveredButtonIndex.value = -1;
       translateX.value = withSpring(0);
@@ -227,7 +234,7 @@ const CardComponent: React.FC<{
                   paddingHorizontal: 8,
                 },
               ]}
-              onPress={() => onUserResponse(opt.key)}
+              onPress={() => handleUserResponse(opt.key)}
               activeOpacity={0.8}
             >
               <Text style={styles.feedbackBtnText} numberOfLines={1} ellipsizeMode="tail">
@@ -326,6 +333,22 @@ const CardFrontSide = ({
       <View style={styles.cardTextView}>
         <Text style={[styles.cardText, { color: themeColors.cardText }]}>{currentCard?.front}</Text>
       </View>
+      {DEBUG && (
+        <View style={{ marginBottom: 16 }}>
+          <Text>step: {currentCard?.learningStep}</Text>
+          <Text>diff: {currentCard?.difficulty}</Text>
+          <Text>stability: {currentCard?.stability}</Text>
+          <Text>status: {currentCard?.status}</Text>
+          <Text>
+            prevRepeatTime:{' '}
+            {currentCard?.prevRepeatTime ? new Date(currentCard?.prevRepeatTime).toISOString() : ''}
+          </Text>
+          <Text>
+            repeatTime:{' '}
+            {currentCard?.repeatTime ? new Date(currentCard?.repeatTime).toISOString() : ''}
+          </Text>
+        </View>
+      )}
       {currentCard && currentCard.frontSound && (
         <View style={styles.soundContainer}>
           <TouchableOpacity onPress={e => onSoundPlay(currentCard.frontSound, e)}>

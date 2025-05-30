@@ -6,6 +6,7 @@ import { Session, SessionStatus, useSessionModel } from '../data/SessionModel';
 import { Card, useCardModel } from '../data/CardModel';
 import { SessionCardStatus, useSessionCardModel } from '../data/SessionCardModel';
 import { getTodayAsNumber, getYesterdayAsNumber, stripTimeFromDate } from '../lib/TimeUtils';
+import useFSRSTrainer from './trainers/FSRSTrainer';
 
 function useTrainingFlow(collectionId: number | null) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -22,7 +23,13 @@ function useTrainingFlow(collectionId: number | null) {
   const { learnCardLater } = useCardModel();
   const { updateSession, getStartedSession } = useSessionModel();
 
-  const trainer = useDefaultTrainer(
+  // const trainer = useDefaultTrainer(
+  //   trainingData === null ? null : collectionId,
+  //   trainingData?.maxNewCards ?? 0,
+  //   trainingData?.maxReviewCards ?? 0,
+  //   trainingData?.maxLearningCards ?? 0
+  // );
+  const trainer = useFSRSTrainer(
     trainingData === null ? null : collectionId,
     trainingData?.maxNewCards ?? 0,
     trainingData?.maxReviewCards ?? 0,

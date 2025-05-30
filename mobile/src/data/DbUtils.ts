@@ -1,7 +1,7 @@
 import { SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import { SETTINGS_DEFAULTS } from './SettingsModel';
 
-const DATABASE_VERSION = 6;
+const DATABASE_VERSION = 7;
 
 function useDbUtils() {
   const db = useSQLiteContext();
@@ -66,6 +66,14 @@ async function migrateDbIfNeeded(db: SQLiteDatabase) {
   if (currentDbVersion < 6) {
     await db.runAsync(`ALTER TABLE cards ADD COLUMN config TEXT`);
     console.log('migration to version 6: add config column to cards table');
+  }
+
+  if (currentDbVersion < 7) {
+    await db.runAsync(`ALTER TABLE cards ADD COLUMN stability REAL`);
+    await db.runAsync(`ALTER TABLE cards ADD COLUMN difficulty REAL`);
+    await db.runAsync(`ALTER TABLE cards ADD COLUMN learningStep INTEGER`);
+    await db.runAsync(`ALTER TABLE cards ADD COLUMN lastReviewTime INTEGER`);
+    console.log('migration to version 7: add FSRS columns to cards table');
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

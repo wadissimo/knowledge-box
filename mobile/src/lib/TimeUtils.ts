@@ -1,6 +1,7 @@
 import { i18n } from './i18n';
 
 const ONE_DAY: number = 24 * 60 * 60 * 1000;
+const ONE_HOUR: number = 60 * 60 * 1000;
 const ONE_MIN: number = 60 * 1000;
 
 const stripTimeFromDate = (date: Date): string => {
@@ -55,6 +56,9 @@ const formatInterval = (interval: number): string => {
 };
 
 export {
+  ONE_DAY,
+  ONE_HOUR,
+  ONE_MIN,
   stripTimeFromDate,
   getTodayAsNumber,
   getYesterdayAsNumber,

@@ -1,9 +1,10 @@
-import * as SQLite from "expo-sqlite";
+import * as SQLite from 'expo-sqlite';
 
 enum CardStatus {
   New = 0,
   Learning = 1,
   Review = 2,
+  Relearning = 3,
 }
 
 type Card = {
@@ -26,25 +27,26 @@ type Card = {
   createdAt?: number;
   status: CardStatus;
   priority: number;
+  //FSRS
+  stability: number;
+  difficulty: number;
+  learningStep: number;
+  lastReviewTime: number;
 };
 
 function useCardModel() {
   const db = SQLite.useSQLiteContext();
 
-  const newCard = async (
-    collectionId: number,
-    front: string,
-    back: string
-  ): Promise<number> => {
+  const newCard = async (collectionId: number, front: string, back: string): Promise<number> => {
     const result = await db.runAsync(
-      "INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)",
+      'INSERT INTO cards (collectionId, front, back) VALUES (?, ?, ?)',
       collectionId,
       front,
       back
     );
     // const lastIdResult = await db.queryAsync("SELECT last_insert_rowid() AS id");
     await db.runAsync(
-      "UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?",
+      'UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?',
       collectionId,
       collectionId
     );
@@ -64,10 +66,10 @@ function useCardModel() {
     }[]
   ) => {
     let query =
-      "INSERT INTO cards (collectionId, front, back, frontImg, backImg, frontSound, backSound, initialEaseFactor) VALUES ";
+      'INSERT INTO cards (collectionId, front, back, frontImg, backImg, frontSound, backSound, initialEaseFactor) VALUES ';
     const values: any[] = [];
-    cardList.forEach((card) => {
-      query += "(?, ?, ?, ?, ?, ?, ?, ?),";
+    cardList.forEach(card => {
+      query += '(?, ?, ?, ?, ?, ?, ?, ?),';
       values.push(
         card.collectionId,
         card.front,
@@ -85,7 +87,7 @@ function useCardModel() {
 
       const collectionId = cardList[0].collectionId;
       await db.runAsync(
-        "UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?",
+        'UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?',
         collectionId,
         collectionId
       );
@@ -98,7 +100,8 @@ function useCardModel() {
       `UPDATE cards SET front = ?, back = ?, collectionId = ?, frontImg = ?, backImg = ?, 
            frontSound=?, backSound = ?, initialEaseFactor = ?, hide = ?, repeatTime = ?,
             prevRepeatTime = ?, successfulRepeats = ?, failedRepeats = ?, interval=?,
-           easeFactor = ?, status = ?, priority = ?
+           easeFactor = ?, status = ?, priority = ?, stability = ?, difficulty = ?,
+           learningStep = ?, lastReviewTime = ?
            where id = ?`,
       card.front,
       card.back,
@@ -117,33 +120,28 @@ function useCardModel() {
       card.easeFactor,
       card.status,
       card.priority,
+      card.stability,
+      card.difficulty,
+      card.learningStep,
+      card.lastReviewTime,
       card.id
     );
   };
 
-  const updateCardFrontBack = async (
-    cardId: number,
-    front: string,
-    back: string
-  ) => {
-    await db.runAsync(
-      "UPDATE cards SET front = ?, back = ? where id=?",
-      front,
-      back,
-      cardId
-    );
+  const updateCardFrontBack = async (cardId: number, front: string, back: string) => {
+    await db.runAsync('UPDATE cards SET front = ?, back = ? where id=?', front, back, cardId);
   };
 
   // Delete
   const deleteCard = async (cardId: number) => {
     //TODO: remove
     const card = await getCardById(cardId);
-    await db.runAsync("DELETE FROM cards where id=?", cardId);
+    await db.runAsync('DELETE FROM cards where id=?', cardId);
     // Update card number
     if (card) {
       const collectionId = card.collectionId;
       await db.runAsync(
-        "UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?",
+        'UPDATE collections set cardsNumber=(select count(*) from cards where collectionId=?) where id=?',
         collectionId,
         collectionId
       );
@@ -154,18 +152,15 @@ function useCardModel() {
 
   const getCards = async (collectionId: number) => {
     const result = await db.getAllAsync<Card>(
-      "SELECT * FROM cards where collectionId=? ",
+      'SELECT * FROM cards where collectionId=? ',
       collectionId
     );
     return result;
   };
 
-  const getPreviewCards = async (
-    collectionId: number,
-    limit: number = 5
-  ): Promise<Card[]> => {
+  const getPreviewCards = async (collectionId: number, limit: number = 5): Promise<Card[]> => {
     const result = await db.getAllAsync<Card>(
-      "SELECT * FROM cards WHERE collectionId=? LIMIT ?",
+      'SELECT * FROM cards WHERE collectionId=? LIMIT ?',
       collectionId,
       limit
     );
@@ -173,10 +168,7 @@ function useCardModel() {
   };
 
   const getCardById = async (cardId: number) => {
-    const result = await db.getFirstAsync<Card>(
-      "SELECT * FROM cards where id=? ",
-      cardId
-    );
+    const result = await db.getFirstAsync<Card>('SELECT * FROM cards where id=? ', cardId);
     return result;
   };
 
@@ -185,14 +177,14 @@ function useCardModel() {
     status: CardStatus
   ): Promise<number> => {
     const res = await db.getFirstAsync<{ cnt: number }>(
-      "SELECT COUNT(*) as cnt FROM cards where collectionId=? and status=?",
+      'SELECT COUNT(*) as cnt FROM cards where collectionId=? and status=?',
       collectionId,
       status
     );
 
     if (res === null || res?.cnt === null) {
-      console.error("getCardCountByStatus, res", res);
-      throw new Error("getCardCountByStatus unexpected null result");
+      console.error('getCardCountByStatus, res', res);
+      throw new Error('getCardCountByStatus unexpected null result');
     }
 
     return res.cnt;
@@ -217,7 +209,7 @@ function useCardModel() {
     back: string
   ): Promise<boolean> => {
     const result = await db.getFirstAsync<Card>(
-      "SELECT * FROM cards WHERE collectionId = ? AND (front = ? OR back = ?)",
+      'SELECT * FROM cards WHERE collectionId = ? AND (front = ? OR back = ?)',
       collectionId,
       front,
       back
@@ -235,7 +227,7 @@ function useCardModel() {
     limit: number = 5
   ): Promise<Card[]> => {
     const result = await db.getAllAsync<Card>(
-      "SELECT * FROM cards WHERE collectionId=? ORDER BY id LIMIT ? OFFSET ?",
+      'SELECT * FROM cards WHERE collectionId=? ORDER BY id LIMIT ? OFFSET ?',
       collectionId,
       limit,
       offset
@@ -248,7 +240,7 @@ function useCardModel() {
    */
   const getCardsCount = async (collectionId: number): Promise<number> => {
     const result = await db.getFirstAsync<{ count: number }>(
-      "SELECT COUNT(*) as count FROM cards WHERE collectionId=?",
+      'SELECT COUNT(*) as count FROM cards WHERE collectionId=?',
       collectionId
     );
     return result?.count ?? 0;

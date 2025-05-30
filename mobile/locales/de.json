@@ -168,6 +168,8 @@
   "trainer": {
     "defaultTrainerName": "Langzeitgedächtnis",
     "defaultTrainerDescription": "Bauen Sie Ihr Langzeitgedächtnis durch räumliche Wiederholungen und regelmäßiges Training auf",
+    "fsrsTrainerName": "FSRS v6",
+    "fsrsTrainerDescription": "Optimales Algorithmus für räumliche Wiederholungen",
     "responses": {
       "dontknow": "Weiß nicht",
       "hard": "Schwer",

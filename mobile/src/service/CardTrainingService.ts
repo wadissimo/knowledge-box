@@ -45,6 +45,17 @@ function useCardTrainingService() {
     return result;
   };
 
+  const selectLearningAndRelearningCards = async (collectionId: number, maxCards: number) => {
+    const result = await db.getAllAsync<Card>(
+      'SELECT * FROM cards where collectionId = ? and (status = ? or status = ?) order by repeatTime limit ?',
+      collectionId,
+      CardStatus.Learning,
+      CardStatus.Relearning,
+      maxCards
+    );
+    return result;
+  };
+
   const bulkUpdateRepeatTime = async (cards: Card[]): Promise<void> => {
     await Promise.all(cards.map(card => updateCardRepeatTime(card.id, card.repeatTime))).catch(
       e => {
@@ -125,6 +136,8 @@ function useCardTrainingService() {
     getCurrentSessionCards,
     getCurrentCards,
     getCurrentCardsCount,
+
+    selectLearningAndRelearningCards,
   };
 }
 

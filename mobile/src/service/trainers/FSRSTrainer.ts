@@ -3,8 +3,9 @@ import { Trainer } from './Trainer';
 import { i18n } from '@/src/lib/i18n';
 import { Session, useSessionModel } from '@/src/data/SessionModel';
 import { useCardTrainingService } from '../CardTrainingService';
-import { getTomorrowAsNumber, truncateTime } from '@/src/lib/TimeUtils';
+import { getTomorrowAsNumber, ONE_HOUR, truncateTime } from '@/src/lib/TimeUtils';
 import { SessionCard, SessionCardStatus, useSessionCardModel } from '@/src/data/SessionCardModel';
+import { fsrsScheduler, Grade } from './FSRSScheduler';
 
 const ONE_SEC: number = 1000;
 const ONE_MIN: number = 60 * 1000;
@@ -27,7 +28,25 @@ const AGAIN_INTERVAL_FAILED_REVIEW = 5 * ONE_MIN;
 
 const STOP_LEARNING_INTERVAL = 2 * ONE_MIN;
 
-export default function useDefaultTrainer(
+const LEARNING_STEPS = [ONE_MIN, ONE_MIN * 10];
+const RELEARNING_STEPS = [ONE_MIN, ONE_MIN * 10];
+
+function responseToGrade(response: string): Grade {
+  switch (response) {
+    case 'hard':
+      return Grade.Hard;
+    case 'good':
+      return Grade.Good;
+    case 'easy':
+      return Grade.Easy;
+    case 'again':
+      return Grade.Again;
+    default:
+      throw new Error('Invalid response');
+  }
+}
+
+export default function useFSRSTrainer(
   collectionId: number | null,
   maxNewCards: number,
   maxReviewCards: number,
@@ -44,18 +63,19 @@ export default function useDefaultTrainer(
     bulkUpdateRepeatTime,
     getNextCard: getNextCardDb,
     getAllSessionCards,
+    selectLearningAndRelearningCards,
   } = useCardTrainingService();
-  console.log('useDefaultTrainer, maxNewCards', maxNewCards);
+  console.log('useFSRSTrainer, maxNewCards', maxNewCards);
 
   function getName(): string {
-    return i18n.t('trainer.defaultTrainerName');
+    return i18n.t('trainer.fsrsTrainerName');
   }
   function getDescription(): string {
-    return i18n.t('trainer.defaultTrainerDescription');
+    return i18n.t('trainer.fsrsTrainerDescription');
   }
 
   async function getSession(key: string): Promise<Session | null> {
-    console.log('DefaultTrainer getSession');
+    console.log('FSRSTrainer getSession');
     if (collectionId === null) return null;
     const session = await getStartedSession(collectionId, key);
     if (session === null) {
@@ -79,7 +99,7 @@ export default function useDefaultTrainer(
       //   await bulkUpdateRepeatTime(sessionCards);
       // }
     }
-    console.log('DefaultTrainer nextCard 2', nextCard);
+    console.log('FSRSTrainer nextCard 2', nextCard);
 
     return session;
   }
@@ -141,15 +161,24 @@ export default function useDefaultTrainer(
     try {
       // Select new cards
 
-      console.log('DefaultTrainer: select new cards');
-      var newCards = await selectNewTrainingCards(collectionId, maxNewCards);
+      console.log('FSRSTrainer: select learning cards');
+      var cardsToLearn = await selectLearningAndRelearningCards(collectionId, maxLearningCards);
+      console.log('FSRSTrainer: select new cards');
+      var newCards = await selectNewTrainingCards(collectionId, Math.max(0, maxNewCards));
       // Select review cards
       const cutOffTime = getTomorrowAsNumber() - 1;
-      console.log('DefaultTrainer: select review cards');
+      console.log('FSRSTrainer: select review cards');
       var cardsToReview = await selectReviewCards(collectionId, cutOffTime, maxReviewCards);
-      // Select learning cards
-      console.log('DefaultTrainer: select learning cards');
-      var cardsToLearn = await selectLearningCards(collectionId, maxLearningCards);
+      //add more cards for review?
+      if (cardsToReview.length < maxReviewCards) {
+        const remainingCards = maxReviewCards - cardsToReview.length;
+        const additionalCards = await selectReviewCards(
+          collectionId,
+          cutOffTime + ONE_DAY,
+          remainingCards
+        );
+        cardsToReview = cardsToReview.concat(additionalCards);
+      }
 
       const seen = new Set<number>();
       // Filter out duplicate cards based on 'id'
@@ -174,6 +203,7 @@ export default function useDefaultTrainer(
         20 * ONE_SEC,
         Math.ceil(SESSION_DURATION_DEFAULT / allCards.length)
       );
+      //update only new/learning cards
       allCards.forEach((card, index) => {
         card.repeatTime = curTime + index * deltaTime;
       });
@@ -210,6 +240,7 @@ export default function useDefaultTrainer(
   async function getNextCard(sessionId: number): Promise<Card | null> {
     return await getNextCardDb(sessionId);
   }
+
   async function processUserResponse(
     sessionId: number,
     card: Card,
@@ -217,9 +248,6 @@ export default function useDefaultTrainer(
     sessionCards?: Card[]
   ): Promise<void> {
     const curTime = new Date().getTime();
-
-    let easeFactor = card.easeFactor ? card.easeFactor : INITIAL_EASE_FACTOR;
-    let interval = card.interval ? card.interval : INITIAL_INTERVAL;
 
     // update new card to learning
     if (card.status === CardStatus.New || card.status === null) card.status = CardStatus.Learning;
@@ -233,83 +261,28 @@ export default function useDefaultTrainer(
     if (sessionCard.status === SessionCardStatus.New)
       sessionCard.status = SessionCardStatus.Learning;
 
-    switch (response) {
-      case 'hard':
-        //Todo: implement hard
-        card.easeFactor = Math.max(MIN_EASE_FACTOR, easeFactor - HARD_DELTA_EASE_FACTOR);
-        card.interval = Math.round(interval * card.easeFactor);
-        break;
-      case 'again':
-        console.log(response);
-
-        // reduce ease factor
-        card.easeFactor = Math.max(MIN_EASE_FACTOR, easeFactor - FAIL_DELTA_EASE_FACTOR);
-        card.successfulRepeats = 0; // reset successful repeats
-        card.failedRepeats = (card.failedRepeats ?? 0) + 1;
-
-        if (card.status === CardStatus.Review) {
-          card.status = CardStatus.Learning;
-          card.interval = AGAIN_INTERVAL_FAILED_REVIEW; // TODO: reset the interval?
-        } else {
-          card.interval = INITIAL_INTERVAL; // TODO: reduce interval instead?
-        }
-
-        card.repeatTime += card.interval;
-
+    const scheduler = fsrsScheduler(LEARNING_STEPS, RELEARNING_STEPS);
+    const grade = responseToGrade(response);
+    scheduler.reviewCard(card, grade);
+    switch (grade) {
+      case Grade.Again:
         sessionCard.failedRepeats += 1;
-
         break;
-
-      case 'good':
-        console.log('good');
-        card.successfulRepeats = (card.successfulRepeats ?? 0) + 1;
-        card.failedRepeats = 0;
-        card.easeFactor = easeFactor + SUCCESS_DELTA_EASE_FACTOR;
-        card.interval = Math.round(interval * card.easeFactor);
-
-        if (card.interval > STOP_LEARNING_INTERVAL) {
-          console.log('pushed into next day');
-          // remove from the session and update repeat time and interval
-          card.status = CardStatus.Review;
-          // push into the next day
-          card.interval = Math.max(ONE_DAY, card.interval);
-          card.repeatTime = curTime;
-          card.prevRepeatTime = curTime;
-          sessionCard.status = SessionCardStatus.Complete;
-        }
-        card.repeatTime += card.interval;
+      case Grade.Good:
         sessionCard.successfulRepeats += 1;
         break;
-
-      case 'easy':
-        console.log('easy');
-        card.successfulRepeats = (card.successfulRepeats ?? 0) + 1;
-        card.failedRepeats = 0;
-        card.easeFactor = easeFactor + EASY_DELTA_EASE_FACTOR;
-
-        card.interval =
-          Math.max(ONE_DAY, Math.round(interval * card.easeFactor)) * EASY_INTERVAL_GROW_FACTOR;
-        card.status = CardStatus.Review;
-        card.prevRepeatTime = curTime;
-        card.repeatTime = curTime + card.interval;
-
-        sessionCard.status = SessionCardStatus.Complete;
+      case Grade.Easy:
         sessionCard.successfulRepeats += 1;
         break;
-      default:
-        throw new Error('incorrect user response');
+    }
+    // If card is due in more than a day, mark it as complete
+    if (card.repeatTime > curTime + ONE_DAY - ONE_HOUR) {
+      sessionCard.status = SessionCardStatus.Complete;
     }
 
-    if (sessionCards) {
-      // now check that we pushed at least 2 cards ahead if possible (or 1 card if array is too small)
-      if (sessionCards.length > 2) {
-        if ((sessionCards[2].repeatTime ?? 0) > card.repeatTime)
-          card.repeatTime = (sessionCards[2].repeatTime ?? 0) + 1;
-      } else if (sessionCards.length > 1 && (sessionCards[1].repeatTime ?? 0) > card.repeatTime) {
-        card.repeatTime = (sessionCards[1].repeatTime ?? 0) + 1;
-      }
-    }
-    await Promise.all([updateSessionCard(sessionCard), updateCard(card)]);
+    await Promise.all([updateSessionCard(sessionCard), updateCard(card)]).catch(e => {
+      console.log('DefaultTrainer: update card error', e);
+    });
   }
 
   return {
