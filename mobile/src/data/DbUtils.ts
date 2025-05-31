@@ -1,7 +1,7 @@
 import { SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import { SETTINGS_DEFAULTS } from './SettingsModel';
 
-const DATABASE_VERSION = 7;
+const DATABASE_VERSION = 9;
 
 function useDbUtils() {
   const db = useSQLiteContext();
@@ -74,6 +74,16 @@ async function migrateDbIfNeeded(db: SQLiteDatabase) {
     await db.runAsync(`ALTER TABLE cards ADD COLUMN learningStep INTEGER`);
     await db.runAsync(`ALTER TABLE cards ADD COLUMN lastReviewTime INTEGER`);
     console.log('migration to version 7: add FSRS columns to cards table');
+  }
+  if (currentDbVersion < 8) {
+    await db.runAsync(
+      `INSERT INTO settings (id, label, category, type, value, options, keyboardType, link) VALUES ('audioAutoplay', 'settings.audioAutoplay', 'train', 'switch', 'false', '', '', '');`
+    );
+    console.log('migration to version 8: add audioAutoplay setting');
+  }
+  if (currentDbVersion < 9) {
+    await db.runAsync(`ALTER TABLE sessionCards ADD COLUMN plannedReviewTime INTEGER`);
+    console.log('migration to version 9: add plannedReviewTime column to sessionCards table');
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

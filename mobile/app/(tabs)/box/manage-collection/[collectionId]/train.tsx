@@ -12,6 +12,7 @@ import { useThemeColors } from '@/src/context/ThemeContext';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useTrainingFlow } from '@/src/service/TrainingFlow';
 import CardMenu from '@/src/components/box/train/CardMenu';
+import { SETTING_IDS, useSettingsModel } from '@/src/data/SettingsModel';
 
 const TrainCollection = () => {
   const { themeColors } = useThemeColors();
@@ -20,9 +21,9 @@ const TrainCollection = () => {
   const [remainingCards, setRemainingCards] = useState(0);
   const [totalCards, setTotalCards] = useState(0);
   const { getCurrentCardsCount, getSessionCardsCount } = useCardTrainingService();
-
+  const [audioAutoplay, setAudioAutoplay] = useState(false);
   const router = useRouter();
-
+  const { getSettingById } = useSettingsModel();
   const {
     isLoaded,
     error,
@@ -30,13 +31,13 @@ const TrainCollection = () => {
     session,
     currentCard,
     onUserResponse,
-    onResetTraining,
     onPostpone,
     preprocessUserResponse,
     isRollbackPossible,
     rollbackToPrevCard,
   } = useTrainingFlow(collectionId !== null && collectionId !== '' ? Number(collectionId) : null);
 
+  // Effects
   useEffect(() => {
     const run = async () => {
       if (session !== null) {
@@ -53,10 +54,15 @@ const TrainCollection = () => {
         console.log('train.tsx training complete. redirect to results', session.id);
         router.replace(`./trainingResults/${session.id}`);
       }
+      const audioAutoplaySetting = await getSettingById(SETTING_IDS.audioAutoplay);
+      if (audioAutoplaySetting) {
+        setAudioAutoplay(audioAutoplaySetting.value === 'true');
+      }
     };
     run();
   }, [currentCard, isLoaded]);
 
+  // Functions
   async function handleUserResponse(userResponse: 'again' | 'hard' | 'good' | 'easy') {
     if (session === null || currentCard === null) return;
     console.log('user response', userResponse);
@@ -79,17 +85,6 @@ const TrainCollection = () => {
     }
   }
 
-  function handleTooEasyMenu() {
-    handleUserResponse('easy');
-  }
-
-  // async function handleTrainingReset() {
-  //   await onResetTraining();
-  //   if (session !== null) {
-  //     setRemainingCards(await getCurrentCardsCount(session.id));
-  //     setTotalCards(await getSessionCardsCount(session.id));
-  //   }
-  // }
   console.log('train.tsx re-rendered, isLoaded: ' + isLoaded, 'currentCard', currentCard?.front);
   if (error)
     return (
@@ -136,6 +131,7 @@ const TrainCollection = () => {
             onUserResponse={handleUserResponse}
             cardDimensions={{ height: 500, width: 300 }}
             playSound={playSound}
+            audioAutoplay={audioAutoplay}
             getImageSource={getImageSource}
             preprocessUserResponse={preprocessUserResponse}
           />

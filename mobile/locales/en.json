@@ -194,7 +194,8 @@
     "reviewCards": "Review Cards Count",
     "learnCards": "Learn Cards Count",
     "apiKey": "API Key",
-    "model": "Model"
+    "model": "Model",
+    "audioAutoplay": "Audio Autoplay"
   },
   "user": {
     "email": "Email",

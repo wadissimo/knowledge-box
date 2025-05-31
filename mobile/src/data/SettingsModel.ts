@@ -33,6 +33,7 @@ export const SETTING_IDS = {
   reviewCards: 'reviewCards',
   learnCards: 'learnCards',
   theme: 'theme',
+  audioAutoplay: 'audioAutoplay',
 };
 function useSettingsModel() {
   const db = SQLite.useSQLiteContext();

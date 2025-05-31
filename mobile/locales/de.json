@@ -203,7 +203,8 @@
     "reviewCards": "Anzahl zu wiederholender Karten",
     "learnCards": "Anzahl zu lernender Karten",
     "apiKey": "API Key",
-    "model": "Model"
+    "model": "Model",
+    "audioAutoplay": "Audio automatisch abspielen"
   },
   "user": {
     "email": "Email",

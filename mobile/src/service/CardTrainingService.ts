@@ -64,12 +64,23 @@ function useCardTrainingService() {
     );
   };
 
-  const bulkInsertTrainingCards = async (sessionId: number, cards: Card[]): Promise<void> => {
-    await Promise.all(cards.map(card => sessionCardModel.newSessionCard(sessionId, card.id))).catch(
-      e => {
+  const bulkInsertTrainingCards = async (sessionCards: SessionCard[]): Promise<void> => {
+    await db.withTransactionAsync(async () => {
+      await Promise.all(
+        sessionCards.map(card =>
+          sessionCardModel.newSessionCard(
+            card.sessionId,
+            card.cardId,
+            card.status,
+            card.successfulRepeats,
+            card.failedRepeats,
+            card.plannedReviewTime
+          )
+        )
+      ).catch(e => {
         console.log('bulkInsertTrainingCards error', e);
-      }
-    );
+      });
+    });
   };
 
   const getNextCard = async (sessionId: number): Promise<Card | null> => {

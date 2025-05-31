@@ -83,7 +83,7 @@ const SettingsTab = () => {
   const handleChange = (key: string, value: any) => {
     const newSetting = settings.map(setting => {
       if (setting.id === key) {
-        setting.value = value;
+        setting.value = String(value);
       }
       return setting;
     });
@@ -101,10 +101,8 @@ const SettingsTab = () => {
     }
     const curTheme = settings.find(setting => setting.id === 'theme')?.value;
     if (curTheme && curTheme !== theme) {
-      console.log('theme changed to', curTheme);
       setTheme(curTheme);
     }
-    console.log('Saved settings:', settings);
   };
 
   const handleResetAI = () => {
@@ -174,8 +172,8 @@ const SettingsTab = () => {
           <Switch
             value={setting.value === 'true'}
             onValueChange={value => handleChange(setting.id, value)}
-            thumbColor={setting.value ? '#1976d2' : '#f00'}
-            trackColor={{ false: '#f00', true: '#90caf9' }}
+            thumbColor={setting.value ? themeColors.primaryBtnBg : themeColors.secondaryBtnBg}
+            trackColor={{ false: themeColors.secondaryBtnBg, true: themeColors.primaryBtnBg }}
           />
         );
       case 'select':

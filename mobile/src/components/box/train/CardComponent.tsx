@@ -40,6 +40,7 @@ const CardComponent: React.FC<{
   onUserResponse: (response: FeedbackKey) => void | Promise<void>;
   cardDimensions?: { height: number; width: number };
   playSound: Function;
+  audioAutoplay: boolean;
   getImageSource: Function;
   preprocessUserResponse: (
     userResponse: 'again' | 'hard' | 'good' | 'easy'
@@ -49,6 +50,7 @@ const CardComponent: React.FC<{
   onUserResponse,
   cardDimensions,
   playSound,
+  audioAutoplay = false,
   getImageSource,
   preprocessUserResponse,
 }) => {
@@ -82,6 +84,12 @@ const CardComponent: React.FC<{
     isDragging.value = false;
     dragMoved.value = false;
     hoveredButtonIndex.value = -1;
+    if (!cardFlip && currentCard.frontSound !== null && audioAutoplay) {
+      playSound(currentCard.frontSound);
+    }
+    if (cardFlip && currentCard.backSound !== null && audioAutoplay) {
+      playSound(currentCard.backSound);
+    }
   }, [cardFlip]);
 
   useLayoutEffect(() => {
@@ -151,6 +159,9 @@ const CardComponent: React.FC<{
         loadImages(currentCard).then(() => {
           setLoading(false);
         });
+      }
+      if (currentCard.frontSound !== null && audioAutoplay) {
+        playSound(currentCard.frontSound);
       }
     }
   }, [currentCard]);

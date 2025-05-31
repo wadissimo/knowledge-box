@@ -1,5 +1,5 @@
-import * as SQLite from "expo-sqlite";
-import { Card } from "./CardModel";
+import * as SQLite from 'expo-sqlite';
+import { Card } from './CardModel';
 
 enum SessionCardStatus {
   New = 0, // unseen in the session
@@ -12,6 +12,7 @@ type SessionCard = {
   status: SessionCardStatus;
   successfulRepeats: number;
   failedRepeats: number;
+  plannedReviewTime: number;
 };
 
 function useSessionCardModel() {
@@ -23,50 +24,77 @@ function useSessionCardModel() {
     cardId: number,
     status: SessionCardStatus = SessionCardStatus.New,
     successfulRepeats: number = 0,
-    failedRepeats: number = 0
+    failedRepeats: number = 0,
+    plannedReviewTime: number = 0
   ): Promise<void> => {
     await db.runAsync(
-      `INSERT INTO sessionCards (sessionId, cardId, status,successfulRepeats, failedRepeats) 
-      VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO sessionCards (sessionId, cardId, status,successfulRepeats, failedRepeats, plannedReviewTime) 
+      VALUES (?, ?, ?, ?, ?, ?)`,
       sessionId,
       cardId,
       status,
       successfulRepeats,
-      failedRepeats
+      failedRepeats,
+      plannedReviewTime
     );
   };
 
   // Update
   const updateSessionCard = async (sessionCard: SessionCard): Promise<void> => {
     await db.runAsync(
-      "UPDATE sessionCards SET status = ?, successfulRepeats = ?, failedRepeats = ? where sessionId = ? and cardId = ?",
+      'UPDATE sessionCards SET status = ?, successfulRepeats = ?, failedRepeats = ?, plannedReviewTime = ? where sessionId = ? and cardId = ?',
       sessionCard.status,
       sessionCard.successfulRepeats,
       sessionCard.failedRepeats,
+      sessionCard.plannedReviewTime,
       sessionCard.sessionId,
       sessionCard.cardId
     );
   };
   // Mark SessionCard as completed
-  const completeSessionCard = async (
-    sessionId: number,
-    cardId: number
-  ): Promise<void> => {
+  const completeSessionCard = async (sessionId: number, cardId: number): Promise<void> => {
     await db.runAsync(
-      "UPDATE sessionCards SET status = ? where sessionId = ? and cardId = ?",
+      'UPDATE sessionCards SET status = ? where sessionId = ? and cardId = ?',
       SessionCardStatus.Complete,
       sessionId,
       cardId
     );
   };
 
-  // Delete
-  const deleteSessionCard = async (
+  const updateSessionCardReviewTime = async (
     sessionId: number,
-    cardId: number
+    cardId: number,
+    plannedReviewTime: number
   ): Promise<void> => {
     await db.runAsync(
-      "DELETE FROM sessionCards where sessionId = ? and cardId = ?",
+      'UPDATE sessionCards SET plannedReviewTime = ? where sessionId = ? and cardId = ?',
+      plannedReviewTime,
+      sessionId,
+      cardId
+    );
+  };
+
+  const bulkUpdateSessionCardsReviewTime = async (sessionCards: SessionCard[]): Promise<void> => {
+    db.withTransactionAsync(async () => {
+      await Promise.all(
+        sessionCards.map(sessionCard =>
+          updateSessionCardReviewTime(
+            sessionCard.sessionId,
+            sessionCard.cardId,
+            sessionCard.plannedReviewTime
+          )
+        )
+      ).catch(e => {
+        console.error('bulkUpdateSessionCardsReviewTime error', e);
+        throw e;
+      });
+    });
+  };
+
+  // Delete
+  const deleteSessionCard = async (sessionId: number, cardId: number): Promise<void> => {
+    await db.runAsync(
+      'DELETE FROM sessionCards where sessionId = ? and cardId = ?',
       sessionId,
       cardId
     );
@@ -74,12 +102,9 @@ function useSessionCardModel() {
 
   // Read
 
-  const getSessionCard = async (
-    sessionId: number,
-    cardId: number
-  ): Promise<SessionCard | null> => {
+  const getSessionCard = async (sessionId: number, cardId: number): Promise<SessionCard | null> => {
     return await db.getFirstAsync(
-      "SELECT * FROM sessionCards where sessionId = ? and cardId = ?",
+      'SELECT * FROM sessionCards where sessionId = ? and cardId = ?',
       sessionId,
       cardId
     );
@@ -91,6 +116,8 @@ function useSessionCardModel() {
     completeSessionCard,
     deleteSessionCard,
     getSessionCard,
+    updateSessionCardReviewTime,
+    bulkUpdateSessionCardsReviewTime,
   };
 }
 

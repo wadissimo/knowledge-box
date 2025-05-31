@@ -81,26 +81,6 @@ export default function useFSRSTrainer(
     if (session === null) {
       return null;
     }
-
-    const nextCard = await getNextCard(session.id);
-    if (nextCard !== null && nextCard.repeatTime !== null) {
-      // check if cards need to adjust time
-      // TODO: implement time adjustment . why is it needed? if needed re-write bulkUpdate as this locks the database and fails
-      // const curTime = new Date().getTime();
-      // const deltaTime = nextCard.repeatTime - curTime;
-      // if (Math.abs(deltaTime) > 5 * ONE_MIN) {
-      //   // > 5 min, then adjust time
-      //   const sessionCards = await getAllSessionCards(session.id);
-      //   sessionCards.forEach(card => {
-      //     if (card.repeatTime) {
-      //       card.repeatTime -= deltaTime;
-      //     }
-      //   });
-      //   await bulkUpdateRepeatTime(sessionCards);
-      // }
-    }
-    console.log('FSRSTrainer nextCard 2', nextCard);
-
     return session;
   }
 
@@ -159,17 +139,15 @@ export default function useFSRSTrainer(
   async function createSession(key: string): Promise<Session> {
     if (collectionId === null) throw new Error('DefaultTrainerCollection ID is null');
     try {
-      // Select new cards
-
+      // Select cards
       console.log('FSRSTrainer: select learning cards');
       var cardsToLearn = await selectLearningAndRelearningCards(collectionId, maxLearningCards);
       console.log('FSRSTrainer: select new cards');
       var newCards = await selectNewTrainingCards(collectionId, Math.max(0, maxNewCards));
-      // Select review cards
       const cutOffTime = getTomorrowAsNumber() - 1;
       console.log('FSRSTrainer: select review cards');
       var cardsToReview = await selectReviewCards(collectionId, cutOffTime, maxReviewCards);
-      //add more cards for review?
+      // add more cards for review?
       if (cardsToReview.length < maxReviewCards) {
         const remainingCards = maxReviewCards - cardsToReview.length;
         const additionalCards = await selectReviewCards(
@@ -180,16 +158,22 @@ export default function useFSRSTrainer(
         cardsToReview = cardsToReview.concat(additionalCards);
       }
 
+      // Check for duplicates. TODO: remove
       const seen = new Set<number>();
       // Filter out duplicate cards based on 'id'
       const uniqueCards = (cards: Card[]) => {
         return cards.filter(card => {
-          if (seen.has(card.id)) return false;
+          if (seen.has(card.id)) {
+            console.error('FSRSTrainer: duplicate card', card.id);
+            throw new Error('Duplicate card');
+            //return false;
+          }
           seen.add(card.id);
           return true;
         });
       };
 
+      // todo: remove
       newCards = uniqueCards(newCards);
       cardsToLearn = uniqueCards(cardsToLearn);
       cardsToReview = uniqueCards(cardsToReview);
@@ -198,19 +182,9 @@ export default function useFSRSTrainer(
       const allCards = mergeCards(newCards, cardsToLearn, cardsToReview);
       const curTime = new Date().getTime();
 
-      // update cards reviewTime
-      const deltaTime = Math.min(
-        20 * ONE_SEC,
-        Math.ceil(SESSION_DURATION_DEFAULT / allCards.length)
-      );
-      //update only new/learning cards
-      allCards.forEach((card, index) => {
-        card.repeatTime = curTime + index * deltaTime;
-      });
-
       // update DB
       // update repeatTime
-      console.log('DefaultTrainer: create session');
+      console.log('FSRSTrainer: create session');
       const sessionId = await newSession(
         collectionId,
         key,
@@ -218,22 +192,45 @@ export default function useFSRSTrainer(
         cardsToReview.length,
         cardsToLearn.length
       );
-      console.log('DefaultTrainer: session ID ', sessionId);
+      console.log('FSRSTrainer: session ID ', sessionId);
       const session = await getSessionById(sessionId);
       if (session === null) {
         throw new Error('Session not found.');
       }
-      console.log('DefaultTrainer: bulk update');
+      console.log('FSRSTrainer: bulk update');
 
-      await Promise.all([
-        bulkUpdateRepeatTime(allCards),
-        bulkInsertTrainingCards(sessionId, allCards),
-      ]).catch(e => {
-        console.log('DefaultTrainer: bulk update error', e);
+      // update cards reviewTime
+      const deltaTime = Math.min(
+        20 * ONE_SEC,
+        Math.ceil(SESSION_DURATION_DEFAULT / allCards.length)
+      );
+
+      //TODO: remove
+      allCards.forEach((card, index) => {
+        card.repeatTime = curTime + index * deltaTime;
       });
+      console.log('FSRSTrainer: bulk update cards');
+      await bulkUpdateRepeatTime(allCards);
+      console.log('FSRSTrainer: bulk update cards done');
+
+      const sessionCards = allCards.map((card, index) => {
+        const sessionCard = {
+          sessionId,
+          cardId: card.id,
+          status: SessionCardStatus.New,
+          successfulRepeats: 0,
+          failedRepeats: 0,
+          plannedReviewTime: curTime + index * deltaTime, //todo: update only new/learning cards
+        };
+        return sessionCard;
+      });
+      console.log('FSRSTrainer: bulk insert session cards');
+      await bulkInsertTrainingCards(sessionCards);
+      console.log('FSRSTrainer: bulk insert session cards done');
+
       return session;
     } catch (e) {
-      console.log('DefaultTrainer: create session error', e);
+      console.log('FSRSTrainer: create session error', e);
       throw e;
     }
   }
@@ -272,7 +269,7 @@ export default function useFSRSTrainer(
 
     const sessionCard: SessionCard | null = await getSessionCard(sessionId, card.id);
     if (sessionCard === null) {
-      throw new Error("can't find session card");
+      throw new Error("FSRSTrainer: can't find session card");
     }
     if (sessionCard.status === SessionCardStatus.New)
       sessionCard.status = SessionCardStatus.Learning;
@@ -295,9 +292,10 @@ export default function useFSRSTrainer(
     if (card.repeatTime > curTime + ONE_DAY - ONE_HOUR) {
       sessionCard.status = SessionCardStatus.Complete;
     }
+    sessionCard.plannedReviewTime = card.repeatTime;
 
     await Promise.all([updateSessionCard(sessionCard), updateCard(card)]).catch(e => {
-      console.log('DefaultTrainer: update card error', e);
+      console.log('FSRSTrainer: update card error', e);
     });
   }
 
