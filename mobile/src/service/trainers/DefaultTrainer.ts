@@ -210,6 +210,13 @@ export default function useDefaultTrainer(
   async function getNextCard(sessionId: number): Promise<Card | null> {
     return await getNextCardDb(sessionId);
   }
+  async function preProcessUserResponse(
+    sessionId: number,
+    card: Card,
+    response: string
+  ): Promise<void> {
+    throw new Error('Not implemented');
+  }
   async function processUserResponse(
     sessionId: number,
     card: Card,
@@ -319,5 +326,6 @@ export default function useDefaultTrainer(
     createSession,
     getNextCard,
     processUserResponse,
+    preProcessUserResponse,
   };
 }

@@ -7,11 +7,15 @@ import { StyleSheet, Text } from 'react-native';
 const CardMenu = ({
   onEdit,
   onPostpone,
-  onMarkEasy,
+
+  isRollbackPossible,
+  rollbackToPrevCard,
 }: {
   onEdit: Function;
   onPostpone: Function;
-  onMarkEasy: Function;
+
+  isRollbackPossible: Function;
+  rollbackToPrevCard: Function;
 }) => {
   const { themeColors } = useThemeColors();
 
@@ -33,9 +37,12 @@ const CardMenu = ({
         <MenuOption onSelect={() => onPostpone()}>
           <Text>{i18n.t('cards.popupMenu.postpone')}</Text>
         </MenuOption>
-        <MenuOption onSelect={() => onMarkEasy()}>
-          <Text>{i18n.t('cards.popupMenu.tooEasy')}</Text>
-        </MenuOption>
+
+        {isRollbackPossible() && (
+          <MenuOption onSelect={() => rollbackToPrevCard()}>
+            <Text>{i18n.t('cards.popupMenu.rollback')}</Text>
+          </MenuOption>
+        )}
       </MenuOptions>
     </Menu>
   );

@@ -18,8 +18,9 @@
       "deletion": "Löschvorgang Bestätigen"
     },
     "time": {
-      "mins": "M",
-      "days": "T"
+      "mins": "Min",
+      "days": "T",
+      "hours": "St"
     },
     "navBack": "Zurück",
     "text": "Text",
@@ -94,7 +95,8 @@
     "popupMenu": {
       "editCard": "Karte bearbeiten",
       "postpone": "Verschieben",
-      "tooEasy": "Zu einfach"
+      "tooEasy": "Zu einfach",
+      "rollback": "Zurücksetzen"
     },
     "noImage": "Kein Bild hochgeladen",
     "noSound": "Kein Audio hochgeladen",

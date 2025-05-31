@@ -240,7 +240,22 @@ export default function useFSRSTrainer(
   async function getNextCard(sessionId: number): Promise<Card | null> {
     return await getNextCardDb(sessionId);
   }
+  async function preProcessUserResponse(
+    sessionId: number,
+    card: Card,
+    response: string
+  ): Promise<void> {
+    console.log('FSRSTrainer: processUserResponse', card.front, response);
 
+    // update new card to learning
+    if (card.status === CardStatus.New || card.status === null) card.status = CardStatus.Learning;
+    const curTime = new Date().getTime();
+    card.repeatTime = card.repeatTime ?? curTime;
+
+    const scheduler = fsrsScheduler(LEARNING_STEPS, RELEARNING_STEPS);
+    const grade = responseToGrade(response);
+    scheduler.reviewCard(card, grade);
+  }
   async function processUserResponse(
     sessionId: number,
     card: Card,
@@ -293,5 +308,6 @@ export default function useFSRSTrainer(
     createSession,
     getNextCard,
     processUserResponse,
+    preProcessUserResponse,
   };
 }

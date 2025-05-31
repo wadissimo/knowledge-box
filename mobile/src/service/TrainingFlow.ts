@@ -16,6 +16,8 @@ function useTrainingFlow(collectionId: number | null) {
 
   const [session, setSession] = useState<Session | null>(null);
   const [currentCard, setCurrentCard] = useState<Card | null>(null);
+  const [currentCardCopy, setCurrentCardCopy] = useState<Card | null>(null);
+  const [prevCardCopy, setPrevCardCopy] = useState<Card | null>(null);
 
   const { getCollectionById, getCollectionTrainingData, updateCollectionTrainingData } =
     useCollectionModel();
@@ -35,6 +37,9 @@ function useTrainingFlow(collectionId: number | null) {
     trainingData?.maxReviewCards ?? 0,
     trainingData?.maxLearningCards ?? 0
   );
+
+  // Effects:
+
   useEffect(() => {
     const run = async () => {
       if (collectionId === null || collectionId === undefined) return;
@@ -78,6 +83,11 @@ function useTrainingFlow(collectionId: number | null) {
     run();
   }, [trainingData]);
 
+  if (currentCard !== null && currentCard.id !== currentCardCopy?.id) {
+    setPrevCardCopy(currentCardCopy);
+    setCurrentCardCopy({ ...currentCard });
+  }
+  // Functions:
   const loadSession = async () => {
     const curDateStripped = stripTimeFromDate(new Date());
     let session = await trainer.getSession(curDateStripped);
@@ -135,6 +145,7 @@ function useTrainingFlow(collectionId: number | null) {
   const onPostpone = async () => {
     if (currentCard !== null && session !== null) {
       console.log('deleting session card', session.id, currentCard.id);
+      // increase priority, make the card new again so that it would bew selected after all other lower priority new cards.
       await learnCardLater(currentCard);
       await deleteSessionCard(session.id, currentCard.id);
 
@@ -189,6 +200,26 @@ function useTrainingFlow(collectionId: number | null) {
     await updateSession(session);
   };
 
+  const isRollbackPossible = () => {
+    return prevCardCopy !== null;
+  };
+
+  const rollbackToPrevCard = () => {
+    setCurrentCardCopy(null);
+    setCurrentCard(prevCardCopy);
+    setPrevCardCopy(null);
+  };
+
+  const preprocessUserResponse = async (
+    userResponse: 'again' | 'hard' | 'good' | 'easy'
+  ): Promise<Card | null> => {
+    if (session === null || currentCard === null) return null;
+    //copy current card (clone)
+    const copyCard = { ...currentCard };
+    await trainer.preProcessUserResponse(session.id, copyCard, userResponse);
+    return copyCard;
+  };
+
   return {
     isLoaded,
     error,
@@ -199,6 +230,9 @@ function useTrainingFlow(collectionId: number | null) {
     onUserResponse,
     onResetTraining,
     onPostpone,
+    preprocessUserResponse,
+    rollbackToPrevCard,
+    isRollbackPossible,
   };
 }
 

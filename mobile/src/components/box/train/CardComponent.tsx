@@ -16,6 +16,7 @@ import {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import { formatInterval } from '@/src/lib/TimeUtils';
 
 const DEBUG = true;
 const blurhash =
@@ -40,13 +41,28 @@ const CardComponent: React.FC<{
   cardDimensions?: { height: number; width: number };
   playSound: Function;
   getImageSource: Function;
-}> = ({ currentCard, onUserResponse, cardDimensions, playSound, getImageSource }) => {
+  preprocessUserResponse: (
+    userResponse: 'again' | 'hard' | 'good' | 'easy'
+  ) => Promise<Card | null>;
+}> = ({
+  currentCard,
+  onUserResponse,
+  cardDimensions,
+  playSound,
+  getImageSource,
+  preprocessUserResponse,
+}) => {
   const { themeColors } = useThemeColors();
   const [cardFlip, setCardFlip] = useState(false);
   const [answerShown, setAnswerShown] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [frontImgSrc, setFrontImgSrc] = useState<string | null>(null);
   const [backImgSrc, setBackImgSrc] = useState<string | null>(null);
+  // --- INTERVALS ON FEEDBACK BUTTONS ---
+  const [againInterval, setAgainInterval] = useState<string>('');
+  const [hardInterval, setHardInterval] = useState<string>('');
+  const [goodInterval, setGoodInterval] = useState<string>('');
+  const [easyInterval, setEasyInterval] = useState<string>('');
 
   // --- DRAGGABLE STATE ---
   const translateX = useSharedValue(0);
@@ -86,10 +102,50 @@ const CardComponent: React.FC<{
     }
   }
   useEffect(() => {
+    const preprocessResponses = async () => {
+      const againCard = await preprocessUserResponse('again');
+      const hardCard = await preprocessUserResponse('hard');
+      const goodCard = await preprocessUserResponse('good');
+      const easyCard = await preprocessUserResponse('easy');
+      console.log(
+        'CardComponent preprocessResponses: againCard',
+        againCard?.repeatTime ? new Date(againCard?.repeatTime).toISOString() : ''
+      );
+      console.log(
+        'CardComponent preprocessResponses: hardCard',
+        hardCard?.repeatTime ? new Date(hardCard?.repeatTime).toISOString() : ''
+      );
+      console.log(
+        'CardComponent preprocessResponses: goodCard',
+        goodCard?.repeatTime ? new Date(goodCard?.repeatTime).toISOString() : ''
+      );
+      console.log(
+        'CardComponent preprocessResponses: easyCard',
+        easyCard?.repeatTime ? new Date(easyCard?.repeatTime).toISOString() : ''
+      );
+      const now = new Date().getTime();
+      setAgainInterval(
+        againCard?.repeatTime != null ? formatInterval(againCard?.repeatTime - now) : ''
+      );
+      setHardInterval(
+        hardCard?.repeatTime != null ? formatInterval(hardCard?.repeatTime - now) : ''
+      );
+      setGoodInterval(
+        goodCard?.repeatTime != null ? formatInterval(goodCard?.repeatTime - now) : ''
+      );
+      setEasyInterval(
+        easyCard?.repeatTime != null ? formatInterval(easyCard?.repeatTime - now) : ''
+      );
+    };
     console.log('CardComponent useEffect: currentCard', currentCard?.front);
     setCardFlip(false);
     setAnswerShown(false);
     if (currentCard) {
+      setAgainInterval('');
+      setHardInterval('');
+      setGoodInterval('');
+      setEasyInterval('');
+      preprocessResponses();
       if (currentCard.backImg !== null || currentCard.frontImg !== null) {
         setLoading(true);
         loadImages(currentCard).then(() => {
@@ -247,6 +303,15 @@ const CardComponent: React.FC<{
               <Text style={styles.feedbackBtnText} numberOfLines={1} ellipsizeMode="tail">
                 {opt.label}
               </Text>
+              <Text style={styles.feedbackBtnInterval}>
+                {opt.key === 'again'
+                  ? againInterval
+                  : opt.key === 'hard'
+                    ? hardInterval
+                    : opt.key === 'good'
+                      ? goodInterval
+                      : easyInterval}
+              </Text>
             </TouchableOpacity>
           </Animated.View>
         ))}
@@ -363,6 +428,9 @@ const CardFrontSide = ({
             repeatTime:{' '}
             {currentCard?.repeatTime ? new Date(currentCard?.repeatTime).toISOString() : ''}
           </Text>
+          <Text>
+            interval: {currentCard?.interval ? new Date(currentCard?.interval).toISOString() : ''}
+          </Text>
         </View>
       )}
       {currentCard && currentCard.frontSound && (
@@ -468,6 +536,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 15,
+    textAlign: 'center',
+  },
+  feedbackBtnInterval: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
     textAlign: 'center',
   },
   cardBtnsContainer: {

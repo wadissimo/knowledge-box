@@ -36,6 +36,9 @@ const truncateTime = (date: Date): number => {
   return newDate.getTime();
 };
 
+const getHoursInInterval = (interval: number): number => {
+  return Math.floor(interval / ONE_HOUR);
+};
 const getDaysInInterval = (interval: number): number => {
   return Math.floor(interval / ONE_DAY);
 };
@@ -47,6 +50,8 @@ const getMinsInInterval = (interval: number): number => {
 const formatInterval = (interval: number): string => {
   const days = getDaysInInterval(interval);
   if (days !== 0) return `${days} ${i18n.t('common.time.days')}`;
+  const hours = getHoursInInterval(interval);
+  if (hours !== 0) return `${hours} ${i18n.t('common.time.hours')}`;
   const mins = getMinsInInterval(interval);
   if (mins > 0) {
     return `${mins} ${i18n.t('common.time.mins')}`;

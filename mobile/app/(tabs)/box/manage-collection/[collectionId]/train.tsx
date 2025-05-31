@@ -32,6 +32,9 @@ const TrainCollection = () => {
     onUserResponse,
     onResetTraining,
     onPostpone,
+    preprocessUserResponse,
+    isRollbackPossible,
+    rollbackToPrevCard,
   } = useTrainingFlow(collectionId !== null && collectionId !== '' ? Number(collectionId) : null);
 
   useEffect(() => {
@@ -120,7 +123,8 @@ const TrainCollection = () => {
           <CardMenu
             onEdit={handleEditMenu}
             onPostpone={handlePostponeMenu}
-            onMarkEasy={handleTooEasyMenu}
+            isRollbackPossible={isRollbackPossible}
+            rollbackToPrevCard={rollbackToPrevCard}
           />
         )}
       </View>
@@ -133,6 +137,7 @@ const TrainCollection = () => {
             cardDimensions={{ height: 500, width: 300 }}
             playSound={playSound}
             getImageSource={getImageSource}
+            preprocessUserResponse={preprocessUserResponse}
           />
         )}
       </ScreenContainer>

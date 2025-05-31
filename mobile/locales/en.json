@@ -18,8 +18,9 @@
       "deletion": "Confirm Deletion"
     },
     "time": {
-      "mins": "m",
-      "days": "d"
+      "mins": "min",
+      "days": "d",
+      "hours": "hr"
     },
     "navBack": "Back",
     "text": "Text",
@@ -91,7 +92,8 @@
     "popupMenu": {
       "editCard": "Edit Card",
       "postpone": "Postpone",
-      "tooEasy": "Too Easy"
+      "tooEasy": "Too Easy",
+      "rollback": "Rollback"
     },
     "noImage": "No image uploaded",
     "noSound": "No sound uploaded",
