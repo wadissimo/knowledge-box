@@ -248,6 +248,7 @@ export default function useFSRSTrainer(
     sessionCards?: Card[]
   ): Promise<void> {
     const curTime = new Date().getTime();
+    console.log('FSRSTrainer: processUserResponse', card.front, response);
 
     // update new card to learning
     if (card.status === CardStatus.New || card.status === null) card.status = CardStatus.Learning;

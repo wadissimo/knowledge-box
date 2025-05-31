@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { SessionCard } from '@/src/data/SessionCardModel';
 import { Card } from '@/src/data/CardModel';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -60,12 +60,18 @@ const CardComponent: React.FC<{
   );
 
   useEffect(() => {
+    console.log('CardComponent useEffect: cardFlip', cardFlip);
     translateX.value = 0;
     translateY.value = 0;
     isDragging.value = false;
     dragMoved.value = false;
     hoveredButtonIndex.value = -1;
   }, [cardFlip]);
+
+  useLayoutEffect(() => {
+    console.log('CardComponent useLayoutEffect: currentCard', currentCard?.front);
+    setCardFlip(false); // happens before paint
+  }, [currentCard?.id]);
 
   async function loadImages(card: Card) {
     if (card.backImg !== null) {
@@ -80,6 +86,7 @@ const CardComponent: React.FC<{
     }
   }
   useEffect(() => {
+    console.log('CardComponent useEffect: currentCard', currentCard?.front);
     setCardFlip(false);
     setAnswerShown(false);
     if (currentCard) {
@@ -122,10 +129,10 @@ const CardComponent: React.FC<{
     }
   };
 
-  const handleUserResponse = (response: 'again' | 'hard' | 'good' | 'easy') => {
-    setCardFlip(false);
-    setAnswerShown(false);
-    onUserResponse(response);
+  const handleUserResponse = async (response: 'again' | 'hard' | 'good' | 'easy') => {
+    // setCardFlip(false);
+    // setAnswerShown(false);
+    await onUserResponse(response);
   };
 
   const panGesture = Gesture.Pan()
@@ -245,6 +252,15 @@ const CardComponent: React.FC<{
         ))}
       </View>
     </View>
+  );
+
+  console.log(
+    'CardComponent re-rendered, loading: ',
+    loading,
+    'flip: ',
+    cardFlip,
+    'front',
+    currentCard.front
   );
 
   if (loading) return null;

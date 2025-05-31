@@ -114,9 +114,18 @@ function useTrainingFlow(collectionId: number | null) {
     }
     await updateSession(session);
 
+    console.log('TrainingFlow: processUserResponse', session.id, currentCard?.front, userResponse);
+
     await trainer.processUserResponse(session.id, currentCard, userResponse);
 
     const card = await trainer.getNextCard(session.id);
+    console.log(
+      'TrainingFlow: getNextCard',
+      session.id,
+      currentCard?.front,
+      userResponse,
+      card?.front
+    );
     if (card === null) {
       await onTrainingComplete();
     }

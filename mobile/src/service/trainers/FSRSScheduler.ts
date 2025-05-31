@@ -120,18 +120,7 @@ const calcNextInterval = (stability: number) => {
   return nextInterval;
 };
 const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
-  const reviewLearningCard = (card: Card, daysSinceLastReview: number | null, grade: Grade) => {
-    if (card.stability === null || card.difficulty === null) {
-      card.stability = clampStability(initialStability(grade));
-      card.difficulty = clampDifficulty(initialDifficulty(grade));
-    } else if (daysSinceLastReview !== null && daysSinceLastReview < 1) {
-      card.stability = shortTermStability(card.stability, grade);
-      card.difficulty = nextDifficulty(card.difficulty, grade);
-    } else {
-      const retrievability = calcRetrievability(card.stability, daysSinceLastReview);
-      card.stability = nextStability(card.difficulty, card.stability, retrievability, grade);
-      card.difficulty = nextDifficulty(card.difficulty, grade);
-    }
+  const reviewLearningCard = (card: Card, grade: Grade) => {
     //TODO: learning steps edge cases
     if (
       learningSteps.length === 0 ||
@@ -151,6 +140,8 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
           break;
         case Grade.Hard:
           // HARD -> don't increment learning step
+          console.log('FSRSScheduler reviewLearningCardlearningStep', card.learningStep);
+
           if (card.learningStep == 0) {
             if (learningSteps.length == 1) {
               nextInterval = learningSteps[0] * 1.5;
@@ -177,18 +168,12 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
           nextInterval = calcNextInterval(card.stability) * ONE_DAY;
           break;
       }
+      console.log('FSRSScheduler reviewLearningCard nextInterval', nextInterval);
       card.repeatTime = Date.now() + nextInterval;
     }
+    console.log('FSRSScheduler reviewLearningCard repeatTime', card.repeatTime);
   };
-  const reviewReviewCard = (card: Card, daysSinceLastReview: number | null, grade: Grade) => {
-    if (daysSinceLastReview !== null && daysSinceLastReview < 1) {
-      card.stability = shortTermStability(card.stability, grade);
-      card.difficulty = nextDifficulty(card.difficulty, grade);
-    } else {
-      const retrievability = calcRetrievability(card.stability, daysSinceLastReview);
-      card.stability = nextStability(card.difficulty, card.stability, retrievability, grade);
-      card.difficulty = nextDifficulty(card.difficulty, grade);
-    }
+  const reviewReviewCard = (card: Card, grade: Grade) => {
     let nextInterval;
     switch (grade) {
       case Grade.Again:
@@ -203,21 +188,15 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
       case Grade.Hard:
       case Grade.Good:
       case Grade.Easy:
+        console.log('FSRSScheduler reviewReviewCard not failed');
         card.status = CardStatus.Review;
         nextInterval = calcNextInterval(card.stability) * ONE_DAY;
         break;
     }
+    console.log('FSRSScheduler reviewReviewCard nextInterval', nextInterval);
     card.repeatTime = Date.now() + nextInterval;
   };
-  const reviewRelearningCard = (card: Card, daysSinceLastReview: number | null, grade: Grade) => {
-    if (daysSinceLastReview !== null && daysSinceLastReview < 1) {
-      card.stability = shortTermStability(card.stability, grade);
-      card.difficulty = nextDifficulty(card.difficulty, grade);
-    } else {
-      const retrievability = calcRetrievability(card.stability, daysSinceLastReview);
-      card.stability = nextStability(card.difficulty, card.stability, retrievability, grade);
-      card.difficulty = nextDifficulty(card.difficulty, grade);
-    }
+  const reviewRelearningCard = (card: Card, grade: Grade) => {
     if (
       reLearningSteps.length === 0 ||
       (card.learningStep >= reLearningSteps.length &&
@@ -266,17 +245,39 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
     }
   };
   const reviewCard = (card: Card, grade: Grade) => {
+    console.log('FSRSScheduler reviewCard', card.front, card.status, grade);
+    //default learning step to 0
+    if (card.learningStep === null) {
+      card.learningStep = 0;
+    }
     const daysSinceLastReview = calcDaysSinceLastReview(card);
+
+    // Check stability and difficulty
+    if (card.stability === null || card.difficulty === null) {
+      card.stability = clampStability(initialStability(grade));
+      card.difficulty = clampDifficulty(initialDifficulty(grade));
+    } else if (daysSinceLastReview !== null && daysSinceLastReview < 1) {
+      card.stability = shortTermStability(card.stability, grade);
+      card.difficulty = nextDifficulty(card.difficulty, grade);
+    } else {
+      const retrievability = calcRetrievability(card.stability, daysSinceLastReview);
+      card.stability = nextStability(card.difficulty, card.stability, retrievability, grade);
+      card.difficulty = nextDifficulty(card.difficulty, grade);
+    }
+
     switch (card.status) {
       case CardStatus.New:
       case CardStatus.Learning:
-        reviewLearningCard(card, daysSinceLastReview, grade);
+        console.log('learningCard', card.front, grade);
+        reviewLearningCard(card, grade);
         break;
       case CardStatus.Review:
-        reviewReviewCard(card, daysSinceLastReview, grade);
+        console.log('reviewCard', card.front, grade);
+        reviewReviewCard(card, grade);
         break;
       case CardStatus.Relearning:
-        reviewRelearningCard(card, daysSinceLastReview, grade);
+        console.log('relearningCard', card.front, grade);
+        reviewRelearningCard(card, grade);
         break;
     }
     card.prevRepeatTime = Date.now();

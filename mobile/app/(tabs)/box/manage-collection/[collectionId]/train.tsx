@@ -87,7 +87,7 @@ const TrainCollection = () => {
   //     setTotalCards(await getSessionCardsCount(session.id));
   //   }
   // }
-
+  console.log('train.tsx re-rendered, isLoaded: ' + isLoaded, 'currentCard', currentCard?.front);
   if (error)
     return (
       <View style={{ flex: 1 }}>
@@ -127,6 +127,7 @@ const TrainCollection = () => {
       <ScreenContainer>
         {currentCard && (
           <CardComponent
+            //key={currentCard.id}
             currentCard={currentCard}
             onUserResponse={handleUserResponse}
             cardDimensions={{ height: 500, width: 300 }}
