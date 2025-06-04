@@ -35,12 +35,12 @@ export function usePoolingCardSelector(
         setCurrentPool(null);
         return;
       }
-      setCardsToLearn(sessionCards.filter(c => c.status === CardStatus.Learning));
-      setCardsToReview(
+      setCardsToLearn(
         sessionCards.filter(
-          c => c.status === CardStatus.Review || c.status === CardStatus.Relearning
+          c => c.status === CardStatus.Learning || c.status === CardStatus.Relearning
         )
       );
+      setCardsToReview(sessionCards.filter(c => c.status === CardStatus.Review));
       setCardsNew(sessionCards.filter(c => c.status === CardStatus.New));
       const firstCard = sessionCards[0];
       setCurrentCard(firstCard);
@@ -73,9 +73,9 @@ export function usePoolingCardSelector(
     console.debug('usePoolingCardSelector.update, cardsToReview.length = ', cardsToReview.length);
     if (prevState === CardStatus.New) {
       updatedCardsNew = cardsNew.filter(c => c.id !== updatedCard.id);
-    } else if (prevState === CardStatus.Learning) {
+    } else if (prevState === CardStatus.Learning || prevState === CardStatus.Relearning) {
       updatedCardsToLearn = cardsToLearn.filter(c => c.id !== updatedCard.id);
-    } else if (prevState === CardStatus.Review || prevState === CardStatus.Relearning) {
+    } else if (prevState === CardStatus.Review) {
       updatedCardsToReview = cardsToReview.filter(c => c.id !== updatedCard.id);
     }
     // check if training for this card is complete
