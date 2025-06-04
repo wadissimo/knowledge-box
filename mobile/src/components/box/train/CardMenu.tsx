@@ -10,12 +10,14 @@ const CardMenu = ({
 
   isRollbackPossible,
   rollbackToPrevCard,
+  handleLogModalOpen,
 }: {
   onEdit: Function;
   onPostpone: Function;
 
   isRollbackPossible: Function;
   rollbackToPrevCard: Function;
+  handleLogModalOpen: Function;
 }) => {
   const { themeColors } = useThemeColors();
 
@@ -43,6 +45,9 @@ const CardMenu = ({
             <Text>{i18n.t('cards.popupMenu.rollback')}</Text>
           </MenuOption>
         )}
+        <MenuOption onSelect={() => handleLogModalOpen()}>
+          <Text>{i18n.t('cards.popupMenu.showLog')}</Text>
+        </MenuOption>
       </MenuOptions>
     </Menu>
   );

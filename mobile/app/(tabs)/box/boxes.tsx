@@ -14,7 +14,7 @@ export default function BoxesPage() {
   const isFocused = useIsFocused();
   const [boxes, setBoxes] = useState<Box[]>([]);
   const { themeColors } = useThemeColors();
-  console.log('boxes.tsx: rendering', isFocused);
+  // console.log('boxes.tsx: rendering', isFocused);
   useEffect(() => {
     if (isFocused) {
       fetchBoxes().then(res => {

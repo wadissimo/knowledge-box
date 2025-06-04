@@ -1,10 +1,7 @@
-import { useTheme } from "@react-navigation/native";
-import React, { forwardRef, ReactNode } from "react";
-import {
-  View,
-  StyleSheet,
-} from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { useTheme } from '@react-navigation/native';
+import React, { forwardRef, ReactNode } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,7 +9,7 @@ import Animated, {
   SharedValue,
   runOnJS,
   useDerivedValue,
-} from "react-native-reanimated";
+} from 'react-native-reanimated';
 
 const OFFSET_SIDE_TRIGGER_REORDER = 40;
 const BOX_CARD_OFFSET = 10;
@@ -39,8 +36,7 @@ const DraggableBoxCard = ({
 }) => {
   const draggableX = useSharedValue(0);
 
-  const initialOffsetY =
-    ((index + numReorders.value) % numItems) * BOX_CARD_OFFSET;
+  const initialOffsetY = ((index + numReorders.value) % numItems) * BOX_CARD_OFFSET;
   const draggableY = useSharedValue(initialOffsetY);
 
   const isDragged = useSharedValue(false);
@@ -57,16 +53,16 @@ const DraggableBoxCard = ({
   }));
 
   const pan = Gesture.Pan()
-    .onUpdate((e) => {
+    .onUpdate(e => {
       if (Math.abs(e.translationX) > OFFSET_SIDE_TRIGGER_REORDER) {
         if (!movingBack.value) {
           isDragged.value = false;
 
           if (onReorder) runOnJS(onReorder as any)();
 
-          draggableX.value = withTiming(0, {}, (finished)=>{
+          draggableX.value = withTiming(0, {}, finished => {
             if (finished) {
-              console.log("Dragged (finished)", draggableX.value, draggableY.value)
+              console.log('Dragged (finished)', draggableX.value, draggableY.value);
               if (onEnd) runOnJS(onEnd as any)();
             }
           });
@@ -84,32 +80,30 @@ const DraggableBoxCard = ({
     .onEnd(() => {
       isDragged.value = false;
       if (!movingBack.value) {
-        draggableX.value = withTiming(0, {}, (finished)=>{
+        draggableX.value = withTiming(0, {}, finished => {
           if (finished) {
-            console.log("Dragged (finished)", draggableX.value, draggableY.value)
+            console.log('Dragged (finished)', draggableX.value, draggableY.value);
             if (onEnd) runOnJS(onEnd as any)();
           }
         });
         draggableY.value = withTiming(initialOffsetY);
-        
       }
-      
     });
-    console.log("DraggableBoxCard", index, name);
+  // console.log("DraggableBoxCard", index, name);
 
   const styles = StyleSheet.create({
     itemBox: {
-      position: "absolute",
-      width: "100%",
+      position: 'absolute',
+      width: '100%',
       height: 150,
-      backgroundColor: "#faf8b4",
+      backgroundColor: '#faf8b4',
       borderRadius: 20,
       paddingVertical: 5,
       paddingHorizontal: 15,
       borderWidth: 1,
-      borderColor: "#dd8",
-      justifyContent: "center",
-      shadowColor: "#171717",
+      borderColor: '#dd8',
+      justifyContent: 'center',
+      shadowColor: '#171717',
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
@@ -119,17 +113,13 @@ const DraggableBoxCard = ({
 
   if (!draggable) {
     return (
-      <Animated.View style={[styles.itemBox, draggableAnimatedStyle]}>
-        {children}
-      </Animated.View>
+      <Animated.View style={[styles.itemBox, draggableAnimatedStyle]}>{children}</Animated.View>
     );
   }
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[styles.itemBox, draggableAnimatedStyle]}>
-        {children}
-      </Animated.View>
+      <Animated.View style={[styles.itemBox, draggableAnimatedStyle]}>{children}</Animated.View>
     </GestureDetector>
   );
 };

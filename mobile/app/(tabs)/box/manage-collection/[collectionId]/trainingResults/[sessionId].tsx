@@ -15,6 +15,7 @@ const TrainingResultsPage = () => {
   useEffect(() => {
     const run = async () => {
       const session = await getSessionById(Number(sessionId));
+      console.log('TrainingResultsPage session', session);
       setSession(session);
     };
     run();

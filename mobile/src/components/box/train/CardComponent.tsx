@@ -78,7 +78,7 @@ const CardComponent: React.FC<{
   );
 
   useEffect(() => {
-    console.log('CardComponent useEffect: cardFlip', cardFlip);
+    // console.log('CardComponent useEffect: cardFlip', cardFlip);
     translateX.value = 0;
     translateY.value = 0;
     isDragging.value = false;
@@ -93,7 +93,7 @@ const CardComponent: React.FC<{
   }, [cardFlip]);
 
   useLayoutEffect(() => {
-    console.log('CardComponent useLayoutEffect: currentCard', currentCard?.front);
+    // console.log('CardComponent useLayoutEffect: currentCard', currentCard?.front);
     setCardFlip(false); // happens before paint
   }, [currentCard?.id]);
 
@@ -115,22 +115,22 @@ const CardComponent: React.FC<{
       const hardCard = await preprocessUserResponse('hard');
       const goodCard = await preprocessUserResponse('good');
       const easyCard = await preprocessUserResponse('easy');
-      console.log(
-        'CardComponent preprocessResponses: againCard',
-        againCard?.repeatTime ? new Date(againCard?.repeatTime).toISOString() : ''
-      );
-      console.log(
-        'CardComponent preprocessResponses: hardCard',
-        hardCard?.repeatTime ? new Date(hardCard?.repeatTime).toISOString() : ''
-      );
-      console.log(
-        'CardComponent preprocessResponses: goodCard',
-        goodCard?.repeatTime ? new Date(goodCard?.repeatTime).toISOString() : ''
-      );
-      console.log(
-        'CardComponent preprocessResponses: easyCard',
-        easyCard?.repeatTime ? new Date(easyCard?.repeatTime).toISOString() : ''
-      );
+      // console.log(
+      //   'CardComponent preprocessResponses: againCard',
+      //   againCard?.repeatTime ? new Date(againCard?.repeatTime).toISOString() : ''
+      // );
+      // console.log(
+      //   'CardComponent preprocessResponses: hardCard',
+      //   hardCard?.repeatTime ? new Date(hardCard?.repeatTime).toISOString() : ''
+      // );
+      // console.log(
+      //   'CardComponent preprocessResponses: goodCard',
+      //   goodCard?.repeatTime ? new Date(goodCard?.repeatTime).toISOString() : ''
+      // );
+      // console.log(
+      //   'CardComponent preprocessResponses: easyCard',
+      //   easyCard?.repeatTime ? new Date(easyCard?.repeatTime).toISOString() : ''
+      // );
       const now = new Date().getTime();
       setAgainInterval(
         againCard?.repeatTime != null ? formatInterval(againCard?.repeatTime - now) : ''
@@ -145,7 +145,7 @@ const CardComponent: React.FC<{
         easyCard?.repeatTime != null ? formatInterval(easyCard?.repeatTime - now) : ''
       );
     };
-    console.log('CardComponent useEffect: currentCard', currentCard?.front);
+    // console.log('CardComponent useEffect: currentCard', currentCard?.front);
     setCardFlip(false);
     setAnswerShown(false);
     if (currentCard) {

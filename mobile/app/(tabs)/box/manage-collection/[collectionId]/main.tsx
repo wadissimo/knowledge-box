@@ -33,7 +33,7 @@ const CollectionView = () => {
   useEffect(() => {
     if (collectionId && isFocused) {
       const colId = Number(collectionId);
-      console.log('manage-collection\main: collectionId', colId);
+      // console.log('manage-collection\main: collectionId', colId);
       Promise.all([
         getCollectionById(colId),
         getCollectionTrainingData(colId),
@@ -66,7 +66,7 @@ const CollectionView = () => {
   function handleTrainOptions() {
     router.push(`/(tabs)/box/manage-collection/${collectionId}/trainOptions`);
   }
-  console.log('CollectionView', collectionId);
+  // console.log('CollectionView', collectionId);
 
   if (collection === null) return null;
   return (

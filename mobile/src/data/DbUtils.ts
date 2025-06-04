@@ -1,13 +1,18 @@
 import { SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import { SETTINGS_DEFAULTS } from './SettingsModel';
 
-const DATABASE_VERSION = 9;
+const DATABASE_VERSION = 11;
 
 function useDbUtils() {
   const db = useSQLiteContext();
   async function runQuery(query: string): Promise<any> {
+    // try {
     const res = await db.getAllAsync(query);
     return res;
+    // } catch (e) {
+    //   console.error('runQuery error', e);
+    //   throw e;
+    // }
   }
   return {
     runQuery,
@@ -85,7 +90,21 @@ async function migrateDbIfNeeded(db: SQLiteDatabase) {
     await db.runAsync(`ALTER TABLE sessionCards ADD COLUMN plannedReviewTime INTEGER`);
     console.log('migration to version 9: add plannedReviewTime column to sessionCards table');
   }
-
+  if (currentDbVersion < 11) {
+    await db.runAsync(`DROP TABLE IF EXISTS reviewLog;`);
+    await db.runAsync(`CREATE TABLE reviewLog (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        cardId INTEGER,
+                        cardState INTEGER,
+                        reviewDuration INTEGER,
+                        scheduledReviewTime INTEGER,
+                        grade INTEGER,
+                        stability REAL,
+                        difficulty REAL,
+                        createdAt INTEGER DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)`);
+    console.log('migration to version 11: create reviewLog table');
+  }
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
 

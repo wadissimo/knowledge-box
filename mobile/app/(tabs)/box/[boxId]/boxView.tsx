@@ -112,7 +112,7 @@ const BoxView = () => {
     );
   }
 
-  console.log('BoxView');
+  // console.log('BoxView');
   if (!isFocused) return null;
   return (
     <ScreenContainer>

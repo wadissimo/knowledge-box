@@ -89,7 +89,7 @@ export const AICardModal: React.FC<AICardModalProps> = ({
         <TextInput
           style={{
             borderWidth: 1,
-            borderColor: Colors.light.border,
+            borderColor: Colors.light.btnBackground,
             borderRadius: 8,
             padding: 8,
             minHeight: 60,

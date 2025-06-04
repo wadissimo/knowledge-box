@@ -1,4 +1,4 @@
-import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Button, StyleSheet, ActivityIndicator, Modal, FlatList } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -6,24 +6,31 @@ import CardComponent from '@/src/components/box/train/CardComponent';
 import { useCardTrainingService } from '@/src/service/CardTrainingService';
 import useMediaDataService from '@/src/service/MediaDataService';
 
-import TrainingResults from '@/src/components/TrainingResults';
 import { i18n } from '@/src/lib/i18n';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useTrainingFlow } from '@/src/service/TrainingFlow';
 import CardMenu from '@/src/components/box/train/CardMenu';
 import { SETTING_IDS, useSettingsModel } from '@/src/data/SettingsModel';
+import PrimaryButton from '@/src/components/common/PrimaryButton';
+import { ReviewLog, useReviewLogModel } from '@/src/data/ReviewLogModel';
 
 const TrainCollection = () => {
   const { themeColors } = useThemeColors();
   const { collectionId } = useLocalSearchParams();
-  const { playSound, getImageSource } = useMediaDataService();
+  //State
   const [remainingCards, setRemainingCards] = useState(0);
   const [totalCards, setTotalCards] = useState(0);
+  const [logModalVisible, setLogModalVisible] = useState(false);
+  const [reviewLogs, setReviewLogs] = useState<ReviewLog[]>([]);
+
+  const { playSound, getImageSource } = useMediaDataService();
   const { getCurrentCardsCount, getSessionCardsCount } = useCardTrainingService();
   const [audioAutoplay, setAudioAutoplay] = useState(false);
   const router = useRouter();
   const { getSettingById } = useSettingsModel();
+  const { getReviewLog } = useReviewLogModel();
+
   const {
     isLoaded,
     error,
@@ -35,7 +42,24 @@ const TrainCollection = () => {
     preprocessUserResponse,
     isRollbackPossible,
     rollbackToPrevCard,
-  } = useTrainingFlow(collectionId !== null && collectionId !== '' ? Number(collectionId) : null);
+    cardsToLearn,
+    cardsToReview,
+    cardsNew,
+    currentPool,
+  } = useTrainingFlow(
+    collectionId !== null && collectionId !== '' ? Number(collectionId) : null,
+    async () => {
+      await onTrainingCompleted();
+    }
+  );
+
+  const onTrainingCompleted = async () => {
+    if (session === null) {
+      console.error('train.tsx: onTrainingCompleted: session is null');
+      return;
+    }
+    router.replace(`./trainingResults/${session.id}`);
+  };
 
   // Effects
   useEffect(() => {
@@ -50,29 +74,36 @@ const TrainCollection = () => {
 
   useEffect(() => {
     const run = async () => {
+      // console.debug('train.tsx useEffect currentCard', currentCard?.front);
       if (session !== null && isLoaded && currentCard == null) {
-        console.log('train.tsx training complete. redirect to results', session.id);
+        // console.log('train.tsx training complete. redirect to results', session.id);
         router.replace(`./trainingResults/${session.id}`);
       }
       const audioAutoplaySetting = await getSettingById(SETTING_IDS.audioAutoplay);
       if (audioAutoplaySetting) {
         setAudioAutoplay(audioAutoplaySetting.value === 'true');
       }
+      if (currentCard !== null) {
+        const reviewLogs = await getReviewLog(currentCard.id);
+        setReviewLogs(reviewLogs);
+      }
     };
     run();
   }, [currentCard, isLoaded]);
 
+  // console.debug('train.tsx re-rendered, isLoaded: ' + isLoaded, 'currentCard', currentCard?.front);
+
   // Functions
   async function handleUserResponse(userResponse: 'again' | 'hard' | 'good' | 'easy') {
     if (session === null || currentCard === null) return;
-    console.log('user response', userResponse);
+    // console.log('user response', userResponse);
     await onUserResponse(userResponse);
     setRemainingCards(await getCurrentCardsCount(session.id));
     setTotalCards(await getSessionCardsCount(session.id));
   }
 
   function handleEditMenu() {
-    console.log('handleEditMenu');
+    // console.log('handleEditMenu');
     if (currentCard !== null) router.push(`./${currentCard.id}`);
   }
 
@@ -84,8 +115,27 @@ const TrainCollection = () => {
       setTotalCards(await getSessionCardsCount(session.id));
     }
   }
+  async function handleLogModalOpen() {
+    setLogModalVisible(true);
+  }
+  async function handleLogModalClose() {
+    // console.log('close log modal');
+    setLogModalVisible(false);
+  }
 
   console.log('train.tsx re-rendered, isLoaded: ' + isLoaded, 'currentCard', currentCard?.front);
+  console.log(
+    'train.tsx review Cards: ' +
+      cardsToReview?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
+  );
+  console.log(
+    'train.tsx learn Cards: ' +
+      cardsToLearn?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
+  );
+  console.log(
+    'train.tsx new Cards: ' +
+      cardsNew?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
+  );
   if (error)
     return (
       <View style={{ flex: 1 }}>
@@ -111,15 +161,46 @@ const TrainCollection = () => {
         <Text style={[styles.topPanelTxt, { color: themeColors.subHeaderText }]}>
           {collection ? collection.name : ''}
         </Text>
-        <Text style={[{ color: themeColors.subHeaderText }]}>
-          {totalCards !== null ? `${remainingCards} / ${totalCards}` : ''}
-        </Text>
+
+        {totalCards !== null && (
+          <View style={{ flexDirection: 'row' }}>
+            <Text
+              style={[
+                { color: themeColors.subHeaderText },
+                currentPool === 'new' ? { textDecorationLine: 'underline' } : {},
+              ]}
+            >
+              {cardsNew !== null ? cardsNew.length : 0}
+            </Text>
+            <Text style={{ color: themeColors.subHeaderText }}> / </Text>
+            <Text
+              style={[
+                { color: themeColors.subHeaderText },
+                currentPool === 'learn' ? { textDecorationLine: 'underline' } : {},
+              ]}
+            >
+              {cardsToLearn !== null ? cardsToLearn.length : 0}
+            </Text>
+            <Text style={{ color: themeColors.subHeaderText }}> / </Text>
+            <Text
+              style={[
+                { color: themeColors.subHeaderText },
+                currentPool === 'review' ? { textDecorationLine: 'underline' } : {},
+              ]}
+            >
+              {cardsToReview !== null ? cardsToReview.length : 0}
+            </Text>
+            <Text style={[{ color: themeColors.subHeaderText }]}> ({totalCards})</Text>
+          </View>
+        )}
+
         {currentCard && (
           <CardMenu
             onEdit={handleEditMenu}
             onPostpone={handlePostponeMenu}
             isRollbackPossible={isRollbackPossible}
             rollbackToPrevCard={rollbackToPrevCard}
+            handleLogModalOpen={handleLogModalOpen}
           />
         )}
       </View>
@@ -136,6 +217,28 @@ const TrainCollection = () => {
             preprocessUserResponse={preprocessUserResponse}
           />
         )}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={logModalVisible}
+          onRequestClose={handleLogModalClose}
+          onDismiss={handleLogModalClose}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}
+          >
+            <View style={{ width: '90%', backgroundColor: '#fff', borderRadius: 18, padding: 20 }}>
+              <Text>Logs</Text>
+              <FlatList data={reviewLogs} renderItem={({ item }) => <Text>{item.grade}</Text>} />
+              <PrimaryButton text={i18n.t('common.back') || 'Back'} onClick={handleLogModalClose} />
+            </View>
+          </View>
+        </Modal>
       </ScreenContainer>
     </View>
   );

@@ -78,7 +78,8 @@ function useCardTrainingService() {
           )
         )
       ).catch(e => {
-        console.log('bulkInsertTrainingCards error', e);
+        console.error('bulkInsertTrainingCards error', e);
+        throw e;
       });
     });
   };

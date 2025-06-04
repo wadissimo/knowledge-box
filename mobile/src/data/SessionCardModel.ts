@@ -27,16 +27,21 @@ function useSessionCardModel() {
     failedRepeats: number = 0,
     plannedReviewTime: number = 0
   ): Promise<void> => {
-    await db.runAsync(
-      `INSERT INTO sessionCards (sessionId, cardId, status,successfulRepeats, failedRepeats, plannedReviewTime) 
+    try {
+      await db.runAsync(
+        `INSERT INTO sessionCards (sessionId, cardId, status,successfulRepeats, failedRepeats, plannedReviewTime) 
       VALUES (?, ?, ?, ?, ?, ?)`,
-      sessionId,
-      cardId,
-      status,
-      successfulRepeats,
-      failedRepeats,
-      plannedReviewTime
-    );
+        sessionId,
+        cardId,
+        status,
+        successfulRepeats,
+        failedRepeats,
+        plannedReviewTime
+      );
+    } catch (e) {
+      console.error('newSessionCard error', e);
+      throw e;
+    }
   };
 
   // Update

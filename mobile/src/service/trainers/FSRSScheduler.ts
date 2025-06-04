@@ -1,5 +1,5 @@
 import { Card, CardStatus } from '@/src/data/CardModel';
-import { getTodayAsNumber, ONE_DAY, truncateTime } from '@/src/lib/TimeUtils';
+import { getTodayAsNumber, ONE_DAY, ONE_MIN, truncateTime } from '@/src/lib/TimeUtils';
 enum Grade {
   Again = 1,
   Hard = 2,
@@ -10,6 +10,9 @@ const DEFAULT_PARAMETERS = [
   0.2172, 1.1771, 3.2602, 16.1507, 7.0114, 0.57, 2.0966, 0.0069, 1.5261, 0.112, 1.0178, 1.849,
   0.1133, 0.3127, 2.2934, 0.2191, 3.0004, 0.7536, 0.3332, 0.1437, 0.2,
 ];
+export const LEARNING_STEPS = [ONE_MIN, ONE_MIN * 10];
+export const RELEARNING_STEPS = [ONE_MIN, ONE_MIN * 10];
+
 const DECAY = -DEFAULT_PARAMETERS[20];
 const FACTOR = Math.exp(Math.log(0.9) / DECAY) - 1;
 const STABILITY_MIN = 0.001;
@@ -119,7 +122,14 @@ const calcNextInterval = (stability: number) => {
   nextInterval = Math.min(nextInterval, MAX_INTERVAL);
   return nextInterval;
 };
-const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
+const fsrsScheduler = (
+  learningSteps: number[],
+  reLearningSteps: number[],
+  log: boolean = false
+) => {
+  const consoleLog = (message?: any, ...optionalParams: any[]) => {
+    if (log) console.log(message, ...optionalParams);
+  };
   const reviewLearningCard = (card: Card, grade: Grade) => {
     //TODO: learning steps edge cases
     if (
@@ -140,7 +150,11 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
           break;
         case Grade.Hard:
           // HARD -> don't increment learning step
-          console.log('FSRSScheduler reviewLearningCardlearningStep', card.learningStep);
+          consoleLog(
+            'FSRSScheduler reviewLearningCardlearningStep',
+            card.learningStep,
+            learningSteps
+          );
 
           if (card.learningStep == 0) {
             if (learningSteps.length == 1) {
@@ -168,10 +182,13 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
           nextInterval = calcNextInterval(card.stability) * ONE_DAY;
           break;
       }
-      console.log('FSRSScheduler reviewLearningCard nextInterval', nextInterval);
+      consoleLog(
+        'FSRSScheduler reviewLearningCard nextInterval',
+        new Date(Date.now() + nextInterval)
+      );
       card.repeatTime = Date.now() + nextInterval;
     }
-    console.log('FSRSScheduler reviewLearningCard repeatTime', card.repeatTime);
+    consoleLog('FSRSScheduler reviewLearningCard repeatTime', new Date(card.repeatTime));
   };
   const reviewReviewCard = (card: Card, grade: Grade) => {
     let nextInterval;
@@ -188,12 +205,12 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
       case Grade.Hard:
       case Grade.Good:
       case Grade.Easy:
-        console.log('FSRSScheduler reviewReviewCard not failed');
+        consoleLog('FSRSScheduler reviewReviewCard not failed');
         card.status = CardStatus.Review;
         nextInterval = calcNextInterval(card.stability) * ONE_DAY;
         break;
     }
-    console.log('FSRSScheduler reviewReviewCard nextInterval', nextInterval);
+    consoleLog('FSRSScheduler reviewReviewCard nextInterval', nextInterval);
     card.repeatTime = Date.now() + nextInterval;
   };
   const reviewRelearningCard = (card: Card, grade: Grade) => {
@@ -245,7 +262,7 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
     }
   };
   const reviewCard = (card: Card, grade: Grade) => {
-    console.log('FSRSScheduler reviewCard', card.front, card.status, grade);
+    consoleLog('FSRSScheduler reviewCard', card.front, card.status, grade);
     //default learning step to 0
     if (card.learningStep === null) {
       card.learningStep = 0;
@@ -268,15 +285,15 @@ const fsrsScheduler = (learningSteps: number[], reLearningSteps: number[]) => {
     switch (card.status) {
       case CardStatus.New:
       case CardStatus.Learning:
-        console.log('learningCard', card.front, grade);
+        consoleLog('learningCard', card.front, grade);
         reviewLearningCard(card, grade);
         break;
       case CardStatus.Review:
-        console.log('reviewCard', card.front, grade);
+        consoleLog('reviewCard', card.front, grade);
         reviewReviewCard(card, grade);
         break;
       case CardStatus.Relearning:
-        console.log('relearningCard', card.front, grade);
+        consoleLog('relearningCard', card.front, grade);
         reviewRelearningCard(card, grade);
         break;
     }

@@ -50,11 +50,11 @@ const CollectionBoxSection = ({
   const [isLoadingCards, setIsLoadingCards] = useState(false);
   const [cardCount, setCardCount] = useState<number>(0);
   const CARD_WINDOW_SIZE = Math.min(MAX_CARD_WINDOW_SIZE, cardCount);
-  console.log(
-    'CollectionBoxSection refresh',
-    topCardIndex,
-    cards.map(card => card.front)
-  );
+  // console.log(
+  //   'CollectionBoxSection refresh',
+  //   topCardIndex,
+  //   cards.map(card => card.front)
+  // );
 
   useEffect(() => {
     let isMounted = true;

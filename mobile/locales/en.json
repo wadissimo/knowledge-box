@@ -14,6 +14,7 @@
     "edit": "Edit",
     "train": "Train",
     "error": "Error",
+    "back": "Back",
     "confirm": {
       "deletion": "Confirm Deletion"
     },
@@ -93,7 +94,8 @@
       "editCard": "Edit Card",
       "postpone": "Postpone",
       "tooEasy": "Too Easy",
-      "rollback": "Rollback"
+      "rollback": "Rollback",
+      "showLog": "Show Log"
     },
     "noImage": "No image uploaded",
     "noSound": "No sound uploaded",

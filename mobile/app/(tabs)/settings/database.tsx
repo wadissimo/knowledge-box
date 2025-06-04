@@ -10,14 +10,27 @@ const DatabaseRun = () => {
   const { themeColors } = useThemeColors();
   const [query, setQuery] = useState<string>('');
   const [queryResult, setQueryResult] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const { runQuery } = useDbUtils();
+  const [noResult, setNoResult] = useState(false);
 
   async function handleQuery() {
     if (query.length === 0) return;
     Keyboard.dismiss(); // Hide the keyboard
-    const res = await runQuery(query);
-    //console.log("query result", res);
-    setQueryResult(res);
+    try {
+      setNoResult(false);
+      console.log('handleQuery', query);
+      const res = await runQuery(query);
+      console.log('handleQuery result', res);
+      if (res !== null && res.length === 0) {
+        setNoResult(true);
+      }
+      setQueryResult(res);
+    } catch (e) {
+      console.error('handleQuery error', e);
+      setError(e instanceof Error ? e.message : 'An unexpected error occurred');
+      setQueryResult([]);
+    }
   }
 
   const renderHeader = () => {
@@ -63,6 +76,8 @@ const DatabaseRun = () => {
         />
         <PrimaryButton text="Run" onClick={handleQuery} />
       </View>
+      {error && <Text style={styles.error}>{error}</Text>}
+      {noResult && <Text style={styles.error}>No result</Text>}
       <ScrollView horizontal>
         <View>
           {renderHeader()}
@@ -109,6 +124,11 @@ const styles = StyleSheet.create({
   headerCell: {
     fontWeight: 'bold',
     backgroundColor: '#f0f0f0',
+  },
+  error: {
+    color: 'red',
+    marginTop: 10,
+    marginBottom: 10,
   },
 });
 
