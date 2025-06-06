@@ -16,7 +16,7 @@ export function usePoolingCardSelector(
   const [cardsToReview, setCardsToReview] = useState<Card[]>([]);
   const [cardsNew, setCardsNew] = useState<Card[]>([]);
   const [currentCard, setCurrentCard] = useState<Card | null>(null);
-  const [currentPool, setCurrentPool] = useState<'new' | 'learn' | 'review' | null>(null);
+
   const { getAllSessionCards } = useCardTrainingService();
   useEffect(() => {
     const run = async () => {
@@ -32,7 +32,6 @@ export function usePoolingCardSelector(
         setCardsToLearn([]);
         setCardsToReview([]);
         setCardsNew([]);
-        setCurrentPool(null);
         return;
       }
       setCardsToLearn(
@@ -44,19 +43,15 @@ export function usePoolingCardSelector(
       setCardsNew(sessionCards.filter(c => c.status === CardStatus.New));
       const firstCard = sessionCards[0];
       setCurrentCard(firstCard);
-      const pool =
-        firstCard.status === CardStatus.New
-          ? 'new'
-          : firstCard.status === CardStatus.Review
-            ? 'review'
-            : 'learn';
-      setCurrentPool(pool);
 
-      console.debug('usePoolingCardSelector, currentCard  = ', firstCard.front, ' pool = ', pool);
+      console.debug('usePoolingCardSelector, currentCard  = ', firstCard.front);
     };
     run();
   }, [session]);
 
+  const rollbackToCard = async (card: Card) => {
+    setCurrentCard(card);
+  };
   const update = async (updatedCard: Card, prevState: CardStatus) => {
     if (session === null) {
       throw new Error('usePoolingCardSelector: session is null');
@@ -100,16 +95,13 @@ export function usePoolingCardSelector(
         setCardsToReview([]);
         setCardsNew([]);
         await onTrainingComplete();
-        setCurrentPool(null);
       } else {
         // cards left, but this card is not due yet
         setCurrentCard(updatedCard);
         if (updatedCard.status === CardStatus.Review) {
           updatedCardsToReview = [updatedCard];
-          setCurrentPool('review');
         } else {
           updatedCardsToLearn = [updatedCard];
-          setCurrentPool('learn');
         }
       }
       setCardsToLearn(updatedCardsToLearn);
@@ -127,22 +119,11 @@ export function usePoolingCardSelector(
     if (selectedPool === null || selectedPool.length === 0) {
       throw new Error('PoolingFSRSTrainer usePoolingCardSelector: selectedPool is empty');
     }
+    // get next card from the selected pool
     const firstCard = selectedPool[0];
 
     setCurrentCard(firstCard);
-    const pool =
-      firstCard.status === CardStatus.New
-        ? 'new'
-        : firstCard.status === CardStatus.Review
-          ? 'review'
-          : 'learn';
-    setCurrentPool(pool);
-    console.debug(
-      'usePoolingCardSelector.update, selectedCard = ',
-      firstCard.front,
-      'pool = ',
-      pool
-    );
+    console.debug('usePoolingCardSelector.update, selectedCard = ', firstCard.front);
 
     // reinsert updated card back
     if (!cardLearningComplete) {
@@ -165,7 +146,7 @@ export function usePoolingCardSelector(
     setCardsToReview(updatedCardsToReview);
   };
 
-  return { cardsToLearn, cardsToReview, cardsNew, currentCard, update, currentPool };
+  return { cardsToLearn, cardsToReview, cardsNew, currentCard, update, rollbackToCard };
 }
 
 const insertCard = (pool: Card[], card: Card) => {

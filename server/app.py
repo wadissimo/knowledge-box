@@ -15,93 +15,134 @@ MEDIA_FOLDER = "media/"
 
 @app.route('/collections/search', methods=['GET'])
 def search_collections():
-    print("search_collections called")
-    query = request.args.get("query")
+    try:
+        print("search_collections called")
+        query = request.args.get("query")
 
-    query = sanitize_query(query)
-    
-    con = sqlite3.connect(DB_NAME)
-    con.row_factory = sqlite3.Row  # This will return rows as dictionaries
-    results = find_match(con, query)
-    print(results)
-    if len(results) == 0: #TODO: threshold
-        # search for fuzzy results
-        results = find_fuzzy(con, query)
+        query = sanitize_query(query)
+        
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row  # This will return rows as dictionaries
+        results = find_match(con, query)
+        print(results)
+        if len(results) == 0: #TODO: threshold
+            # search for fuzzy results
+            results = find_fuzzy(con, query)
 
-    # Close the connection
-    con.close()
-
+    except Exception as e:
+        print("Error in search_collections", e)
+        return jsonify({"results":None}), 500
+    finally:
+        con.close()
     return jsonify({"results":results}), 200
 
 @app.route('/collections/preview/<int:id>', methods=['GET'])
 def get_collection_preview(id):
-    print("search_collections called", id)
-    con = sqlite3.connect(DB_NAME)
-    con.row_factory = sqlite3.Row  # This will return rows as dictionaries
-    cursor = con.cursor()
+    try:
+        print("search_collections called", id)
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row  # This will return rows as dictionaries
+        cursor = con.cursor()
 
-    cursor.execute("SELECT * FROM collections WHERE id = ?", (id,))
-    collection_row = cursor.fetchone()
-    if not collection_row:
-        return jsonify({"collection":None}), 200
-    
-    collection = dict(collection_row)
-    cursor.execute("SELECT * FROM cards WHERE collectionId = ? limit ?", (id, CARDS_COLLECTION_PREVIEW))
-    cards = cursor.fetchall()
-    cards = [dict(row) for row in cards]
+        cursor.execute("SELECT * FROM collections WHERE id = ?", (id,))
+        collection_row = cursor.fetchone()
+        if not collection_row:
+            return jsonify({"collection":None}), 200
+        
+        collection = dict(collection_row)
+        cursor.execute("SELECT * FROM cards WHERE collectionId = ? limit ?", (id, CARDS_COLLECTION_PREVIEW))
+        cards = cursor.fetchall()
+        cards = [dict(row) for row in cards]
+    except Exception as e:
+        print("Error in get_collection_preview", e)
+        return jsonify({"collection":None, "cards":None}), 500
+    finally:
+        con.close()
     return jsonify({"collection":collection, "cards":cards}), 200
 
 @app.route('/collections/download/<int:id>', methods=['GET'])
 def get_collection_download(id):
-    con = sqlite3.connect(DB_NAME)
-    con.row_factory = sqlite3.Row
-    cursor = con.cursor()
+    try:
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row
+        cursor = con.cursor()
 
-    cursor.execute("SELECT * FROM collections WHERE id = ?", (id,))
-    collection_row = cursor.fetchone()
-    if not collection_row:
-        return jsonify({"collection":None}), 200
-    
-    collection = dict(collection_row)
-    cursor.execute("SELECT * FROM cards WHERE collectionId = ?", (id,))
-    cards = cursor.fetchall()
-    cards = [dict(row) for row in cards]
-
+        cursor.execute("SELECT * FROM collections WHERE id = ?", (id,))
+        collection_row = cursor.fetchone()
+        if not collection_row:
+            return jsonify({"collection":None}), 200
+        
+        collection = dict(collection_row)
+        cursor.execute("SELECT * FROM cards WHERE collectionId = ?", (id,))
+        cards = cursor.fetchall()
+        cards = [dict(row) for row in cards]
+    except Exception as e:
+        print("Error in get_collection_download", e)
+        return jsonify({"collection":None, "cards":None}), 500
+    finally:
+        con.close()
     return jsonify({"collection":collection, "cards":cards}), 200
 
+@app.route('/collections/library', methods=['GET'])
+def get_collection_library():
+    try:
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row
+        cursor = con.cursor()
 
+        cursor.execute("SELECT * FROM collections")
+        collections = cursor.fetchall()
+        collections = [dict(row) for row in collections]
+    except Exception as e:
+        print("Error in get_collection_library", e)
+        return jsonify({"collections":None}), 500
+    finally:
+        con.close()
+    return jsonify({"collections":collections}), 200
 
 @app.route('/sounds/download/<int:id>', methods=['GET'])
 def get_sound_download(id):
-    con = sqlite3.connect(DB_NAME)
+    try:
+        con = sqlite3.connect(DB_NAME)
 
-    cursor = con.cursor()
-    cursor.execute("SELECT file FROM sounds WHERE id = ?", (id,))
-    res = cursor.fetchone()
-    if res:
-        file_path = MEDIA_FOLDER + res[0]
-        if os.path.exists(file_path):
-            return send_file(file_path, as_attachment=True)
+        cursor = con.cursor()
+        cursor.execute("SELECT file FROM sounds WHERE id = ?", (id,))
+        res = cursor.fetchone()
+        if res:
+            file_path = MEDIA_FOLDER + res[0]
+            if os.path.exists(file_path):
+                return send_file(file_path, as_attachment=True)
+            else:
+                return jsonify({'error': 'File not found'}), 404
         else:
-            return jsonify({'error': 'File not found'}), 404
-    else:
+            return jsonify({'error': 'Data not found'}), 404
+    except Exception as e:
+        print("Error in get_sound_download", e)
         return jsonify({'error': 'Data not found'}), 404
+    finally:
+        con.close()
     
 @app.route('/images/download/<int:id>', methods=['GET'])
 def get_image_download(id):
-    con = sqlite3.connect(DB_NAME)
+    try:
+        con = sqlite3.connect(DB_NAME)
 
-    cursor = con.cursor()
-    cursor.execute("SELECT file FROM images WHERE id = ?", (id,))
-    res = cursor.fetchone()
-    if res:
-        file_path = MEDIA_FOLDER + res[0]
-        if os.path.exists(file_path):
-            return send_file(file_path, as_attachment=True, download_name=res[0])
+        cursor = con.cursor()
+        cursor.execute("SELECT file FROM images WHERE id = ?", (id,))
+        res = cursor.fetchone()
+        if res:
+            file_path = MEDIA_FOLDER + res[0]
+            if os.path.exists(file_path):
+                return send_file(file_path, as_attachment=True, download_name=res[0])
+            else:
+                return jsonify({'error': 'File not found'}), 404
         else:
-            return jsonify({'error': 'File not found'}), 404
-    else:
+            return jsonify({'error': 'Data not found'}), 404
+    except Exception as e:
+        print("Error in get_image_download", e)
         return jsonify({'error': 'Data not found'}), 404
+    finally:
+        con.close()
 
 
 def sanitize_query(query):
@@ -160,29 +201,34 @@ MODEL = "gemini"
 
 @app.route('/api/ai/chat', methods=['POST'])
 def chat():
-    print("chat")
-    data = request.get_json()
-    message = data.get("message")
-    key = data.get("key")
-    lang = data.get("language", DEFAULT_LANGUAGE)
-    if key != SECRET_KEY:
-        print("wrong key")
-        return jsonify({"result":"error"}), 200
-    history = data.get("history")
-    print("history", history)
+    try:
+        print("chat")
+        data = request.get_json()
+        message = data.get("message")
+        key = data.get("key")
+        lang = data.get("language", DEFAULT_LANGUAGE)
+        if key != SECRET_KEY:
+            print("wrong key")
+            return jsonify({"result":"error"}), 200
+        history = data.get("history")
+        print("history", history)
 
-    # TODO: function calling
-    if FAKE_API:
-        resp_json = {
-            "result":"ok",
-            "message": "Fake response from AI",
-        }
-    else:
-        if MODEL == "chatgpt":
-            pass
+        # TODO: function calling
+        if FAKE_API:
+            resp_json = {
+                "result":"ok",
+                "message": "Fake response from AI",
+            }
         else:
-            resp_json = gemini.chat(message, lang, history)
-        resp_json[ "result"] = "ok"
+            if MODEL == "chatgpt":
+                pass
+            else:
+                resp_json = gemini.chat(message, lang, history)
+            resp_json[ "result"] = "ok"
+    except Exception as e:
+        print("Error in chat", e)
+        return jsonify({"result":"error"}), 200
+
 
     return jsonify(resp_json)
 

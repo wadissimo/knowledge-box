@@ -49,20 +49,13 @@ function useTrainingFlow(collectionId: number | null, onTrainingCompleted: () =>
     cardsToLearn,
     cardsToReview,
     cardsNew,
-    currentPool,
+    rollbackToCard,
   } = usePoolingCardSelector(session, onCardCompleted, handleTrainingCompleted);
 
   // Logic for processing user response
   const { processUserResponse, preProcessUserResponse } = useUserResponseLogic(updatePools);
 
-  console.debug(
-    'TrainingFlow: currentCard',
-    currentCard?.front,
-    'session',
-    session?.id,
-    'currentPool',
-    currentPool
-  );
+  console.debug('TrainingFlow: currentCard', currentCard?.front, 'session', session?.id);
 
   // Effects:
 
@@ -151,11 +144,11 @@ function useTrainingFlow(collectionId: number | null, onTrainingCompleted: () =>
     return prevCardCopy !== null;
   };
 
-  const rollbackToPrevCard = () => {
-    throw new Error('Not implemented');
-    // setCurrentCardCopy(null);
-    // setCurrentCard(prevCardCopy);
-    // setPrevCardCopy(null);
+  const rollbackToPrevCard = async () => {
+    if (prevCardCopy === null) return;
+    rollbackToCard(prevCardCopy);
+    setCurrentCardCopy(null);
+    setPrevCardCopy(null);
   };
 
   const preprocessUserResponse = async (
@@ -184,7 +177,6 @@ function useTrainingFlow(collectionId: number | null, onTrainingCompleted: () =>
     cardsToLearn,
     cardsToReview,
     cardsNew,
-    currentPool,
   };
 }
 

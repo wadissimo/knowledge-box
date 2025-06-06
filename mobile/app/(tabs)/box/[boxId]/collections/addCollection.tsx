@@ -9,7 +9,7 @@ import {
   Keyboard,
   SafeAreaView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Collection, useCollectionModel } from '@/src/data/CollectionModel';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBoxCollectionModel } from '@/src/data/BoxCollectionModel';
@@ -21,11 +21,13 @@ import SearchTags from '@/src/components/collections/SearchTags';
 import { i18n } from '@/src/lib/i18n';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import { CollectionCard } from '@/src/components/collections/CollectionCard';
 
 const AddCollection = () => {
   const { themeColors } = useThemeColors();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<Collection[]>([]);
+  const [showLibrary, setShowLibrary] = useState<boolean>(true);
 
   const [noResults, setNoResults] = useState<boolean>(false);
 
@@ -36,6 +38,11 @@ const AddCollection = () => {
 
   const { error, loading, searchCollections } = useCollectionRemoteService();
 
+  useEffect(() => {
+    if (searchQuery === '') {
+      setShowLibrary(true);
+    }
+  }, [searchQuery]);
   const handleCollectionCreate = async (name: string) => {
     const colId = await newCollection(name, null, null, 0, null);
     await newBoxCollection(Number(boxId), colId);
@@ -49,10 +56,11 @@ const AddCollection = () => {
           console.log('Error fetching collection');
         } else if (!collections || collections.length == 0) {
           setNoResults(true);
+          setShowLibrary(false);
           setSearchResults([]);
         } else {
           setNoResults(false);
-
+          setShowLibrary(false);
           setSearchResults(collections);
         }
       })
@@ -60,6 +68,10 @@ const AddCollection = () => {
         // Hide keyboard after search
         Keyboard.dismiss();
       });
+  };
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setShowLibrary(true);
   };
 
   const handleCollectionPress = (collectionId: number) => {
@@ -70,6 +82,7 @@ const AddCollection = () => {
   const handleTagPress = (tag: string) => {
     setSearchQuery(tag);
   };
+
   console.log('rendering addCollections');
   return (
     <ScreenContainer>
@@ -88,58 +101,67 @@ const AddCollection = () => {
               />
 
               {searchQuery.length > 0 && (
-                <TouchableOpacity style={styles.iconButton} onPress={handleSearch}>
-                  <Ionicons name="search" size={24} color="#333" />
-                </TouchableOpacity>
+                <View style={styles.iconButtons}>
+                  <TouchableOpacity style={styles.iconButton} onPress={handleClearSearch}>
+                    <Ionicons name="close" size={24} color="#333" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.iconButton} onPress={handleSearch}>
+                    <Ionicons name="search" size={24} color="#333" />
+                  </TouchableOpacity>
+                </View>
               )}
             </View>
             <SearchTags onTagPressed={handleTagPress} />
           </View>
 
           <ScrollView>
-            <View style={styles.searchResult}>
-              {noResults ? (
+            {showLibrary ? (
+              <View>
                 <View>
-                  <Text style={{ color: themeColors.text }}>{i18n.t('cards.searchNoResults')}</Text>
+                  <Text>Library</Text>
                 </View>
-              ) : (
-                searchResults.map(searchResult => (
-                  <View
-                    key={`sr_${searchResult.id}`}
-                    style={[
-                      styles.searchResultBox,
-                      styles.elevation,
-                      styles.shadowProp,
-                      { backgroundColor: themeColors.cardBg },
-                    ]}
-                  >
-                    <TouchableOpacity onPress={() => handleCollectionPress(searchResult.id)}>
-                      <Text
-                        style={[styles.searchResultNameTxt, { color: themeColors.text }]}
-                        numberOfLines={1}
-                      >
-                        {searchResult.name}
-                      </Text>
-                      <Text
-                        style={[styles.searchResultDescrTxt, { color: themeColors.text }]}
-                        numberOfLines={3}
-                      >
-                        {searchResult.description}
-                      </Text>
-                      <Text style={[styles.searchResultDescrTxt, { color: themeColors.text }]}>
-                        {i18n.t('cards.numCards')}: {searchResult.cardsNumber}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ))
-              )}
-            </View>
+              </View>
+            ) : (
+              <CollectionSearchRestults
+                searchResults={searchResults}
+                onCollectionPress={handleCollectionPress}
+              />
+            )}
           </ScrollView>
+
           <SeparatorWithText text={i18n.t('common.or')} />
           <CreateCollectionForm onCreate={handleCollectionCreate} />
         </View>
       </TouchableWithoutFeedback>
     </ScreenContainer>
+  );
+};
+
+const CollectionSearchRestults = ({
+  searchResults,
+  onCollectionPress,
+}: {
+  searchResults: Collection[];
+  onCollectionPress: (collectionId: number) => void;
+}) => {
+  const { themeColors } = useThemeColors();
+  const noResults = searchResults.length === 0;
+  return (
+    <View style={styles.searchResult}>
+      {noResults ? (
+        <View>
+          <Text style={{ color: themeColors.text }}>{i18n.t('cards.searchNoResults')}</Text>
+        </View>
+      ) : (
+        searchResults.map(collection => (
+          <CollectionCard
+            key={`collection_${collection.id}`}
+            collection={collection}
+            onCollectionPress={onCollectionPress}
+          />
+        ))
+      )}
+    </View>
   );
 };
 
@@ -189,37 +211,17 @@ const styles = StyleSheet.create({
     color: '#333',
     paddingRight: 40,
   },
-  iconButton: {
+
+  iconButtons: {
     position: 'absolute',
-    right: 10,
+    right: 0,
     padding: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  searchResultBox: {
-    borderRadius: 10,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-
-    backgroundColor: '#c2fbc4',
-    margin: 5,
-    height: 100,
-  },
-  searchResultNameTxt: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  searchResultDescrTxt: {
-    fontSize: 12,
-  },
-
-  shadowProp: {
-    shadowColor: '#171717',
-    shadowOffset: { width: -2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
-  elevation: {
-    elevation: 5,
-    shadowColor: '#52006A',
+  iconButton: {
+    padding: 10,
   },
 });
 

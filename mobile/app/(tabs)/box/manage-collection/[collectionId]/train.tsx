@@ -14,6 +14,7 @@ import CardMenu from '@/src/components/box/train/CardMenu';
 import { SETTING_IDS, useSettingsModel } from '@/src/data/SettingsModel';
 import PrimaryButton from '@/src/components/common/PrimaryButton';
 import { ReviewLog, useReviewLogModel } from '@/src/data/ReviewLogModel';
+import { CardStatus } from '@/src/data/CardModel';
 
 const TrainCollection = () => {
   const { themeColors } = useThemeColors();
@@ -45,7 +46,6 @@ const TrainCollection = () => {
     cardsToLearn,
     cardsToReview,
     cardsNew,
-    currentPool,
   } = useTrainingFlow(
     collectionId !== null && collectionId !== '' ? Number(collectionId) : null,
     async () => {
@@ -127,8 +127,8 @@ const TrainCollection = () => {
     'train.tsx re-rendered, isLoaded: ' + isLoaded,
     'currentCard',
     currentCard?.front,
-    'currentPool',
-    currentPool
+    'session',
+    session?.id
   );
   // console.log(
   //   'train.tsx review Cards: ' +
@@ -168,12 +168,12 @@ const TrainCollection = () => {
           {collection ? collection.name : ''}
         </Text>
 
-        {totalCards !== null && (
+        {totalCards !== null && currentCard !== null && (
           <View style={{ flexDirection: 'row' }}>
             <Text
               style={[
                 { color: themeColors.subHeaderText },
-                currentPool === 'new' ? { textDecorationLine: 'underline' } : {},
+                currentCard.status === CardStatus.New ? { textDecorationLine: 'underline' } : {},
               ]}
             >
               {cardsNew !== null ? cardsNew.length : 0}
@@ -182,7 +182,10 @@ const TrainCollection = () => {
             <Text
               style={[
                 { color: themeColors.subHeaderText },
-                currentPool === 'learn' ? { textDecorationLine: 'underline' } : {},
+                currentCard.status === CardStatus.Learning ||
+                currentCard.status === CardStatus.Relearning
+                  ? { textDecorationLine: 'underline' }
+                  : {},
               ]}
             >
               {cardsToLearn !== null ? cardsToLearn.length : 0}
@@ -191,7 +194,7 @@ const TrainCollection = () => {
             <Text
               style={[
                 { color: themeColors.subHeaderText },
-                currentPool === 'review' ? { textDecorationLine: 'underline' } : {},
+                currentCard.status === CardStatus.Review ? { textDecorationLine: 'underline' } : {},
               ]}
             >
               {cardsToReview !== null ? cardsToReview.length : 0}
@@ -245,9 +248,6 @@ const TrainCollection = () => {
             </View>
           </View>
         </Modal>
-        <View>
-          <Text>{`Pool: ${currentPool} card status: ${currentCard?.status}`}</Text>
-        </View>
       </ScreenContainer>
     </View>
   );
