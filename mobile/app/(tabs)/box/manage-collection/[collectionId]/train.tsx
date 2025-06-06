@@ -123,19 +123,25 @@ const TrainCollection = () => {
     setLogModalVisible(false);
   }
 
-  console.log('train.tsx re-rendered, isLoaded: ' + isLoaded, 'currentCard', currentCard?.front);
   console.log(
-    'train.tsx review Cards: ' +
-      cardsToReview?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
+    'train.tsx re-rendered, isLoaded: ' + isLoaded,
+    'currentCard',
+    currentCard?.front,
+    'currentPool',
+    currentPool
   );
-  console.log(
-    'train.tsx learn Cards: ' +
-      cardsToLearn?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
-  );
-  console.log(
-    'train.tsx new Cards: ' +
-      cardsNew?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
-  );
+  // console.log(
+  //   'train.tsx review Cards: ' +
+  //     cardsToReview?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
+  // );
+  // console.log(
+  //   'train.tsx learn Cards: ' +
+  //     cardsToLearn?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
+  // );
+  // console.log(
+  //   'train.tsx new Cards: ' +
+  //     cardsNew?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
+  // );
   if (error)
     return (
       <View style={{ flex: 1 }}>
@@ -239,6 +245,9 @@ const TrainCollection = () => {
             </View>
           </View>
         </Modal>
+        <View>
+          <Text>{`Pool: ${currentPool} card status: ${currentCard?.status}`}</Text>
+        </View>
       </ScreenContainer>
     </View>
   );

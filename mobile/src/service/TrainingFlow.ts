@@ -55,7 +55,14 @@ function useTrainingFlow(collectionId: number | null, onTrainingCompleted: () =>
   // Logic for processing user response
   const { processUserResponse, preProcessUserResponse } = useUserResponseLogic(updatePools);
 
-  console.debug('TrainingFlow: currentCard', currentCard?.front, 'session', session?.id);
+  console.debug(
+    'TrainingFlow: currentCard',
+    currentCard?.front,
+    'session',
+    session?.id,
+    'currentPool',
+    currentPool
+  );
 
   // Effects:
 
@@ -82,6 +89,7 @@ function useTrainingFlow(collectionId: number | null, onTrainingCompleted: () =>
   }, [collectionId]);
 
   if (currentCard !== null && currentCard.id !== currentCardCopy?.id) {
+    console.debug('TrainingFlow: currentCard changed', currentCard.front);
     // Card is changed
     setPrevCardCopy(currentCardCopy);
     setCurrentCardCopy({ ...currentCard });

@@ -44,14 +44,15 @@ export function usePoolingCardSelector(
       setCardsNew(sessionCards.filter(c => c.status === CardStatus.New));
       const firstCard = sessionCards[0];
       setCurrentCard(firstCard);
-      setCurrentPool(
+      const pool =
         firstCard.status === CardStatus.New
           ? 'new'
           : firstCard.status === CardStatus.Review
             ? 'review'
-            : 'learn'
-      );
-      console.debug('usePoolingCardSelector, sessionCards[0] = ', sessionCards[0].front);
+            : 'learn';
+      setCurrentPool(pool);
+
+      console.debug('usePoolingCardSelector, currentCard  = ', firstCard.front, ' pool = ', pool);
     };
     run();
   }, [session]);
@@ -126,23 +127,34 @@ export function usePoolingCardSelector(
     if (selectedPool === null || selectedPool.length === 0) {
       throw new Error('PoolingFSRSTrainer usePoolingCardSelector: selectedPool is empty');
     }
-    console.debug('usePoolingCardSelector.update, selectedCard = ', selectedPool[0].front);
-    setCurrentCard(selectedPool[0]);
+    const firstCard = selectedPool[0];
+
+    setCurrentCard(firstCard);
+    const pool =
+      firstCard.status === CardStatus.New
+        ? 'new'
+        : firstCard.status === CardStatus.Review
+          ? 'review'
+          : 'learn';
+    setCurrentPool(pool);
+    console.debug(
+      'usePoolingCardSelector.update, selectedCard = ',
+      firstCard.front,
+      'pool = ',
+      pool
+    );
 
     // reinsert updated card back
     if (!cardLearningComplete) {
       if (updatedCard.status === CardStatus.New) {
         updatedCardsNew = insertCard(updatedCardsNew, updatedCard);
-        setCurrentPool('new');
       } else if (
         updatedCard.status === CardStatus.Learning ||
         updatedCard.status === CardStatus.Relearning
       ) {
         updatedCardsToLearn = insertCard(updatedCardsToLearn, updatedCard);
-        setCurrentPool('learn');
       } else if (updatedCard.status === CardStatus.Review) {
         updatedCardsToReview = insertCard(updatedCardsToReview, updatedCard);
-        setCurrentPool('review');
       } else {
         throw new Error('PoolingFSRSTrainer usePoolingCardSelector: unknown card status');
       }

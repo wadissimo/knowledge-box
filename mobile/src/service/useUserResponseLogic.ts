@@ -19,7 +19,7 @@ export default function useUserResponseLogic(
     reviewStartTime: number
   ): Promise<void> {
     const curTime = new Date().getTime();
-    console.log('PoolingFSRSTrainer: processUserResponse', card.front, response);
+    console.log('useUserResponseLogic: processUserResponse', card.front, response);
     const prevState = card.status;
     // update new card to learning
     if (card.status === CardStatus.New || card.status === null) card.status = CardStatus.Learning;
@@ -28,7 +28,7 @@ export default function useUserResponseLogic(
 
     const sessionCard: SessionCard | null = await getSessionCard(sessionId, card.id);
     if (sessionCard === null) {
-      throw new Error("FSRSTrainer: can't find session card");
+      throw new Error("useUserResponseLogic: can't find session card");
     }
     if (sessionCard.status === SessionCardStatus.New)
       sessionCard.status = SessionCardStatus.Learning;
@@ -59,10 +59,8 @@ export default function useUserResponseLogic(
       sessionCard.status = SessionCardStatus.Complete;
     }
     sessionCard.plannedReviewTime = card.repeatTime;
-
-    await Promise.all([updateSessionCard(sessionCard), updateCard(card)]).catch(e => {
-      console.error('FSRSTrainer: update card error', e);
-    });
+    await updateSessionCard(sessionCard);
+    await updateCard(card);
 
     if (card.repeatTime !== null) {
       await newReviewLog(
