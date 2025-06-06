@@ -90,15 +90,28 @@ def get_collection_library():
         con.row_factory = sqlite3.Row
         cursor = con.cursor()
 
+        # TODO: only fetch some of the collections per group
+        # Fetch collections
         cursor.execute("SELECT * FROM collections")
         collections = cursor.fetchall()
         collections = [dict(row) for row in collections]
+
+        # Fetch groups
+        cursor.execute("SELECT * FROM groups")
+        groups = cursor.fetchall()
+        groups = [dict(row) for row in groups]
+
+        # Fetch collection_groups
+        cursor.execute("SELECT * FROM collection_groups")
+        collection_groups = cursor.fetchall()
+        collection_groups = [dict(row) for row in collection_groups]
+
     except Exception as e:
         print("Error in get_collection_library", e)
-        return jsonify({"collections":None}), 500
+        return jsonify({"collections":None, "groups":None, "collection_groups":None}), 500
     finally:
         con.close()
-    return jsonify({"collections":collections}), 200
+    return jsonify({"collections":collections, "groups":groups, "collection_groups":collection_groups}), 200
 
 @app.route('/sounds/download/<int:id>', methods=['GET'])
 def get_sound_download(id):

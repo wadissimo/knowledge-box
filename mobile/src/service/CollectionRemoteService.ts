@@ -1,10 +1,50 @@
-import { useBoxCollectionModel } from "@/src/data/BoxCollectionModel";
-import { Card, useCardModel } from "@/src/data/CardModel";
-import { Collection, useCollectionModel } from "@/src/data/CollectionModel";
-import { useState } from "react";
+import { useBoxCollectionModel } from '@/src/data/BoxCollectionModel';
+import { Card, useCardModel } from '@/src/data/CardModel';
+import { Collection, useCollectionModel } from '@/src/data/CollectionModel';
+import { useState } from 'react';
 
-
-const apiBase = process.env.EXPO_PUBLIC_API_URL ?? "";
+const apiBase = process.env.EXPO_PUBLIC_API_URL ?? '';
+export type ServerGroup = {
+  id: number;
+  name: string;
+  description: string;
+};
+export type ServerCollectionGroup = {
+  collection_id: number;
+  group_id: number;
+};
+export type CollectionGroup = {
+  collectionId: number;
+  groupId: number;
+};
+export type ServerCollection = {
+  id: number;
+  name: string;
+  description: string;
+  tags: string;
+  cardsNumber: number;
+  createdBy: string;
+  createdAt: number;
+};
+export function convertServerCollectionGroup(
+  serverCollectionGroup: ServerCollectionGroup
+): CollectionGroup {
+  return {
+    collectionId: serverCollectionGroup.collection_id,
+    groupId: serverCollectionGroup.group_id,
+  };
+}
+export function convertServerCollection(serverCollection: ServerCollection): Collection {
+  return {
+    id: serverCollection.id,
+    name: serverCollection.name,
+    description: serverCollection.description,
+    cardsNumber: serverCollection.cardsNumber,
+    tags: serverCollection.tags,
+    createdBy: serverCollection.createdBy,
+    createdAt: serverCollection.createdAt,
+  };
+}
 
 export default function useCollectionRemoteService() {
   const { newCollection } = useCollectionModel();
@@ -25,16 +65,14 @@ export default function useCollectionRemoteService() {
     } catch (err: unknown) {
       if (retries <= 1) throw err;
       console.log(`[CollectionRemoteService] Retry fetch: ${url}, retries left: ${retries - 1}`);
-      await new Promise((res) => setTimeout(res, backoff));
+      await new Promise(res => setTimeout(res, backoff));
       return fetchWithRetry(url, options, retries - 1, backoff * 2);
     }
   }
 
-  async function searchCollections(
-    searchQuery: string
-  ): Promise<Collection[] | null> {
+  async function searchCollections(searchQuery: string): Promise<Collection[] | null> {
     try {
-      console.log("searchCollections");
+      console.log('searchCollections');
       const URL = `${apiBase}/collections/search?${new URLSearchParams({ query: searchQuery })}`;
 
       console.log('[CollectionRemoteService] Fetching collection:', URL);
@@ -51,22 +89,88 @@ export default function useCollectionRemoteService() {
       try {
         data = await res.json();
       } catch (jsonErr) {
-        console.error('[CollectionRemoteService] JSON parse failed:', jsonErr, 'URL:', URL, 'response:', res);
+        console.error(
+          '[CollectionRemoteService] JSON parse failed:',
+          jsonErr,
+          'URL:',
+          URL,
+          'response:',
+          res
+        );
         setError('Invalid server response');
         setLoading(false);
         throw jsonErr;
       }
       if (!data || !data.results) {
-        throw Error("Network Error");
+        throw Error('Network Error');
       }
       return data.results as Collection[];
     } catch (e) {
-      console.log("Error in searchCollections");
+      console.log('Error in searchCollections');
       console.error(e);
       if (e instanceof Error) {
         setError(e.message);
       } else {
-        setError("An unexpected error occurred");
+        setError('An unexpected error occurred');
+      }
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchLibrary(): Promise<{
+    collections: ServerCollection[];
+    groups: ServerGroup[];
+    collectionGroups: ServerCollectionGroup[];
+  } | null> {
+    try {
+      setLoading(true);
+      console.log('fetchLibrary');
+      const URL = `${apiBase}/collections/library`;
+
+      console.log('[CollectionRemoteService] Fetching library:', URL);
+      let res, data;
+      try {
+        res = await fetch(URL);
+      } catch (err: unknown) {
+        const fetchErr = err instanceof Error ? err : new Error(String(err));
+        console.error('[CollectionRemoteService] Fetch failed:', fetchErr, 'URL:', URL);
+        setError('Network error: ' + fetchErr.message);
+        setLoading(false);
+        throw fetchErr;
+      }
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.error(
+          '[CollectionRemoteService] JSON parse failed:',
+          jsonErr,
+          'URL:',
+          URL,
+          'response:',
+          res
+        );
+        setError('Invalid server response');
+        setLoading(false);
+        throw jsonErr;
+      }
+      if (!data || !data.collections || !data.groups || !data.collection_groups) {
+        throw Error('Network Error');
+      }
+
+      return {
+        collections: data.collections as ServerCollection[],
+        groups: data.groups as ServerGroup[],
+        collectionGroups: data.collection_groups as ServerCollectionGroup[],
+      };
+    } catch (e) {
+      console.log('Error in fetchLibrary');
+      console.error(e);
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError('An unexpected error occurred');
       }
       return null;
     } finally {
@@ -80,7 +184,7 @@ export default function useCollectionRemoteService() {
     setLoading(true);
     setError(null);
     try {
-      console.log("getCollectionPreview");
+      console.log('getCollectionPreview');
       const URL = `${apiBase}/collections/preview/${collectionId}`;
 
       console.log('[CollectionRemoteService] Fetching collection:', URL);
@@ -97,7 +201,14 @@ export default function useCollectionRemoteService() {
       try {
         data = await res.json();
       } catch (jsonErr) {
-        console.error('[CollectionRemoteService] JSON parse failed:', jsonErr, 'URL:', URL, 'response:', res);
+        console.error(
+          '[CollectionRemoteService] JSON parse failed:',
+          jsonErr,
+          'URL:',
+          URL,
+          'response:',
+          res
+        );
         setError('Invalid server response');
         setLoading(false);
         throw jsonErr;
@@ -110,12 +221,12 @@ export default function useCollectionRemoteService() {
       }
       return null;
     } catch (e) {
-      console.log("Error in getCollectionPreview");
+      console.log('Error in getCollectionPreview');
       console.error(e);
       if (e instanceof Error) {
         setError(e.message);
       } else {
-        setError("An unexpected error occurred");
+        setError('An unexpected error occurred');
       }
       return null;
     } finally {
@@ -132,7 +243,7 @@ export default function useCollectionRemoteService() {
     setLoading(true);
     setError(null);
     try {
-      console.log("addCollection");
+      console.log('addCollection');
       const URL = `${apiBase}/collections/download/${collectionId}`;
       console.log('[CollectionRemoteService] Fetching download URL:', URL);
 
@@ -149,7 +260,10 @@ export default function useCollectionRemoteService() {
       }
       // Log response details for debugging large or malformed payloads
       console.log('[CollectionRemoteService] Response status:', res.status, 'ok:', res.ok);
-      console.log('[CollectionRemoteService] Response headers:', JSON.stringify(Array.from(res.headers.entries())));
+      console.log(
+        '[CollectionRemoteService] Response headers:',
+        JSON.stringify(Array.from(res.headers.entries()))
+      );
       let text: string;
       try {
         text = await res.text();
@@ -163,7 +277,14 @@ export default function useCollectionRemoteService() {
       try {
         data = JSON.parse(text);
       } catch (jsonErr: unknown) {
-        console.error('[CollectionRemoteService] JSON parse failed:', jsonErr, 'URL:', URL, 'response text length:', text.length);
+        console.error(
+          '[CollectionRemoteService] JSON parse failed:',
+          jsonErr,
+          'URL:',
+          URL,
+          'response text length:',
+          text.length
+        );
         setError('Invalid server response');
         setLoading(false);
         throw jsonErr;
@@ -179,7 +300,7 @@ export default function useCollectionRemoteService() {
           collection.createdBy
         );
         await newBoxCollection(boxId, newColId);
-        var cards = (data.cards as Card[]).map((card) => ({
+        var cards = (data.cards as Card[]).map(card => ({
           collectionId: newColId,
           front: card.front,
           back: card.back,
@@ -200,12 +321,12 @@ export default function useCollectionRemoteService() {
         //TODO: sync media if needed too
       }
     } catch (e) {
-      console.log("Error in addCollection");
+      console.log('Error in addCollection');
       console.error(e);
       if (e instanceof Error) {
         setError(e.message);
       } else {
-        setError("An unexpected error occurred");
+        setError('An unexpected error occurred');
       }
     } finally {
       setLoading(false);
@@ -218,5 +339,6 @@ export default function useCollectionRemoteService() {
     getCollectionPreview,
     addCollection,
     searchCollections,
+    fetchLibrary,
   };
 }

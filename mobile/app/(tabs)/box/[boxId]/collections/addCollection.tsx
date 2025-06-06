@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   SafeAreaView,
+  FlatList,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Collection, useCollectionModel } from '@/src/data/CollectionModel';
@@ -16,13 +17,68 @@ import { useBoxCollectionModel } from '@/src/data/BoxCollectionModel';
 import SeparatorWithText from '@/src/components/utils/SeparatorWithText';
 import CreateCollectionForm from '@/src/components/collections/CreateCollectionForm';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import useCollectionRemoteService from '@/src/service/CollectionRemoteService';
+import useCollectionRemoteService, {
+  CollectionGroup,
+  convertServerCollectionGroup,
+  ServerCollectionGroup,
+  ServerGroup,
+} from '@/src/service/CollectionRemoteService';
 import SearchTags from '@/src/components/collections/SearchTags';
 import { i18n } from '@/src/lib/i18n';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { CollectionCard } from '@/src/components/collections/CollectionCard';
+import { ActivityIndicator } from 'react-native';
+type LibraryGroup = {
+  id: number;
+  name: string;
+  description: string;
+  collections: Collection[];
+};
+const OTHER_GROUP_ID = 0;
 
+function prepareGroupLibrary(
+  groups: ServerGroup[],
+  collections: Collection[],
+  collectionGroups: CollectionGroup[]
+): LibraryGroup[] {
+  const libraryGroupMap = new Map<number, LibraryGroup>();
+  const collectionMap = new Map<number, Collection>();
+  for (const collection of collections) {
+    collectionMap.set(collection.id, collection);
+  }
+  for (const group of groups) {
+    libraryGroupMap.set(group.id, {
+      id: group.id,
+      name: group.name,
+      description: group.description,
+      collections: [],
+    });
+  }
+  console.log('libraryGroupMap', libraryGroupMap);
+
+  var mappedCollections: Collection[] = [];
+  for (const collectionGroup of collectionGroups) {
+    const group = libraryGroupMap.get(collectionGroup.groupId);
+    const collection = collectionMap.get(collectionGroup.collectionId);
+
+    if (group !== undefined && collection !== undefined) {
+      group.collections.push(collection);
+      mappedCollections.push(collection);
+    } else {
+      console.warn('no mapping found');
+    }
+  }
+  const unmappedCollections: Collection[] = collections.filter(
+    collection => !mappedCollections.includes(collection)
+  );
+  for (const collection of unmappedCollections) {
+    libraryGroupMap.get(OTHER_GROUP_ID)?.collections.push(collection);
+  }
+
+  const libraryGroups: LibraryGroup[] = Array.from(libraryGroupMap.values());
+  return libraryGroups;
+}
 const AddCollection = () => {
   const { themeColors } = useThemeColors();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -36,8 +92,26 @@ const AddCollection = () => {
   const { boxId } = useLocalSearchParams();
   const router = useRouter();
 
-  const { error, loading, searchCollections } = useCollectionRemoteService();
+  const { error, loading, searchCollections, fetchLibrary } = useCollectionRemoteService();
+  const [library, setLibrary] = useState<LibraryGroup[]>([]);
 
+  useEffect(() => {
+    const run = async () => {
+      const data = await fetchLibrary();
+      if (data !== null) {
+        const groups = data.groups;
+        const collections = data.collections;
+        const collectionGroups = data.collectionGroups.map(
+          (collectionGroup: ServerCollectionGroup) => convertServerCollectionGroup(collectionGroup)
+        );
+
+        const libraryGroups = prepareGroupLibrary(groups, collections, collectionGroups);
+
+        setLibrary(libraryGroups);
+      }
+    };
+    run();
+  }, []);
   useEffect(() => {
     if (searchQuery === '') {
       setShowLibrary(true);
@@ -113,21 +187,48 @@ const AddCollection = () => {
             </View>
             <SearchTags onTagPressed={handleTagPress} />
           </View>
-
-          <ScrollView>
-            {showLibrary ? (
-              <View>
+          {error && (
+            <View>
+              <Text>Error: {error}</Text>
+            </View>
+          )}
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#000" />
+            </View>
+          ) : (
+            <ScrollView>
+              {showLibrary ? (
                 <View>
-                  <Text>Library</Text>
+                  <View>
+                    <Text>Library</Text>
+                  </View>
+                  {library.map(group => (
+                    <View key={`group_${group.id}`}>
+                      <Text>{group.name}</Text>
+                      <Text>{group.description}</Text>
+                      <FlatList
+                        horizontal
+                        data={group.collections}
+                        renderItem={({ item }) => (
+                          <CollectionCard
+                            key={`collection_${item.id}`}
+                            collection={item}
+                            onCollectionPress={handleCollectionPress}
+                          />
+                        )}
+                      />
+                    </View>
+                  ))}
                 </View>
-              </View>
-            ) : (
-              <CollectionSearchRestults
-                searchResults={searchResults}
-                onCollectionPress={handleCollectionPress}
-              />
-            )}
-          </ScrollView>
+              ) : (
+                <CollectionSearchRestults
+                  searchResults={searchResults}
+                  onCollectionPress={handleCollectionPress}
+                />
+              )}
+            </ScrollView>
+          )}
 
           <SeparatorWithText text={i18n.t('common.or')} />
           <CreateCollectionForm onCreate={handleCollectionCreate} />
@@ -166,6 +267,11 @@ const CollectionSearchRestults = ({
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   header: {
     paddingTop: 20,
     paddingHorizontal: 20,

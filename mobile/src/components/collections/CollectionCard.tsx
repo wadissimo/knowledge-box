@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#c2fbc4',
     margin: 5,
     height: 100,
+    width: 240,
   },
   collectionNameTxt: {
     fontSize: 16,
