@@ -76,7 +76,12 @@ function prepareGroupLibrary(
     libraryGroupMap.get(OTHER_GROUP_ID)?.collections.push(collection);
   }
 
-  const libraryGroups: LibraryGroup[] = Array.from(libraryGroupMap.values());
+  var libraryGroups: LibraryGroup[] = Array.from(libraryGroupMap.values());
+  //put 0s(Other group) element to the end of the library group
+  libraryGroups.sort((a, b) => (a.id === OTHER_GROUP_ID ? 1 : b.id === OTHER_GROUP_ID ? -1 : 0));
+  // remove groups without collections
+  libraryGroups = libraryGroups.filter(group => group.collections.length > 0);
+
   return libraryGroups;
 }
 const AddCollection = () => {
@@ -200,13 +205,9 @@ const AddCollection = () => {
             <ScrollView>
               {showLibrary ? (
                 <View>
-                  <View>
-                    <Text>Library</Text>
-                  </View>
                   {library.map(group => (
                     <View key={`group_${group.id}`}>
-                      <Text>{group.name}</Text>
-                      <Text>{group.description}</Text>
+                      <Text style={styles.groupHeader}>{group.name}</Text>
                       <FlatList
                         horizontal
                         data={group.collections}
@@ -328,6 +329,11 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 10,
+  },
+  groupHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 5,
   },
 });
 
