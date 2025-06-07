@@ -14,7 +14,7 @@
     "edit": "Bearbeiten",
     "train": "Trainieren",
     "error": "Fehler",
-    "back": "Zurükc",
+    "back": "Zurück",
     "confirm": {
       "deletion": "Löschvorgang Bestätigen"
     },
@@ -54,7 +54,8 @@
   },
   "box": {
     "addTitle": "Zur Box hinzufügen",
-    "addCards": "Karten hinzufügen"
+    "addCards": "Karten hinzufügen",
+    "newNote": "Neue Notiz"
   },
   "cards": {
     "cardsCollections": "Karteikartensammlung",

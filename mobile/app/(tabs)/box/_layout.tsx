@@ -140,6 +140,13 @@ const BoxLayout = () => {
         }}
       />
       <Stack.Screen
+        name="[boxId]/notes/edit/[textNoteId]"
+        options={{
+          title: i18n.t('notes.newNote'),
+          ...defaultHeaderOptions,
+        }}
+      />
+      <Stack.Screen
         name="[boxId]/chats/newChat"
         options={{
           title: i18n.t('chats.chatHeader'),

@@ -1,4 +1,3 @@
-import { useTheme } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu';
@@ -19,6 +18,11 @@ export const AddToBoxModal = ({ boxId }: { boxId: number }) => {
   };
   const handleAddCards = () => {
     setShowAddModal(false);
+  };
+
+  const handleAddNote = () => {
+    setShowAddModal(false);
+    router.push(`/(tabs)/box/${boxId}/notes/edit/new`);
   };
 
   function addCollection() {
@@ -64,15 +68,15 @@ export const AddToBoxModal = ({ boxId }: { boxId: number }) => {
               <Text style={{ color: themeColors.popupText }}>{i18n.t('boxes.flashCards')}</Text>
             </View>
           </MenuOption>
-          <MenuOption onSelect={handleAddCards}>
+          <MenuOption onSelect={handleAddNote}>
             <View style={styles.menuOptionRow}>
-              <Ionicons
-                name="add-circle-outline"
+              <Icon
+                name="note-plus-outline"
                 size={22}
                 color={themeColors.headerBg}
                 style={{ marginRight: 8 }}
               />
-              <Text style={{ color: themeColors.popupText }}>{i18n.t('box.addCards')}</Text>
+              <Text style={{ color: themeColors.popupText }}>{i18n.t('box.newNote')}</Text>
             </View>
           </MenuOption>
         </MenuOptions>

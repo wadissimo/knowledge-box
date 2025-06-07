@@ -54,7 +54,8 @@
   },
   "box": {
     "addTitle": "Add to Box",
-    "addCards": "Add Cards"
+    "addCards": "Add Cards",
+    "newNote": "New Note"
   },
   "cards": {
     "cardsCollections": "Cards Collections",

@@ -13,12 +13,14 @@
     "lint:fix": "eslint --fix .",
     "prettier:check": "prettier . --check",
     "prettier:fix": "prettier . --write",
-    "ts-check": "tsc --noEmit true --project ./tsconfig.json"
+    "ts-check": "tsc --noEmit true --project ./tsconfig.json",
+    "android:nofabric": "set EXPO_NO_FABRIC=1 && expo run:android"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@10play/tentap-editor": "^0.7.0",
     "@expo-google-fonts/poppins": "^0.3.1",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "^2.1.2",
@@ -58,7 +60,6 @@
     "react-native-ionicons": "^4.6.5",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-keyboard-controller": "^1.17.1",
-    "react-native-pell-rich-editor": "^1.9.0",
     "react-native-popup-menu": "^0.16.1",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
@@ -68,7 +69,7 @@
     "react-native-uuid": "^2.0.3",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "^0.20.0",
-    "react-native-webview": "^13.12.3"
+    "react-native-webview": "13.13.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
