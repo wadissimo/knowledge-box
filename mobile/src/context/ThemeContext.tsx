@@ -34,6 +34,7 @@ export const defaultColors = {
   popupBg: '#fff',
   popupText: '#000',
   activeTintColor: '#2196f3',
+  inactiveTintColor: '#aaa',
   tabsBg: '#fff',
 };
 
@@ -61,6 +62,7 @@ export const darkColors = {
   popupBg: '#555',
   popupText: '#fff',
   activeTintColor: '#fff',
+  inactiveTintColor: '#aaa',
   tabsBg: '#000',
 
   //todo: shadows

@@ -140,9 +140,34 @@ const NotesBoxSection = ({
     console.log('NotesBoxSection handleNoteClick', noteId);
     router.push(`/(tabs)/box/${boxId}/notes/edit/${noteId}`);
   }
+  function handleListViewClick() {
+    setNotesListView(true);
+    if (!isExpanded) {
+      onExpand(index);
+    }
+  }
+  function handleCardViewClick() {
+    setNotesListView(false);
+  }
+  function handleHeaderClick() {
+    if (isExpanded) {
+      setNotesListView(false);
+    }
+    onExpand(index);
+  }
+  const inactiveIconStyle = [
+    styles.iconBtn,
+
+    { backgroundColor: themeColors.subHeaderBg, borderColor: themeColors.activeTintColor },
+  ];
+  const activeIconStyle = [
+    styles.iconBtn,
+    styles.iconBtnPressed,
+    { backgroundColor: themeColors.secondaryBtnBg, borderColor: themeColors.inactiveTintColor },
+  ];
   return (
     <>
-      <TouchableWithoutFeedback onPress={() => onExpand(index)}>
+      <TouchableWithoutFeedback onPress={handleHeaderClick}>
         <Animated.View
           style={[
             styles.sectionContainer,
@@ -164,6 +189,25 @@ const NotesBoxSection = ({
             <Text style={[styles.sectionHeaderText, { flex: 1, color: themeColors.subHeaderText }]}>
               {sectionTitle}
             </Text>
+            <View style={[styles.iconSeparator, { backgroundColor: themeColors.subHeaderText }]} />
+            <View style={styles.actionIconsRow}>
+              <TouchableOpacity
+                onPress={handleCardViewClick}
+                style={notesListView ? inactiveIconStyle : activeIconStyle}
+                accessibilityLabel="Card View"
+                activeOpacity={0.7}
+              >
+                <Icon name="cards-outline" size={24} color={themeColors.activeTintColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleListViewClick}
+                style={notesListView ? activeIconStyle : inactiveIconStyle}
+                accessibilityLabel="List View"
+                activeOpacity={0.7}
+              >
+                <Icon name="reorder-horizontal" size={24} color={themeColors.activeTintColor} />
+              </TouchableOpacity>
+            </View>
           </View>
           {notes.length === 0 && (
             <View
@@ -351,20 +395,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 1,
   },
-  iconCircleBtn: {
-    width: 54,
-    height: 50,
-    borderRadius: 25,
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 5,
+    //borderWidth: 1,
+    // borderTopWidth: 1,
+    // borderLeftWidth: 1,
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#4f8cff',
     justifyContent: 'center',
+
     alignItems: 'center',
-    marginHorizontal: 2,
+    marginHorizontal: 9,
   },
-  iconLabel: {
-    fontSize: 10,
-    color: '#6c7280',
-    textAlign: 'center',
-    marginTop: 1,
+  iconBtnPressed: {
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderBottomWidth: 0,
+    borderRightWidth: 0,
+    borderColor: '#aaa',
   },
+
   iconSeparator: {
     width: 1,
     height: 32,
@@ -372,12 +425,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     borderRadius: 1,
   },
-  sectionFooter: {
-    height: 10,
-    borderTopRightRadius: 10,
-    borderTopLeftRadius: 10,
-    backgroundColor: '#cad1ca',
-  },
+
   sectionIcons: { flexDirection: 'row', gap: 32 },
   sectionListContainer: {
     paddingVertical: 5,
