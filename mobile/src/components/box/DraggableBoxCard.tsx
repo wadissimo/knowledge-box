@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const OFFSET_SIDE_TRIGGER_REORDER = 40;
-const BOX_CARD_OFFSET = 10;
+const BOX_CARD_OFFSET = 7;
 const BOX_SECTION_HEADER_SIZE = 40;
 
 const DraggableBoxCard = ({
@@ -24,6 +24,7 @@ const DraggableBoxCard = ({
   onReorder,
   onEnd,
   children,
+  height,
 }: {
   name: string;
   index: number;
@@ -33,6 +34,7 @@ const DraggableBoxCard = ({
   children?: React.ReactNode;
   onReorder?: Function;
   onEnd?: Function;
+  height?: number;
 }) => {
   const draggableX = useSharedValue(0);
 
@@ -95,7 +97,7 @@ const DraggableBoxCard = ({
     itemBox: {
       position: 'absolute',
       width: '100%',
-      height: 150,
+      height: height !== undefined ? height : 150,
       backgroundColor: '#faf8b4',
       borderRadius: 20,
       paddingVertical: 5,

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { i18n } from '@/src/lib/i18n';
 import { useRouter } from 'expo-router';
@@ -19,6 +20,8 @@ import DraggableBoxCard from './DraggableBoxCard';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { Note, useNoteModel } from '@/src/data/NoteModel';
 import RenderHtml from 'react-native-render-html';
+import NoteRenderHtml from './notes/NoteRenderHtml';
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 
 const BOX_SECTION_HEADER_SIZE = 40;
 const MAX_CARD_WINDOW_SIZE = 5;
@@ -51,7 +54,14 @@ const NotesBoxSection = ({
   const [noteOffset, setNoteOffset] = useState<number>(0);
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
   const [noteCount, setNoteCount] = useState<number>(0);
+  const [notesListView, setNotesListView] = useState<boolean>(false);
   const CARD_WINDOW_SIZE = Math.min(MAX_CARD_WINDOW_SIZE, noteCount);
+  const windowWidth = Dimensions.get('window').width;
+  const contentWidth = windowWidth - styles.sectionListContainer.paddingHorizontal * 2;
+  configureReanimatedLogger({
+    level: ReanimatedLogLevel.warn,
+    strict: false,
+  });
   // console.log('NotesBoxSection notes', notes);
 
   useEffect(() => {
@@ -170,35 +180,72 @@ const NotesBoxSection = ({
             </View>
           )}
           {isExpanded ? (
-            <ScrollView>
-              {notes.map((note, index) => (
-                <Animated.View
-                  style={[styles.itemListBox, styles.shadowProp, styles.elevation]}
-                  key={`listitem_${index}`}
-                >
-                  <TouchableOpacity
-                    onPress={() => handleNoteClick(note.id)}
-                    style={{ flex: 1, justifyContent: 'center' }}
-                  >
-                    <View style={styles.noteExpandedSectionContainer}>
-                      <View style={styles.noteTitleContainer}>
-                        <Text style={styles.text} numberOfLines={1}>
-                          {note.title}
-                        </Text>
-                      </View>
-                      <View style={styles.noteDateContainer}>
-                        <Text style={styles.datetimeText} numberOfLines={1}>
-                          {new Date(note.createdAt).toLocaleDateString()}
-                        </Text>
-                        <Text style={styles.datetimeText} numberOfLines={1}>
-                          {new Date(note.createdAt).toLocaleTimeString()}
-                        </Text>
-                      </View>
+            <>
+              {notesListView ? (
+                <ScrollView>
+                  {notes.map((note, index) => (
+                    <Animated.View
+                      style={[styles.itemListBox, styles.shadowProp, styles.elevation]}
+                      key={`listitem_${index}`}
+                    >
+                      <TouchableOpacity
+                        onPress={() => handleNoteClick(note.id)}
+                        style={{ flex: 1, justifyContent: 'center' }}
+                      >
+                        <View style={styles.noteExpandedSectionContainer}>
+                          <View style={styles.noteTitleContainer}>
+                            <Text style={styles.text} numberOfLines={1}>
+                              {note.title}
+                            </Text>
+                          </View>
+                          <View style={styles.noteDateContainer}>
+                            <Text style={styles.datetimeText} numberOfLines={1}>
+                              {new Date(note.createdAt).toLocaleDateString()}
+                            </Text>
+                            <Text style={styles.datetimeText} numberOfLines={1}>
+                              {new Date(note.createdAt).toLocaleTimeString()}
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    </Animated.View>
+                  ))}
+                </ScrollView>
+              ) : (
+                <View style={[styles.sectionListContainer]}>
+                  {notes.map((note, index) => (
+                    <DraggableBoxCard
+                      name={note.title}
+                      index={CARD_WINDOW_SIZE - 1 - index}
+                      numItems={notes.length}
+                      numReorders={numReorders}
+                      onReorder={() => reorderItems(index)}
+                      onEnd={handleReorderingEnd}
+                      key={`bigNoteCard_${note.id}`}
+                      draggable={index === topNoteIndex}
+                      height={500}
+                    >
+                      <TouchableOpacity
+                        onPress={() => handleNoteClick(note.id)}
+                        style={{ flex: 1 }}
+                      >
+                        <View style={styles.htmlContentContainer}>
+                          {/* <Text style={styles.colNameTxt} numberOfLines={4}>
+                        {note.title}
+                      </Text> */}
+                          <NoteRenderHtml note={note} width={contentWidth} />
+                        </View>
+                      </TouchableOpacity>
+                    </DraggableBoxCard>
+                  ))}
+                  {isLoadingNotes && (
+                    <View style={{ alignItems: 'center', margin: 12 }}>
+                      <Text>Loading more notes...</Text>
                     </View>
-                  </TouchableOpacity>
-                </Animated.View>
-              ))}
-            </ScrollView>
+                  )}
+                </View>
+              )}
+            </>
           ) : (
             <View style={[styles.sectionListContainer]}>
               {notes.map((note, index) => (
@@ -209,7 +256,7 @@ const NotesBoxSection = ({
                   numReorders={numReorders}
                   onReorder={() => reorderItems(index)}
                   onEnd={handleReorderingEnd}
-                  key={`boxCar_${note.id}`}
+                  key={`smallNoteCard_${note.id}`}
                   draggable={index === topNoteIndex}
                 >
                   <TouchableOpacity onPress={() => handleNoteClick(note.id)} style={{ flex: 1 }}>
@@ -217,7 +264,7 @@ const NotesBoxSection = ({
                       {/* <Text style={styles.colNameTxt} numberOfLines={4}>
                         {note.title}
                       </Text> */}
-                      <RenderHtml source={{ html: note.content }} tagsStyles={customTagsStyles} />
+                      <NoteRenderHtml note={note} width={contentWidth} />
                     </View>
                   </TouchableOpacity>
                 </DraggableBoxCard>
@@ -233,45 +280,6 @@ const NotesBoxSection = ({
       </TouchableWithoutFeedback>
     </>
   );
-};
-const customTagsStyles = {
-  h1: {
-    fontSize: 24,
-    fontWeight: 'bold' as 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  p: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 5,
-    color: '#555',
-  },
-  strong: {
-    fontWeight: 'bold' as 'bold',
-  },
-  em: {
-    fontStyle: 'italic' as 'italic',
-  },
-  a: {
-    color: 'blue',
-    textDecorationLine: 'underline' as 'underline',
-  },
-  b: {
-    fontWeight: 'bold' as 'bold',
-  },
-  i: {
-    fontStyle: 'italic' as 'italic',
-  },
-  u: {
-    textDecorationLine: 'underline' as 'underline',
-  },
-  s: {
-    textDecorationLine: 'line-through' as 'line-through',
-  },
-  strike: {
-    textDecorationLine: 'line-through' as 'line-through',
-  },
 };
 
 const styles = StyleSheet.create({

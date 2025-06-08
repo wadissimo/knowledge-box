@@ -53,8 +53,6 @@ const BoxView = () => {
       ? measuredContentHeight
       : Dimensions.get('window').height - headerHeight - tabBarHeight;
 
-  console.log('boxView.tsx availableHeight', availableHeight);
-
   const numSections = collections.length + (notes.length > 0 ? 1 : 0);
 
   const sectionSize = availableHeight / numSections;
@@ -136,17 +134,17 @@ const BoxView = () => {
     return sectionSize * index;
   };
 
-  if (loading || box === null) {
+  if (loading || box === null || measuredContentHeight === 0) {
     console.log('boxView.tsx loading');
     return (
-      <View style={{ height: '100%' }} onLayout={handleLayout}>
+      <View style={{ height: '100%', flex: 1 }} onLayout={handleLayout}>
         <ScreenContainer>
           <ActivityIndicator size="large" color={themeColors.headerText} />
         </ScreenContainer>
       </View>
     );
   }
-
+  console.log('boxView.tsx availableHeight', availableHeight);
   // console.log('BoxView');
   if (!isFocused) return null;
   return (
