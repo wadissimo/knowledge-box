@@ -47,10 +47,10 @@
     "delete": "Löschen",
     "confirmDeletionText": "Sind Sie sicher, dass Sie die Box löschen möchten?",
     "noConversationsDefault": "Neues Gespräch beginnen",
-    "noNotesDefault": "erste Notiz erstellen",
     "noCollectionsDefault": "Karteikartensammlung hinzufügen",
     "noCardsDefault": "Klicke auf 'Bearbeiten', um Karten hinzuzufügen",
-    "numCards": "Karten"
+    "numCards": "Karten",
+    "noNotesDefault": "Klicke auf '+', um Notizen hinzuzufügen"
   },
   "box": {
     "addTitle": "Zur Box hinzufügen",
@@ -161,6 +161,7 @@
 
   "notes": {
     "newNote": "Neue Notiz",
+    "editNote": "Notiz bearbeiten",
     "text": "Text",
     "photo": "Foto",
     "audio": "Audio",

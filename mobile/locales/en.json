@@ -47,9 +47,10 @@
     "delete": "Delete",
     "confirmDeletionText": "Are you sure you want to delete the box?",
     "noConversationsDefault": "Start a new conversation",
-    "noNotesDefault": "Create your first note",
     "noCollectionsDefault": "Add your first flash cards collection",
     "noCardsDefault": "Click Edit button to add cards",
+    "noNotesDefault": "Click Add button to add notes",
+
     "numCards": "Cards"
   },
   "box": {
@@ -152,6 +153,7 @@
   },
   "notes": {
     "newNote": "New Note",
+    "editNote": "Edit Note",
     "text": "Text",
     "photo": "Photo",
     "audio": "Audio",

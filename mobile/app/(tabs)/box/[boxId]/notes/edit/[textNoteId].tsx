@@ -1,5 +1,5 @@
-import { KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
-import React, { useEffect, useRef } from 'react';
+import { KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, TextInput } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   DEFAULT_TOOLBAR_ITEMS,
   editorHtml,
@@ -20,6 +20,8 @@ const EditTextNote = () => {
   });
   const { newNote, updateNote, getNoteById, newBoxNote } = useNoteModel();
 
+  const [title, setTitle] = useState('');
+
   useEffect(() => {
     const run = async () => {
       try {
@@ -35,6 +37,7 @@ const EditTextNote = () => {
 
           editor.initialContent = note.content;
           editor.setContent(note.content);
+          setTitle(note.title);
         }
 
         //editor.setImage('file:///data/user/0/com.wadissimo.knowledgebox/files/media/images/-2.png');
@@ -53,7 +56,7 @@ const EditTextNote = () => {
       const content = await editor.getHTML();
       console.log(content);
       if (textNoteId === 'new') {
-        const noteId = await newNote('New Note', content, '');
+        const noteId = await newNote(title, content, '');
         await newBoxNote(Number(boxId), noteId);
         console.log('new note created:', noteId);
       } else {
@@ -63,6 +66,7 @@ const EditTextNote = () => {
           throw Error("Can't find a note:" + textNoteId);
         }
         note.content = content;
+        note.title = title;
         await updateNote(note);
         console.log('note updated:', note.id);
       }
@@ -74,6 +78,12 @@ const EditTextNote = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <TextInput
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, width: '100%' }}
+        placeholder="Note title"
+        value={title}
+        onChangeText={setTitle}
+      />
       <RichText
         editor={editor}
         allowFileAccess={true}
@@ -91,6 +101,7 @@ const EditTextNote = () => {
       >
         <Toolbar
           editor={editor}
+          hidden={false}
           items={[
             {
               onPress: () => handleSave,

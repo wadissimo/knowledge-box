@@ -18,6 +18,7 @@ import { SettingsProvider, useSettings } from '@/src/context/SettingsContext';
 import { ThemeContext, defaultColors, darkColors } from '@/src/context/ThemeContext';
 import { setLocale } from '@/src/lib/i18n';
 import { StatusBar } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -48,22 +49,29 @@ export default function RootLayout() {
   // console.log('segments', segments);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <MenuProvider>
-        <SQLiteProvider databaseName={DATABASE_NAME} useSuspense={true} onInit={migrateDbIfNeeded}>
-          <SettingsProvider>
-            <AppContent />
-          </SettingsProvider>
-        </SQLiteProvider>
-      </MenuProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <MenuProvider>
+          <SQLiteProvider
+            databaseName={DATABASE_NAME}
+            useSuspense={true}
+            onInit={migrateDbIfNeeded}
+          >
+            <SettingsProvider>
+              <AppContent />
+            </SettingsProvider>
+          </SQLiteProvider>
+        </MenuProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 
 function AppContent() {
   const { isLoaded: settingsLoaded, theme, language } = useSettings();
   const [themeColors, setThemeColors] = useState(defaultColors);
-
+  const insets = useSafeAreaInsets();
+  console.log('AppContent insets', insets);
   useEffect(() => {
     if (!settingsLoaded) return;
     if (theme === 'dark') {
@@ -93,7 +101,7 @@ function AppContent() {
 
   return (
     <ThemeContext.Provider value={{ themeColors, setThemeColors }}>
-      <StatusBar hidden={false} backgroundColor={themeColors.headerBg} barStyle={'light-content'} />
+      {/* <StatusBar hidden={false} backgroundColor={themeColors.headerBg} barStyle={'light-content'} /> */}
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>

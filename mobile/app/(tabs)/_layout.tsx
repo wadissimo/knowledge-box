@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const _layout = () => {
   const { themeColors } = useThemeColors();
   const insets = useSafeAreaInsets();
-  console.log('insets', insets);
+  console.log('(tabs)/_layout.tsx insets', insets);
   return (
     <Tabs
       screenOptions={{

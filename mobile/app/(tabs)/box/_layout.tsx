@@ -5,12 +5,14 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { i18n } from '@/src/lib/i18n';
 import { useHeaderOptions, useHeaderTitleStyle, useThemeColors } from '@/src/context/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BoxLayout = () => {
   const { themeColors } = useThemeColors();
   const defaultHeaderOptions = useHeaderOptions();
   const headerTitleStyle = useHeaderTitleStyle();
-
+  const insets = useSafeAreaInsets();
+  console.log('BoxLayout insets', insets);
   return (
     <Stack>
       <Stack.Screen
@@ -142,7 +144,7 @@ const BoxLayout = () => {
       <Stack.Screen
         name="[boxId]/notes/edit/[textNoteId]"
         options={{
-          title: i18n.t('notes.newNote'),
+          title: i18n.t('notes.editNote'),
           ...defaultHeaderOptions,
         }}
       />

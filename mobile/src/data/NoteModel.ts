@@ -89,6 +89,35 @@ const useNoteModel = () => {
     );
   };
 
+  /**
+   * Returns a window of notes for a box, given an offset and limit.
+   * Use this to implement paged or windowed browsing for notes in a box.
+   */
+  const getNotesWindow = async (
+    boxId: number,
+    offset: number = 0,
+    limit: number = 5
+  ): Promise<Note[]> => {
+    const result = await db.getAllAsync<Note>(
+      'SELECT * FROM notes INNER JOIN boxNotes ON (notes.id = boxNotes.noteId) WHERE boxNotes.boxId = ? ORDER BY id LIMIT ? OFFSET ?',
+      boxId,
+      limit,
+      offset
+    );
+    return result;
+  };
+
+  /**
+   * Returns the total number of notes in a box.
+   */
+  const getNotesCount = async (boxId: number): Promise<number> => {
+    const result = await db.getFirstAsync<{ count: number }>(
+      'SELECT COUNT(*) as count FROM notes INNER JOIN boxNotes ON (notes.id = boxNotes.noteId) WHERE boxNotes.boxId = ?',
+      boxId
+    );
+    return result?.count ?? 0;
+  };
+
   return {
     newNote,
     newBoxNote,
@@ -96,6 +125,8 @@ const useNoteModel = () => {
     deleteNote,
     getNoteById,
     getBoxNotes,
+    getNotesWindow,
+    getNotesCount,
   };
 };
 
