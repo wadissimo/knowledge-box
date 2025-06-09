@@ -54,6 +54,7 @@ const CollectionBoxSection = ({
   const CARD_WINDOW_SIZE = Math.min(MAX_CARD_WINDOW_SIZE, cardCount);
   const [studyData, setStudyData] = useState<TodayStudyCardsCount | null>(null);
   const [showTodo, setShowTodo] = useState<boolean>(false);
+  const [frontFlipped, setFrontFlipped] = useState<boolean>(false);
 
   const todoCount =
     (studyData?.reviewCardCount ?? 0) +
@@ -132,6 +133,7 @@ const CollectionBoxSection = ({
 
     setCardOffset((cardOffset + 1) % cardCount);
     setTopCardIndex((topCardIndex + 1) % CARD_WINDOW_SIZE);
+    setFrontFlipped(false);
   };
 
   const handleTrainCollection = () => {
@@ -143,8 +145,10 @@ const CollectionBoxSection = ({
     router.push(`/(tabs)/box/manage-collection/${col.id}/manage`);
   }
   function handleCardClick(cardId: number) {
-    console.log('handleCardClick');
+    console.log('handleCardClick setFrontFlipped, cardId', cardId);
+    setFrontFlipped(!frontFlipped);
   }
+  console.log('CollectionBoxSection frontFlipped', frontFlipped, 'collectionId', col.id);
   return (
     <>
       <TouchableWithoutFeedback onPress={() => onExpand(index)}>
@@ -282,7 +286,7 @@ const CollectionBoxSection = ({
             <View style={[styles.sectionListContainer]}>
               {cards.map((card, index) => (
                 <DraggableBoxCard
-                  name={card.front}
+                  name={index === topCardIndex && frontFlipped ? card.back : card.front}
                   index={CARD_WINDOW_SIZE - 1 - index}
                   numItems={cards.length}
                   numReorders={numReorders}
@@ -294,7 +298,7 @@ const CollectionBoxSection = ({
                   <TouchableOpacity onPress={() => handleCardClick(card.id)} style={{ flex: 1 }}>
                     <View style={styles.colNameView}>
                       <Text style={styles.colNameTxt} numberOfLines={4}>
-                        {card.front}
+                        {index === topCardIndex && frontFlipped ? card.back : card.front}
                       </Text>
                     </View>
                   </TouchableOpacity>
