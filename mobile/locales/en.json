@@ -30,7 +30,8 @@
     "clear": "Clear",
     "remove": "Remove",
     "options": "Options",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "study": "Study"
   },
   "boxes": {
     "myBoxesTitle": "My Knowledge Boxes",
@@ -138,9 +139,9 @@
       "score": "Score",
       "trainBtn": "Train",
       "options": "Training Options",
-      "newCardsCnt": "New Cards Count",
-      "reviewCardsCnt": "Review Cards Count",
-      "learnCardsCnt": "Learn Cards Count",
+      "newCardsCnt": "Max New Cards Count",
+      "reviewCardsCnt": "Max Review Cards Count",
+      "learnCardsCnt": "Max Learn Cards Count",
       "sessionsHeader": "Study Sessions",
       "trainingResults": "Training Results"
     },

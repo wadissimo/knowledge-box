@@ -5,6 +5,9 @@ import { Box, useBoxModel } from '@/src/data/BoxModel';
 
 import { i18n } from '@/src/lib/i18n';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import ScreenContainer from '@/src/components/common/ScreenContainer';
+import PrimaryButton from '@/src/components/common/PrimaryButton';
+import DeleteButton from '@/src/components/common/DeleteButton';
 
 const ManageBox = () => {
   const { themeColors } = useThemeColors();
@@ -64,12 +67,14 @@ const ManageBox = () => {
   if (box === null) return null;
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       {/* <View style={styles.boxTitle}>
         <Text style={styles.boxTitleText}>Create Box</Text>
       </View> */}
       <View>
-        <Text style={styles.formText}>{i18n.t('boxes.boxName')}</Text>
+        <Text style={[styles.formText, { color: themeColors.text }]}>
+          {i18n.t('boxes.boxName')}
+        </Text>
         <TextInput
           style={styles.input}
           value={name}
@@ -78,7 +83,10 @@ const ManageBox = () => {
         />
       </View>
       <View>
-        <Text style={styles.formText}>{i18n.t('boxes.description')}</Text>
+        <Text style={[styles.formText, { color: themeColors.text }]}>
+          {i18n.t('boxes.description')}
+        </Text>
+
         <TextInput
           style={[styles.input, { height: 150 }]}
           value={description}
@@ -89,20 +97,12 @@ const ManageBox = () => {
         />
       </View>
       <View style={styles.btn}>
-        <Button
-          title={i18n.t('boxes.save')}
-          onPress={handleSave}
-          color={themeColors.primaryBtnBg}
-        />
+        <PrimaryButton text={i18n.t('boxes.save')} onClick={handleSave} />
       </View>
       <View style={styles.btn}>
-        <Button
-          title={i18n.t('boxes.delete')}
-          onPress={handleDelete}
-          color={themeColors.deleteBtnBg}
-        />
+        <DeleteButton text={i18n.t('boxes.delete')} onClick={handleDelete} />
       </View>
-    </View>
+    </ScreenContainer>
   );
 };
 

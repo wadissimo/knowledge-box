@@ -30,7 +30,8 @@
     "clear": "Löschen",
     "remove": "Löschen",
     "options": "Optionen",
-    "loading": "Lädt..."
+    "loading": "Lädt...",
+    "study": "Studieren"
   },
   "boxes": {
     "myBoxesTitle": "Meine Wissensboxen",
@@ -145,9 +146,9 @@
       "score": "Punktzahl:",
       "trainBtn": "Trainieren",
       "options": "Trainingsoptionen",
-      "newCardsCnt": "Anzahl neuer Karten",
-      "reviewCardsCnt": "Anzahl der Wiederholungskarten",
-      "learnCardsCnt": "Anzahl der Lernkarten",
+      "newCardsCnt": "Max. Anzahl neuer Karten",
+      "reviewCardsCnt": "Max. Anzahl der Wiederholungskarten",
+      "learnCardsCnt": "Max. Anzahl der Lernkarten",
       "sessionsHeader": "Lernsitzungen",
       "trainingResults": "Trainingsergebnisse"
     },

@@ -45,19 +45,29 @@ const TrainOptions = () => {
   return (
     <ScreenContainer>
       <View style={styles.formLine}>
-        <Text style={styles.label}>{i18n.t('collection.train.newCardsCnt')}</Text>
+        <Text style={[styles.label, { color: themeColors.text }]}>
+          {i18n.t('collection.train.newCardsCnt')}
+        </Text>
 
         <TextInput style={styles.input} value={newCardsCnt} onChangeText={setNewCardsCnt} />
       </View>
       <View style={styles.formLine}>
-        <Text style={styles.label}>{i18n.t('collection.train.reviewCardsCnt')}</Text>
+        <Text style={[styles.label, { color: themeColors.text }]}>
+          {i18n.t('collection.train.reviewCardsCnt')}
+        </Text>
 
         <TextInput style={styles.input} value={reviewCardsCnt} onChangeText={setReviewCardsCnt} />
       </View>
       <View style={styles.formLine}>
-        <Text style={styles.label}>{i18n.t('collection.train.learnCardsCnt')}</Text>
+        <Text style={[styles.label, { color: themeColors.text }]}>
+          {i18n.t('collection.train.learnCardsCnt')}
+        </Text>
 
-        <TextInput style={styles.input} value={learnCardsCnt} onChangeText={setLearnCardsCnt} />
+        <TextInput
+          style={[styles.input, { color: themeColors.text }]}
+          value={learnCardsCnt}
+          onChangeText={setLearnCardsCnt}
+        />
       </View>
       <PrimaryButton text={i18n.t('common.save')} onClick={handleSave} />
     </ScreenContainer>

@@ -17,6 +17,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 
 import DraggableBoxCard from './DraggableBoxCard';
 import { useThemeColors } from '@/src/context/ThemeContext';
+import { TodayStudyCardsCount, useCardTrainingService } from '@/src/service/CardTrainingService';
 
 const BOX_SECTION_HEADER_SIZE = 40;
 const MAX_CARD_WINDOW_SIZE = 5;
@@ -43,6 +44,7 @@ const CollectionBoxSection = ({
   const { themeColors } = useThemeColors();
   const router = useRouter();
   const { getCardsWindow, getCardsCount } = useCardModel();
+  const { getTodayStudyCardsCount } = useCardTrainingService();
 
   const [cards, setCards] = useState<Card[]>([]);
   const [topCardIndex, setTopCardIndex] = useState<number>(0);
@@ -50,6 +52,14 @@ const CollectionBoxSection = ({
   const [isLoadingCards, setIsLoadingCards] = useState(false);
   const [cardCount, setCardCount] = useState<number>(0);
   const CARD_WINDOW_SIZE = Math.min(MAX_CARD_WINDOW_SIZE, cardCount);
+  const [studyData, setStudyData] = useState<TodayStudyCardsCount | null>(null);
+  const [showTodo, setShowTodo] = useState<boolean>(false);
+
+  const todoCount =
+    (studyData?.reviewCardCount ?? 0) +
+    (studyData?.newCardCount ?? 0) +
+    (studyData?.learningCardCount ?? 0);
+  const isTodo = todoCount > 0;
   // console.log(
   //   'CollectionBoxSection refresh',
   //   topCardIndex,
@@ -63,10 +73,13 @@ const CollectionBoxSection = ({
       const count = await getCardsCount(Number(col.id));
       setCardCount(count);
       const window = await getCardsWindow(Number(col.id), 0, Math.min(MAX_CARD_WINDOW_SIZE, count));
-      //window.reverse();
+
+      const studyData = await getTodayStudyCardsCount(Number(col.id));
+
       if (isMounted) {
         setCards(window);
         setIsLoadingCards(false);
+        setStudyData(studyData);
       }
     }
     if (col.id !== null) loadInitial();
@@ -153,35 +166,84 @@ const CollectionBoxSection = ({
               },
             ]}
           >
-            <Text style={[styles.sectionHeaderText, { flex: 1, color: themeColors.subHeaderText }]}>
-              {col.name}
+            <Text style={[styles.sectionHeaderText, { color: themeColors.subHeaderText }]}>
+              {col.name}{' '}
             </Text>
-            <View style={[styles.iconSeparator, { backgroundColor: themeColors.subHeaderText }]} />
-            <View style={styles.actionIconsRow}>
-              <TouchableOpacity
-                onPress={handleCollectionClick}
-                style={styles.iconCircleBtn}
-                accessibilityLabel="Edit Collection"
-                activeOpacity={0.7}
+            {showTodo && (
+              <View
+                style={{
+                  position: 'absolute',
+                  right: 110,
+                  bottom: 2,
+                  zIndex: 10,
+                  backgroundColor: themeColors.subHeaderText,
+                  padding: 2,
+                  borderRadius: 5,
+                }}
               >
-                <Icon name="note-edit-outline" size={24} color="#4f8cff" />
-                <Text style={[styles.iconLabel, { color: themeColors.subHeaderText }]}>
-                  {i18n.t('common.edit')}
-                </Text>
-              </TouchableOpacity>
+                {isTodo ? (
+                  <Text
+                    style={[
+                      styles.sectionHeaderText,
+                      { color: themeColors.subHeaderBg, fontSize: 12, fontWeight: 'normal' },
+                    ]}
+                  >
+                    <Icon name="alert" size={14} color={themeColors.subHeaderBg} />{' '}
+                    {studyData?.newCardCount} {studyData?.learningCardCount}{' '}
+                    {studyData?.reviewCardCount}
+                  </Text>
+                ) : (
+                  <Icon name="check" size={28} color={themeColors.subHeaderText} />
+                )}
+              </View>
+            )}
+            <TouchableOpacity
+              onPress={handleCollectionClick}
+              style={[styles.iconCircleBtn, { marginRight: 0, paddingRight: 0, width: 40 }]}
+              accessibilityLabel="Edit Collection"
+              activeOpacity={0.7}
+            >
+              <Icon name="pencil-outline" size={28} color={themeColors.subHeaderText} />
+              <Text style={[styles.iconLabel, { color: themeColors.subHeaderText }]}>
+                {' '}
+                {/* {i18n.t('common.edit')} */}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={[styles.actionIconsRow]}>
               <TouchableOpacity
                 onPress={handleTrainCollection}
                 style={styles.iconCircleBtn}
                 accessibilityLabel="Start Training"
                 activeOpacity={0.7}
               >
-                <Icon name="school-outline" size={24} color="#34b233" />
-                <Text style={[styles.iconLabel, { color: themeColors.subHeaderText }]}>
-                  {i18n.t('common.train')}
-                </Text>
+                <Icon name="school-outline" size={28} color="#34b233" />
+                <View style={{ flexDirection: 'row' }}>
+                  <Text
+                    style={[
+                      styles.iconLabel,
+                      {
+                        color: themeColors.subHeaderText,
+                      },
+                    ]}
+                  >
+                    {i18n.t('common.study')}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.iconLabel,
+                      {
+                        color: themeColors.subHeaderText,
+                      },
+                    ]}
+                  >
+                    {isTodo ? `(${todoCount})` : ''}
+                  </Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
+
           {cards.length === 0 && (
             <View
               style={{
@@ -324,12 +386,11 @@ const styles = StyleSheet.create({
   actionIconsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 1,
   },
   iconCircleBtn: {
-    width: 54,
+    width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 2,
@@ -344,7 +405,7 @@ const styles = StyleSheet.create({
     width: 1,
     height: 32,
     backgroundColor: '#81d4fa',
-    marginHorizontal: 4,
+    marginHorizontal: 8,
     borderRadius: 1,
   },
   sectionFooter: {

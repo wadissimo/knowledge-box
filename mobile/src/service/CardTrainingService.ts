@@ -1,10 +1,20 @@
 import * as SQLite from 'expo-sqlite';
 import { Card, CardStatus } from '../data/CardModel';
 import { SessionCard, SessionCardStatus, useSessionCardModel } from '../data/SessionCardModel';
+import { getTodayAsNumber, getTomorrowAsNumber } from '../lib/TimeUtils';
+import { useSessionModel } from '../data/SessionModel';
+import { useCollectionModel } from '../data/CollectionModel';
 
+export type TodayStudyCardsCount = {
+  reviewCardCount: number;
+  newCardCount: number;
+  learningCardCount: number;
+};
 function useCardTrainingService() {
   const db = SQLite.useSQLiteContext();
   const sessionCardModel = useSessionCardModel();
+  const sessionModel = useSessionModel();
+  const collectionModel = useCollectionModel();
 
   const updateCardRepeatTime = async (cardId: number, repeatTime: number | null) => {
     await db.runAsync('UPDATE cards SET repeatTime = ? where id=?', repeatTime, cardId);
@@ -135,6 +145,46 @@ function useCardTrainingService() {
     return res?.['COUNT(*)'] ?? 0;
   };
 
+  const getTodayStudyCardsCount = async (collectionId: number): Promise<TodayStudyCardsCount> => {
+    const today = getTodayAsNumber();
+    const tomorrow = getTomorrowAsNumber();
+
+    const startedSession = await sessionModel.getStartedSession(collectionId, today.toString());
+    if (startedSession) {
+      return {
+        reviewCardCount: startedSession.reviewCards,
+        newCardCount: startedSession.newCards,
+        learningCardCount: startedSession.learningCards,
+      };
+    }
+
+    const reviewCardCountRes = await db.getFirstAsync<{ 'COUNT(*)': number }>(
+      'SELECT COUNT(*) from cards where collectionId = ? and repeatTime <= ? and status = ?',
+      collectionId,
+      tomorrow,
+      CardStatus.Review
+    );
+    const reviewCardCount = reviewCardCountRes?.['COUNT(*)'] ?? 0;
+
+    const learningCardCountRes = await db.getFirstAsync<{ 'COUNT(*)': number }>(
+      'SELECT COUNT(*) from cards where collectionId = ? and repeatTime <= ? and (status = ? or status = ?)',
+      collectionId,
+      tomorrow,
+      CardStatus.Learning,
+      CardStatus.Relearning
+    );
+    const learningCardCount = learningCardCountRes?.['COUNT(*)'] ?? 0;
+
+    const collectionTrainingData = await collectionModel.getCollectionTrainingData(collectionId);
+    const maxNewCards = collectionTrainingData?.maxNewCards ?? 0;
+
+    return {
+      reviewCardCount,
+      learningCardCount,
+      newCardCount: maxNewCards,
+    };
+  };
+
   return {
     updateCardRepeatTime,
     selectNewTrainingCards,
@@ -150,6 +200,7 @@ function useCardTrainingService() {
     getCurrentCardsCount,
 
     selectLearningAndRelearningCards,
+    getTodayStudyCardsCount,
   };
 }
 

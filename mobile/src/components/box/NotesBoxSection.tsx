@@ -189,7 +189,7 @@ const NotesBoxSection = ({
             <Text style={[styles.sectionHeaderText, { flex: 1, color: themeColors.subHeaderText }]}>
               {sectionTitle}
             </Text>
-            <View style={[styles.iconSeparator, { backgroundColor: themeColors.subHeaderText }]} />
+            {/* <View style={[styles.iconSeparator, { backgroundColor: themeColors.subHeaderText }]} /> */}
             <View style={styles.actionIconsRow}>
               <TouchableOpacity
                 onPress={handleCardViewClick}
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     alignItems: 'center',
-    marginHorizontal: 9,
+    marginHorizontal: 5,
   },
   iconBtnPressed: {
     borderTopWidth: 1,
