@@ -38,7 +38,7 @@ function useReviewLogModel() {
 
   const getReviewLog = async (cardId: number) => {
     const result = await db.getAllAsync<ReviewLog>(
-      'SELECT * FROM reviewLog where cardId=?',
+      'SELECT * FROM reviewLog where cardId=? order by createdAt desc',
       cardId
     );
     return result;

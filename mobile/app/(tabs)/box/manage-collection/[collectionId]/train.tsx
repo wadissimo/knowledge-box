@@ -1,4 +1,4 @@
-import { View, Text, Button, StyleSheet, ActivityIndicator, Modal, FlatList } from 'react-native';
+import { View, Text, Button, StyleSheet, ActivityIndicator, Modal, Pressable } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,9 +12,10 @@ import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useTrainingFlow } from '@/src/service/TrainingFlow';
 import CardMenu from '@/src/components/box/train/CardMenu';
 import { SETTING_IDS, useSettingsModel } from '@/src/data/SettingsModel';
-import PrimaryButton from '@/src/components/common/PrimaryButton';
-import { ReviewLog, useReviewLogModel } from '@/src/data/ReviewLogModel';
 import { CardStatus } from '@/src/data/CardModel';
+
+import { ReviewLog, useReviewLogModel } from '@/src/data/ReviewLogModel';
+import ReviewLogTable from '@/src/components/box/train/ReviewLogTable';
 
 const TrainCollection = () => {
   const { themeColors } = useThemeColors();
@@ -233,7 +234,8 @@ const TrainCollection = () => {
           onRequestClose={handleLogModalClose}
           onDismiss={handleLogModalClose}
         >
-          <View
+          <Pressable
+            onPress={handleLogModalClose}
             style={{
               flex: 1,
               justifyContent: 'center',
@@ -241,12 +243,13 @@ const TrainCollection = () => {
               backgroundColor: 'rgba(0,0,0,0.4)',
             }}
           >
-            <View style={{ width: '90%', backgroundColor: '#fff', borderRadius: 18, padding: 20 }}>
-              <Text>Logs</Text>
-              <FlatList data={reviewLogs} renderItem={({ item }) => <Text>{item.grade}</Text>} />
-              <PrimaryButton text={i18n.t('common.back') || 'Back'} onClick={handleLogModalClose} />
+            <View
+              style={{ width: '90%', backgroundColor: '#fff', borderRadius: 18, padding: 16 }}
+              pointerEvents="box-none"
+            >
+              <ReviewLogTable log={reviewLogs} onClose={handleLogModalClose} />
             </View>
-          </View>
+          </Pressable>
         </Modal>
       </ScreenContainer>
     </View>
