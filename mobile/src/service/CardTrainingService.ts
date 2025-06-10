@@ -144,6 +144,20 @@ function useCardTrainingService() {
 
     return res?.['COUNT(*)'] ?? 0;
   };
+  const getTodayStudyCardsCountByBox = async (boxId: number): Promise<TodayStudyCardsCount> => {
+    const collectionIds = await db.getAllAsync<{ id: number }>(
+      'SELECT collectionId as id FROM boxCollections where boxId = ?',
+      boxId
+    );
+    const counts = await Promise.all(
+      collectionIds.map(collectionId => getTodayStudyCardsCount(collectionId.id))
+    );
+    console.log('getTodayStudyCardsCountByBox', collectionIds);
+    const reviewCardCount = counts.reduce((acc, count) => acc + count.reviewCardCount, 0);
+    const newCardCount = counts.reduce((acc, count) => acc + count.newCardCount, 0);
+    const learningCardCount = counts.reduce((acc, count) => acc + count.learningCardCount, 0);
+    return { reviewCardCount, newCardCount, learningCardCount };
+  };
 
   const getTodayStudyCardsCount = async (collectionId: number): Promise<TodayStudyCardsCount> => {
     const today = getTodayAsNumber();
@@ -177,7 +191,7 @@ function useCardTrainingService() {
 
     const collectionTrainingData = await collectionModel.getCollectionTrainingData(collectionId);
     const maxNewCards = collectionTrainingData?.maxNewCards ?? 0;
-
+    console.log('getTodayStudyCardsCount', collectionId, collectionTrainingData);
     return {
       reviewCardCount,
       learningCardCount,
@@ -201,6 +215,7 @@ function useCardTrainingService() {
 
     selectLearningAndRelearningCards,
     getTodayStudyCardsCount,
+    getTodayStudyCardsCountByBox,
   };
 }
 
