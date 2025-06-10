@@ -57,6 +57,10 @@ const CollectionView = () => {
     }
   }, [collectionId, isFocused]);
 
+  function handleStatsPress() {
+    router.push(`/(tabs)/box/manage-collection/${collectionId}/stats-horizontal`);
+  }
+
   function handleManageCollectionPress() {
     router.push(`/(tabs)/box/manage-collection/${collectionId}/manage`);
   }
@@ -76,6 +80,22 @@ const CollectionView = () => {
           {collection.name}
         </Text>
       </View>
+      <TouchableOpacity
+        onPress={handleStatsPress}
+        style={{ marginVertical: 12, alignSelf: 'flex-start' }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Ionicons
+            name="stats-chart"
+            size={20}
+            color={themeColors.activeTintColor}
+            style={{ marginRight: 6 }}
+          />
+          <Text style={{ color: themeColors.activeTintColor, fontWeight: 'bold', fontSize: 16 }}>
+            View Activity Stats
+          </Text>
+        </View>
+      </TouchableOpacity>
       <ScreenContainer>
         <View style={styles.statsContainer}>
           <View style={[styles.stats, { backgroundColor: themeColors.cardBg }]}>

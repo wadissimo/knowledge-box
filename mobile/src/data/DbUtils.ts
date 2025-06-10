@@ -103,6 +103,7 @@ async function migrateDbIfNeeded(db: SQLiteDatabase) {
                         difficulty REAL,
                         createdAt INTEGER DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)`);
+
     console.log('migration to version 11: create reviewLog table');
   }
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
