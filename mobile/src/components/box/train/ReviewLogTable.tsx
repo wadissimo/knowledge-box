@@ -43,7 +43,7 @@ function ReviewLogTable({ log, onClose }: ReviewLogTableProps) {
         <Text style={styles.headerText}>Logs</Text>
       </View>
 
-      <View>
+      <View style={{ maxHeight: 400 }}>
         <FlatList
           data={log}
           ListHeaderComponent={

@@ -234,21 +234,29 @@ const TrainCollection = () => {
           onRequestClose={handleLogModalClose}
           onDismiss={handleLogModalClose}
         >
+          {/* This View acts as the overlay and captures clicks outside the modal content */}
           <Pressable
-            onPress={handleLogModalClose}
             style={{
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
               backgroundColor: 'rgba(0,0,0,0.4)',
             }}
+            onPress={handleLogModalClose} // This will now correctly close the modal
           >
-            <View
-              style={{ width: '90%', backgroundColor: '#fff', borderRadius: 18, padding: 16 }}
-              pointerEvents="box-none"
+            {/* Modal content area */}
+            <Pressable
+              style={{
+                width: '90%',
+                backgroundColor: '#fff',
+                borderRadius: 18,
+                padding: 16,
+                maxHeight: '60%', // Limit height to enable scrolling
+              }}
+              onPress={event => event.stopPropagation()} // Prevent touches inside from propagating to the outer Pressable
             >
               <ReviewLogTable log={reviewLogs} onClose={handleLogModalClose} />
-            </View>
+            </Pressable>
           </Pressable>
         </Modal>
       </ScreenContainer>
