@@ -22,6 +22,7 @@ import { resetAISetup } from '@/src/service/AIService';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { useSettings } from '@/src/context/SettingsContext';
 import ScreenContainer from '@/src/components/common/ScreenContainer';
+import { CategoriesView } from '@/src/components/common/CategoriesView';
 
 type Option = {
   label: string;
@@ -55,7 +56,6 @@ const OPTIONS: Options = {
 type OptionCategory = keyof typeof OPTIONS;
 
 const SettingsTab = () => {
-  const [expandedCategories, setExpandedCategories] = useState<boolean[]>([]);
   const [settings, setSettings] = useState<Setting[]>([]);
   const [showReloadInfo, setShowReloadInfo] = useState(false);
   const { upsertSetting, getAllCategories, getAllSettings } = useSettingsModel();
@@ -70,15 +70,11 @@ const SettingsTab = () => {
       const [categories, settings] = await Promise.all([getAllCategories(), getAllSettings()]);
       setSettings(settings);
       setCategories(categories);
-      setExpandedCategories(categories.map(g => g.id === 'common'));
+
       setLoading(false);
     }
     loadData();
   }, []);
-
-  const handleExpand = (idx: number) => {
-    setExpandedCategories(prev => prev.map((v, i) => (i === idx ? !v : v)));
-  };
 
   const handleChange = (key: string, value: any) => {
     const newSetting = settings.map(setting => {
@@ -231,6 +227,22 @@ const SettingsTab = () => {
         return null;
     }
   };
+  const renderCategory = (categoryId: string) => {
+    return (
+      <>
+        {settings
+          .filter(setting => setting.category === categoryId)
+          .map(setting => (
+            <View key={setting.id} style={styles.settingRow}>
+              <Text style={[styles.settingLabel, { color: themeColors.cardText }]}>
+                {i18n.t(setting.label)}
+              </Text>
+              {renderSetting(setting)}
+            </View>
+          ))}
+      </>
+    );
+  };
   if (loading) {
     return (
       <View style={styles.container}>
@@ -246,7 +258,12 @@ const SettingsTab = () => {
           contentContainerStyle={{ paddingVertical: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          {categories.map((category, idx) => (
+          <CategoriesView
+            categories={categories}
+            renderCategory={renderCategory}
+            defaultExpandedCategories={categories.map(g => g.id === 'common')}
+          />
+          {/* {categories.map((category, idx) => (
             <View key={category.id} style={[styles.groupContainer]}>
               <TouchableOpacity
                 style={[styles.groupHeader, { backgroundColor: themeColors.cardHeaderBg }]}
@@ -284,7 +301,7 @@ const SettingsTab = () => {
                 </View>
               )}
             </View>
-          ))}
+          ))} */}
         </ScrollView>
       </View>
       <View style={styles.fabContainer} pointerEvents="box-none">

@@ -133,6 +133,8 @@
   },
   "collection": {
     "train": {
+      "summary": "Summary",
+      "activityStats": "Activity Stats",
       "stats": "Train Stats",
       "streak": "Streak:",
       "cardViews": "Card Views:",

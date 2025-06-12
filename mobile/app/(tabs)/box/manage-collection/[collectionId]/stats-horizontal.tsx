@@ -140,8 +140,8 @@ const StatsHorizontalScreen = () => {
                           <View
                             key={weekIdx}
                             style={{
-                              width: 32,
-                              height: 32,
+                              width: 18,
+                              height: 18,
                               marginBottom: 2,
                               marginRight: 2,
                               borderRadius: 6,
@@ -152,8 +152,8 @@ const StatsHorizontalScreen = () => {
                               justifyContent: 'center',
                             }}
                           >
-                            <Text style={{ fontSize: 12, color: '#222', opacity: 0.7 }}>
-                              {count}
+                            <Text style={{ fontSize: 10, color: '#222', opacity: 0.7 }}>
+                              {/* {count} */}
                             </Text>
                           </View>
                         );
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   dayLabel: {
     fontSize: 12,
     color: '#888',
-    height: 32,
+    height: 18,
     textAlign: 'right',
     marginBottom: 2,
     fontWeight: 'bold',

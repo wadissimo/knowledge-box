@@ -140,6 +140,8 @@
   },
   "collection": {
     "train": {
+      "summary": "Zusammenfassung",
+      "activityStats": "Aktivitätsstatistik",
       "stats": "Trainingsstatistik",
       "streak": "Streak:",
       "cardViews": "Kartenansichten:",

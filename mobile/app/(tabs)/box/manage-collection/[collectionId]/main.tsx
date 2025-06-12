@@ -13,7 +13,12 @@ import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { Session, SessionStatus, useSessionModel } from '@/src/data/SessionModel';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-
+import { CategoriesView } from '@/src/components/common/CategoriesView';
+import AcitivityStatsHorizontal from '@/src/components/box/train/AcitivityStatsHorizontal';
+const categories = [
+  { id: 'total', title: 'collection.train.summary', icon: 'flask' },
+  { id: 'activity', title: 'collection.train.activityStats', icon: 'stats-chart' },
+];
 const CollectionView = () => {
   const { themeColors } = useThemeColors();
   const { collectionId } = useLocalSearchParams();
@@ -72,6 +77,44 @@ const CollectionView = () => {
   }
   // console.log('CollectionView', collectionId);
 
+  const renderTotalCategory = () => {
+    return (
+      <View style={[styles.stats, { backgroundColor: themeColors.cardBg }]}>
+        <Text style={styles.statsHeaderTxt}>{i18n.t('collection.train.stats')}</Text>
+
+        <Text style={styles.statsTxt}>
+          {i18n.t('collection.train.cardViews')} {trainingData?.totalCardViews ?? 0}
+        </Text>
+
+        <Text style={styles.statsTxt}>
+          {i18n.t('collection.stats.newCards')} {newCardCount}
+        </Text>
+        <Text style={styles.statsTxt}>
+          {i18n.t('collection.stats.reviewCards')} {reviewCardCount + learningCardCount}
+        </Text>
+
+        <Text style={styles.statsTxt}>
+          {i18n.t('collection.train.score')} {trainingData?.totalScore ?? 0}
+        </Text>
+        <Text style={styles.statsTxt}>
+          {i18n.t('collection.train.streak')} {trainingData?.streak ?? 0}
+        </Text>
+      </View>
+    );
+  };
+  const renderActivityCategory = () => {
+    return <AcitivityStatsHorizontal />;
+  };
+  const renderCategory = (categoryId: string) => {
+    switch (categoryId) {
+      case 'total':
+        return renderTotalCategory();
+      case 'activity':
+        return renderActivityCategory();
+      default:
+        return null;
+    }
+  };
   if (collection === null) return null;
   return (
     <View style={styles.container}>
@@ -80,25 +123,15 @@ const CollectionView = () => {
           {collection.name}
         </Text>
       </View>
-      <TouchableOpacity
-        onPress={handleStatsPress}
-        style={{ marginVertical: 12, alignSelf: 'flex-start' }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons
-            name="stats-chart"
-            size={20}
-            color={themeColors.activeTintColor}
-            style={{ marginRight: 6 }}
-          />
-          <Text style={{ color: themeColors.activeTintColor, fontWeight: 'bold', fontSize: 16 }}>
-            View Activity Stats
-          </Text>
-        </View>
-      </TouchableOpacity>
+
       <ScreenContainer>
+        <CategoriesView
+          categories={categories}
+          renderCategory={renderCategory}
+          defaultExpandedCategories={[false, false]}
+        />
         <View style={styles.statsContainer}>
-          <View style={[styles.stats, { backgroundColor: themeColors.cardBg }]}>
+          {/* <View style={[styles.stats, { backgroundColor: themeColors.cardBg }]}>
             <Text style={styles.statsHeaderTxt}>{i18n.t('collection.train.stats')}</Text>
 
             <Text style={styles.statsTxt}>
@@ -118,7 +151,7 @@ const CollectionView = () => {
             <Text style={styles.statsTxt}>
               {i18n.t('collection.train.streak')} {trainingData?.streak ?? 0}
             </Text>
-          </View>
+          </View> */}
           <View style={styles.trainOptBtnContainer}>
             <PrimaryButton text={i18n.t('collection.train.options')} onClick={handleTrainOptions} />
           </View>
