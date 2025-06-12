@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-native';
 import { useIsFocused, useTheme } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { CategoriesView } from '@/src/components/common/CategoriesView';
 import AcitivityStatsHorizontal from '@/src/components/box/train/AcitivityStatsHorizontal';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const categories = [
   { id: 'total', title: 'collection.train.summary', icon: 'flask' },
   { id: 'activity', title: 'collection.train.activityStats', icon: 'stats-chart' },
@@ -125,61 +126,37 @@ const CollectionView = () => {
       </View>
 
       <ScreenContainer>
-        <CategoriesView
-          categories={categories}
-          renderCategory={renderCategory}
-          defaultExpandedCategories={[false, false]}
+        <FlatList
+          data={sessions}
+          keyExtractor={item => `session${item.id}`}
+          renderItem={({ item }) => <SessionCard session={item} />}
+          ListHeaderComponent={
+            <>
+              <CategoriesView
+                categories={categories}
+                renderCategory={renderCategory}
+                defaultExpandedCategories={[false, false]}
+              />
+              <View style={styles.trainOptBtnContainer}>
+                <PrimaryButton
+                  text={i18n.t('collection.train.options')}
+                  onClick={handleTrainOptions}
+                />
+              </View>
+              <View style={styles.trainBtnContainer}>
+                <PrimaryButton
+                  text={i18n.t('collection.train.trainBtn')}
+                  onClick={handleTrainPress}
+                />
+              </View>
+              <View>
+                <Text style={[styles.sessionsHeader, { color: themeColors.text }]}>
+                  {i18n.t('collection.train.sessionsHeader')}
+                </Text>
+              </View>
+            </>
+          }
         />
-        <View style={styles.statsContainer}>
-          {/* <View style={[styles.stats, { backgroundColor: themeColors.cardBg }]}>
-            <Text style={styles.statsHeaderTxt}>{i18n.t('collection.train.stats')}</Text>
-
-            <Text style={styles.statsTxt}>
-              {i18n.t('collection.train.cardViews')} {trainingData?.totalCardViews ?? 0}
-            </Text>
-
-            <Text style={styles.statsTxt}>
-              {i18n.t('collection.stats.newCards')} {newCardCount}
-            </Text>
-            <Text style={styles.statsTxt}>
-              {i18n.t('collection.stats.reviewCards')} {reviewCardCount + learningCardCount}
-            </Text>
-
-            <Text style={styles.statsTxt}>
-              {i18n.t('collection.train.score')} {trainingData?.totalScore ?? 0}
-            </Text>
-            <Text style={styles.statsTxt}>
-              {i18n.t('collection.train.streak')} {trainingData?.streak ?? 0}
-            </Text>
-          </View> */}
-          <View style={styles.trainOptBtnContainer}>
-            <PrimaryButton text={i18n.t('collection.train.options')} onClick={handleTrainOptions} />
-          </View>
-          <View style={styles.trainBtnContainer}>
-            <PrimaryButton text={i18n.t('collection.train.trainBtn')} onClick={handleTrainPress} />
-          </View>
-        </View>
-
-        <View style={styles.sessionsContainer}>
-          <View>
-            <Text style={[styles.sessionsHeader, { color: themeColors.text }]}>
-              {i18n.t('collection.train.sessionsHeader')}
-            </Text>
-          </View>
-          <ScrollView>
-            {sessions?.map(session => (
-              <SessionCard key={`session${session.id}`} session={session} />
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* <View style={styles.mngBtnContainer}>
-        <Button
-          title={i18n.t("cards.manageCollection")}
-          color={colors.primary}
-          onPress={handleManageCollectionPress}
-        />
-      </View> */}
       </ScreenContainer>
     </View>
   );
@@ -279,13 +256,13 @@ const styles = StyleSheet.create({
   statsContainer: {
     flex: 0.6,
     justifyContent: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 20,
+    // paddingHorizontal: 10,
+    // paddingVertical: 20,
     // backgroundColor: "orange",
   },
   sessionsContainer: {
-    flex: 0.4,
-    justifyContent: 'center',
+    //flex: 0.4,
+    // justifyContent: 'center',
     paddingHorizontal: 10,
 
     // backgroundColor: 'orange',

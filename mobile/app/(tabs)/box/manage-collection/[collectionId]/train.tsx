@@ -76,10 +76,10 @@ const TrainCollection = () => {
   useEffect(() => {
     const run = async () => {
       // console.debug('train.tsx useEffect currentCard', currentCard?.front);
-      if (session !== null && isLoaded && currentCard == null) {
-        // console.log('train.tsx training complete. redirect to results', session.id);
-        router.replace(`./trainingResults/${session.id}`);
-      }
+      // if (session !== null && isLoaded && currentCard == null) {
+      //   // console.log('train.tsx training complete. redirect to results', session.id);
+      //   router.replace(`./trainingResults/${session.id}`);
+      // }
       const audioAutoplaySetting = await getSettingById(SETTING_IDS.audioAutoplay);
       if (audioAutoplaySetting) {
         setAudioAutoplay(audioAutoplaySetting.value === 'true');
@@ -124,13 +124,13 @@ const TrainCollection = () => {
     setLogModalVisible(false);
   }
 
-  console.log(
-    'train.tsx re-rendered, isLoaded: ' + isLoaded,
-    'currentCard',
-    currentCard?.front,
-    'session',
-    session?.id
-  );
+  // console.log(
+  //   'train.tsx re-rendered, isLoaded: ' + isLoaded,
+  //   'currentCard',
+  //   currentCard?.front,
+  //   'session',
+  //   session?.id
+  // );
   // console.log(
   //   'train.tsx review Cards: ' +
   //     cardsToReview?.map(c => `${c.front} ${c.repeatTime !== null ? new Date(c.repeatTime) : ''}`)
