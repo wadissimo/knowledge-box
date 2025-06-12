@@ -1,4 +1,11 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  useWindowDimensions,
+} from 'react-native';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { SessionCard } from '@/src/data/SessionCardModel';
 import { Card } from '@/src/data/CardModel';
@@ -17,6 +24,7 @@ import {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { formatInterval } from '@/src/lib/TimeUtils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const DEBUG = true;
 const blurhash =
@@ -76,6 +84,9 @@ const CardComponent: React.FC<{
   const buttonLayouts = useSharedValue<{ x: number; y: number; width: number; height: number }[]>(
     []
   );
+  const insets = useSafeAreaInsets();
+  const dimensions = useWindowDimensions();
+  const feedbackButtonWidth = dimensions.width / FEEDBACK_BUTTON_COUNT - 8;
 
   useEffect(() => {
     // console.log('CardComponent useEffect: cardFlip', cardFlip);
@@ -115,22 +126,7 @@ const CardComponent: React.FC<{
       const hardCard = await preprocessUserResponse('hard');
       const goodCard = await preprocessUserResponse('good');
       const easyCard = await preprocessUserResponse('easy');
-      // console.log(
-      //   'CardComponent preprocessResponses: againCard',
-      //   againCard?.repeatTime ? new Date(againCard?.repeatTime).toISOString() : ''
-      // );
-      // console.log(
-      //   'CardComponent preprocessResponses: hardCard',
-      //   hardCard?.repeatTime ? new Date(hardCard?.repeatTime).toISOString() : ''
-      // );
-      // console.log(
-      //   'CardComponent preprocessResponses: goodCard',
-      //   goodCard?.repeatTime ? new Date(goodCard?.repeatTime).toISOString() : ''
-      // );
-      // console.log(
-      //   'CardComponent preprocessResponses: easyCard',
-      //   easyCard?.repeatTime ? new Date(easyCard?.repeatTime).toISOString() : ''
-      // );
+
       const now = new Date().getTime();
       setAgainInterval(
         againCard?.repeatTime != null ? formatInterval(againCard?.repeatTime - now) : ''
@@ -177,17 +173,6 @@ const CardComponent: React.FC<{
       await playSound(soundId);
     }
   }
-
-  // Helper to update button layouts (called from onLayout via runOnJS)
-  const updateButtonLayouts = (
-    i: number,
-    layout: { x: number; y: number; width: number; height: number }
-  ) => {
-    // Update shared value (for worklet)
-    const arr = buttonLayouts.value.slice();
-    arr[i] = { ...layout, x: layout.x + cardRootLayout.x, y: layout.y + cardRootLayout.y };
-    buttonLayouts.value = arr;
-  };
 
   // --- DRAG/FLIP LOGIC ---
   const tapToFlip = () => {
@@ -276,7 +261,7 @@ const CardComponent: React.FC<{
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 8,
+        bottom: 4,
         zIndex: 30,
         flexDirection: 'row',
         justifyContent: 'center',
@@ -301,8 +286,8 @@ const CardComponent: React.FC<{
                 {
                   backgroundColor: opt.color,
                   height: 54,
-                  minWidth: 90,
-                  maxWidth: 120,
+                  minWidth: feedbackButtonWidth,
+                  maxWidth: feedbackButtonWidth + 10,
                   justifyContent: 'center',
                   alignItems: 'center',
                   paddingHorizontal: 8,
@@ -330,19 +315,12 @@ const CardComponent: React.FC<{
     </View>
   );
 
-  console.log(
-    'CardComponent re-rendered, loading: ',
-    loading,
-    'flip: ',
-    cardFlip,
-    'front',
-    currentCard.front
-  );
+  console.log('CardComponent re-rendered, loading, insets: ', insets, 'card:', currentCard.front);
 
   if (loading) return null;
 
   return (
-    <View
+    <SafeAreaView
       style={styles.cardContainer}
       onLayout={(e: any) =>
         setCardRootLayout({
@@ -359,7 +337,7 @@ const CardComponent: React.FC<{
             styles.card,
             animatedStyle,
             {
-              height: cardDimensions?.height ?? styles.card.height,
+              height: (cardDimensions?.height ?? styles.card.height) - 30,
               width: cardDimensions?.width ?? styles.card.width,
             },
             styles.elevation,
@@ -391,7 +369,7 @@ const CardComponent: React.FC<{
       {/* Add empty space below the card for feedback buttons */}
       <View style={{ height: 96 }} />
       {answerShown && renderFeedbackButtons()}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -508,8 +486,9 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   cardContainer: {
+    flex: 1,
     alignItems: 'center',
-    margin: 20,
+    //margin: 20,
   },
   card: {
     padding: 10,
@@ -540,13 +519,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 60,
+    minWidth: 30,
     marginHorizontal: 2,
   },
   feedbackBtnText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 12,
     textAlign: 'center',
   },
   feedbackBtnInterval: {
