@@ -300,15 +300,15 @@ export default function useCollectionRemoteService() {
           collection.createdBy
         );
         await newBoxCollection(boxId, newColId);
-        var cards = (data.cards as Card[]).map(card => ({
+        var cards = data.cards.map((card: any) => ({
           collectionId: newColId,
           front: card.front,
           back: card.back,
-          frontImg: card.frontImg ? -card.frontImg : null, // Important: update global id to "-", positive values would be local ids
-          backImg: card.backImg ? -card.backImg : null, // Important: update global id to "-", positive values would be local ids
-          frontSound: card.frontSound ? -card.frontSound : null, // Important: update global id to "-", positive values would be local ids
-          backSound: card.backSound ? -card.backSound : null, // Important: update global id to "-", positive values would be local ids
-          initialEaseFactor: card.initialEaseFactor,
+          frontImg: card.frontimg ? -card.frontimg : null, // Important: update global id to "-", positive values would be local ids
+          backImg: card.backimg ? -card.backimg : null, // Important: update global id to "-", positive values would be local ids
+          frontSound: card.frontsound ? -card.frontsound : null, // Important: update global id to "-", positive values would be local ids
+          backSound: card.backsound ? -card.backsound : null, // Important: update global id to "-", positive values would be local ids
+          initialEaseFactor: card.initialeasefactor,
         }));
         if (shuffle) {
           // Shuffle cards using Fisher-Yates algorithm

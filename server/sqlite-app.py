@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify, send_file
-import psycopg2
+import sqlite3
 import os
 import re
 from dotenv import load_dotenv
 import gemini
-from psycopg2.extras import RealDictCursor
 
 load_dotenv() 
 app = Flask(__name__)
@@ -14,26 +13,22 @@ CARDS_COLLECTION_PREVIEW = 10
 MEDIA_FOLDER = "media/"
 
 
-def get_db_connection():
-    conn = psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
-    )
-    return conn
-
 @app.route('/collections/search', methods=['GET'])
 def search_collections():
     try:
         print("search_collections called")
         query = request.args.get("query")
-        query = sanitize_query(query)
-        con = get_db_connection()
 
-        results = find_fuzzy(con, query)
+        query = sanitize_query(query)
         
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row  # This will return rows as dictionaries
+        results = find_match(con, query)
+        print(results)
+        if len(results) == 0: #TODO: threshold
+            # search for fuzzy results
+            results = find_fuzzy(con, query)
+
     except Exception as e:
         print("Error in search_collections", e)
         return jsonify({"results":None}), 500
@@ -45,17 +40,17 @@ def search_collections():
 def get_collection_preview(id):
     try:
         print("search_collections called", id)
-        con = get_db_connection()
-        
-        cursor = con.cursor(cursor_factory=RealDictCursor)
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row  # This will return rows as dictionaries
+        cursor = con.cursor()
 
-        cursor.execute("SELECT * FROM collections WHERE id = %s", (id,))
+        cursor.execute("SELECT * FROM collections WHERE id = ?", (id,))
         collection_row = cursor.fetchone()
         if not collection_row:
             return jsonify({"collection":None}), 200
         
         collection = dict(collection_row)
-        cursor.execute("SELECT * FROM cards WHERE collectionId = %s limit %s", (id, CARDS_COLLECTION_PREVIEW))
+        cursor.execute("SELECT * FROM cards WHERE collectionId = ? limit ?", (id, CARDS_COLLECTION_PREVIEW))
         cards = cursor.fetchall()
         cards = [dict(row) for row in cards]
     except Exception as e:
@@ -68,16 +63,17 @@ def get_collection_preview(id):
 @app.route('/collections/download/<int:id>', methods=['GET'])
 def get_collection_download(id):
     try:
-        con = get_db_connection()
-        cursor = con.cursor(cursor_factory=RealDictCursor)
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row
+        cursor = con.cursor()
 
-        cursor.execute("SELECT * FROM collections WHERE id = %s", (id,))
+        cursor.execute("SELECT * FROM collections WHERE id = ?", (id,))
         collection_row = cursor.fetchone()
         if not collection_row:
             return jsonify({"collection":None}), 200
         
         collection = dict(collection_row)
-        cursor.execute("SELECT * FROM cards WHERE collectionId = %s", (id,))
+        cursor.execute("SELECT * FROM cards WHERE collectionId = ?", (id,))
         cards = cursor.fetchall()
         cards = [dict(row) for row in cards]
     except Exception as e:
@@ -90,8 +86,9 @@ def get_collection_download(id):
 @app.route('/collections/library', methods=['GET'])
 def get_collection_library():
     try:
-        con = get_db_connection()
-        cursor = con.cursor(cursor_factory=RealDictCursor)
+        con = sqlite3.connect(DB_NAME)
+        con.row_factory = sqlite3.Row
+        cursor = con.cursor()
 
         # TODO: only fetch some of the collections per group
         # Fetch collections
@@ -119,9 +116,10 @@ def get_collection_library():
 @app.route('/sounds/download/<int:id>', methods=['GET'])
 def get_sound_download(id):
     try:
-        con = get_db_connection()
+        con = sqlite3.connect(DB_NAME)
+
         cursor = con.cursor()
-        cursor.execute("SELECT file FROM sounds WHERE id = %s", (id,))
+        cursor.execute("SELECT file FROM sounds WHERE id = ?", (id,))
         res = cursor.fetchone()
         if res:
             file_path = MEDIA_FOLDER + res[0]
@@ -140,10 +138,10 @@ def get_sound_download(id):
 @app.route('/images/download/<int:id>', methods=['GET'])
 def get_image_download(id):
     try:
-        con = get_db_connection()
+        con = sqlite3.connect(DB_NAME)
 
         cursor = con.cursor()
-        cursor.execute("SELECT file FROM images WHERE id = %s", (id,))
+        cursor.execute("SELECT file FROM images WHERE id = ?", (id,))
         res = cursor.fetchone()
         if res:
             file_path = MEDIA_FOLDER + res[0]
@@ -164,22 +162,21 @@ def sanitize_query(query):
     # Keep numbers and letters, remove special characters except spaces
     return re.sub(r'[^\w\s\d]', '', query)
 
-# TODO: find a better alternative
 def find_match(con, query):
     cursor = con.cursor()
     search_query = """SELECT collections.*
                         FROM collections_fts
                         JOIN collections ON collections_fts.rowid = collections.rowid
-                        WHERE collections_fts MATCH %s"""
+                        WHERE collections_fts MATCH ?"""
     cursor.execute(search_query, (query,))
     results = cursor.fetchall()
     collections = [dict(row) for row in results]
     return collections
 
 def find_fuzzy(con, query):
-    cursor = con.cursor(cursor_factory=RealDictCursor)
+    cursor = con.cursor()
     words = query.split()
-    like_clauses = " OR ".join([f"name ILIKE %s OR description ILIKE %s OR tags ILIKE %s" for _ in words])
+    like_clauses = " OR ".join([f"name LIKE ? OR description LIKE ? OR tags LIKE ?" for _ in words])
     search_query = f"SELECT * FROM collections WHERE {like_clauses}"
 
     params = [f"%{word}%" for word in words for _ in range(3)]
@@ -193,17 +190,17 @@ def find_fuzzy(con, query):
 
 def search_collections(query):
     # Connect to the SQLite database
-    conn = get_db_connection()
+    conn = sqlite3.connect('your_database.db')
     cursor = conn.cursor()
 
     # Prepare the search query
-    search_query = f"SELECT * FROM collections_fts WHERE collections_fts MATCH %s"
+    search_query = f"SELECT * FROM collections_fts WHERE collections_fts MATCH ?"
 
     # Execute the search query
     cursor.execute(search_query, (query,))
     results = cursor.fetchall()
 
-    # Close the connection  
+    # Close the connection
     conn.close()
 
     return results

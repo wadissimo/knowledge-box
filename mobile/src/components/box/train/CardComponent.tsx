@@ -170,6 +170,7 @@ const CardComponent: React.FC<{
   async function handlePlay(soundId: number | null, e?: any) {
     if (e) e.stopPropagation && e.stopPropagation(); // Prevent drag/tap propagation
     if (soundId !== null) {
+      console.log('handlePlay', soundId);
       await playSound(soundId);
     }
   }
