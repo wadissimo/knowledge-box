@@ -1,255 +1,244 @@
-from flask import Flask, request, jsonify, send_file
-import psycopg2
 import os
 import re
-from dotenv import load_dotenv
+import json
+from datetime import timedelta
+
 import gemini
+import psycopg2
 from psycopg2.extras import RealDictCursor
+import redis
+import firebase_admin
+from firebase_admin import auth
+from dotenv import load_dotenv
+from fastapi import FastAPI, Depends, HTTPException, Request, status
+from fastapi.responses import JSONResponse, FileResponse
+from pydantic import BaseModel
 
-load_dotenv() 
-app = Flask(__name__)
+# Load environment
+load_dotenv()
 
+# Constants
 DB_NAME = "serverdata.db"
 CARDS_COLLECTION_PREVIEW = 10
 MEDIA_FOLDER = "media/"
+CACHE_TTL = 900
+FAKE_API = False
+DEFAULT_LANGUAGE = "English"
+SECRET_KEY = os.getenv("SECRET_KEY")
+MODEL = os.getenv("MODEL", "gemini")
 
+# Initialize Firebase
+firebase_app = firebase_admin.initialize_app()
+
+# Initialize Redis
+redis_client = redis.Redis(
+    host=os.getenv("REDIS_HOST"),
+    port=int(os.getenv("REDIS_PORT")),
+    db=0,
+    decode_responses=True
+)
+
+app = FastAPI()
+
+### Utility functions ###
 
 def get_db_connection():
-    conn = psycopg2.connect(
+    return psycopg2.connect(
         host=os.getenv("DB_HOST"),
         port=os.getenv("DB_PORT"),
         dbname=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD")
     )
-    return conn
 
-@app.route('/collections/search', methods=['GET'])
-def search_collections():
+
+def sanitize_query(query: str) -> str:
+    return re.sub(r'[^\w\s\d]', '', query)
+
+
+def find_fuzzy(con, query: str) -> list:
+    cursor = con.cursor(cursor_factory=RealDictCursor)
+    words = query.split()
+    like_clauses = " OR ".join([
+        "name ILIKE %s OR description ILIKE %s OR tags ILIKE %s"
+        for _ in words
+    ])
+    search_query = f"SELECT * FROM collections WHERE {like_clauses}"
+    params = [f"%{word}%" for word in words for _ in range(3)]
+    cursor.execute(search_query, params)
+    return [dict(row) for row in cursor.fetchall()]
+
+
+### Firebase auth dependency ###
+
+def verify_token_with_cache(id_token: str) -> dict:
+    cached = redis_client.get(f"firebase_token:{id_token}")
+    if cached:
+        return json.loads(cached)
+    decoded = auth.verify_id_token(id_token)
+    redis_client.setex(f"firebase_token:{id_token}", timedelta(seconds=CACHE_TTL), json.dumps(decoded))
+    return decoded
+
+
+async def get_current_user(request: Request) -> dict:
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Missing or invalid token")
+    token = auth_header.split()[1]
     try:
-        print("search_collections called")
-        query = request.args.get("query")
-        query = sanitize_query(query)
-        con = get_db_connection()
-
-        results = find_fuzzy(con, query)
-        
+        return verify_token_with_cache(token)
     except Exception as e:
-        print("Error in search_collections", e)
-        return jsonify({"results":None}), 500
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=str(e))
+
+
+### Routes ###
+
+@app.get("/api/verify")
+async def verify(user: dict = Depends(get_current_user)):
+    return {
+        "uid": user.get("uid"),
+        "email": user.get("email"),
+        "message": "Token is valid"
+    }
+
+
+@app.get("/collections/search")
+def search_collections(query: str):
+    try:
+        q = sanitize_query(query)
+        con = get_db_connection()
+        results = find_fuzzy(con, q)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error searching collections")
     finally:
         con.close()
-    return jsonify({"results":results}), 200
+    return {"results": results}
 
-@app.route('/collections/preview/<int:id>', methods=['GET'])
-def get_collection_preview(id):
+
+@app.get("/collections/preview/{collection_id}")
+def get_collection_preview(collection_id: int):
     try:
-        print("search_collections called", id)
         con = get_db_connection()
-        
         cursor = con.cursor(cursor_factory=RealDictCursor)
-
-        cursor.execute("SELECT * FROM collections WHERE id = %s", (id,))
-        collection_row = cursor.fetchone()
-        if not collection_row:
-            return jsonify({"collection":None}), 200
-        
-        collection = dict(collection_row)
-        cursor.execute("SELECT * FROM cards WHERE collectionId = %s limit %s", (id, CARDS_COLLECTION_PREVIEW))
-        cards = cursor.fetchall()
-        cards = [dict(row) for row in cards]
-    except Exception as e:
-        print("Error in get_collection_preview", e)
-        return jsonify({"collection":None, "cards":None}), 500
+        cursor.execute("SELECT * FROM collections WHERE id = %s", (collection_id,))
+        coll = cursor.fetchone()
+        if not coll:
+            return {"collection": None}
+        collection = dict(coll)
+        cursor.execute(
+            "SELECT * FROM cards WHERE collectionId = %s LIMIT %s",
+            (collection_id, CARDS_COLLECTION_PREVIEW)
+        )
+        cards = [dict(row) for row in cursor.fetchall()]
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error fetching preview")
     finally:
         con.close()
-    return jsonify({"collection":collection, "cards":cards}), 200
+    return {"collection": collection, "cards": cards}
 
-@app.route('/collections/download/<int:id>', methods=['GET'])
-def get_collection_download(id):
+
+@app.get("/collections/download/{collection_id}")
+def get_collection_download(collection_id: int):
     try:
         con = get_db_connection()
         cursor = con.cursor(cursor_factory=RealDictCursor)
-
-        cursor.execute("SELECT * FROM collections WHERE id = %s", (id,))
-        collection_row = cursor.fetchone()
-        if not collection_row:
-            return jsonify({"collection":None}), 200
-        
-        collection = dict(collection_row)
-        cursor.execute("SELECT * FROM cards WHERE collectionId = %s", (id,))
-        cards = cursor.fetchall()
-        cards = [dict(row) for row in cards]
-    except Exception as e:
-        print("Error in get_collection_download", e)
-        return jsonify({"collection":None, "cards":None}), 500
+        cursor.execute("SELECT * FROM collections WHERE id = %s", (collection_id,))
+        coll = cursor.fetchone()
+        if not coll:
+            return {"collection": None}
+        collection = dict(coll)
+        cursor.execute("SELECT * FROM cards WHERE collectionId = %s", (collection_id,))
+        cards = [dict(row) for row in cursor.fetchall()]
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error fetching download")
     finally:
         con.close()
-    return jsonify({"collection":collection, "cards":cards}), 200
+    return {"collection": collection, "cards": cards}
 
-@app.route('/collections/library', methods=['GET'])
+
+@app.get("/collections/library")
 def get_collection_library():
     try:
         con = get_db_connection()
         cursor = con.cursor(cursor_factory=RealDictCursor)
-
-        # TODO: only fetch some of the collections per group
-        # Fetch collections
         cursor.execute("SELECT * FROM collections")
-        collections = cursor.fetchall()
-        collections = [dict(row) for row in collections]
-
-        # Fetch groups
+        collections = [dict(r) for r in cursor.fetchall()]
         cursor.execute("SELECT * FROM groups")
-        groups = cursor.fetchall()
-        groups = [dict(row) for row in groups]
-
-        # Fetch collection_groups
+        groups = [dict(r) for r in cursor.fetchall()]
         cursor.execute("SELECT * FROM collection_groups")
-        collection_groups = cursor.fetchall()
-        collection_groups = [dict(row) for row in collection_groups]
-
-    except Exception as e:
-        print("Error in get_collection_library", e)
-        return jsonify({"collections":None, "groups":None, "collection_groups":None}), 500
+        cgroups = [dict(r) for r in cursor.fetchall()]
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error fetching library")
     finally:
         con.close()
-    return jsonify({"collections":collections, "groups":groups, "collection_groups":collection_groups}), 200
+    return {"collections": collections, "groups": groups, "collection_groups": cgroups}
 
-@app.route('/sounds/download/<int:id>', methods=['GET'])
-def get_sound_download(id):
+
+@app.get("/sounds/download/{sound_id}")
+def get_sound_download(sound_id: int):
     try:
         con = get_db_connection()
         cursor = con.cursor()
-        cursor.execute("SELECT file FROM sounds WHERE id = %s", (id,))
+        cursor.execute("SELECT file FROM sounds WHERE id = %s", (sound_id,))
         res = cursor.fetchone()
-        if res:
-            file_path = MEDIA_FOLDER + res[0]
-            if os.path.exists(file_path):
-                return send_file(file_path, as_attachment=True)
-            else:
-                return jsonify({'error': 'File not found'}), 404
-        else:
-            return jsonify({'error': 'Data not found'}), 404
-    except Exception as e:
-        print("Error in get_sound_download", e)
-        return jsonify({'error': 'Data not found'}), 404
+        if not res:
+            raise HTTPException(status_code=404, detail="Data not found")
+        path = os.path.join(MEDIA_FOLDER, res[0])
+        if not os.path.exists(path):
+            raise HTTPException(status_code=404, detail="File not found")
+        return FileResponse(path, filename=res[0], media_type='application/octet-stream')
     finally:
         con.close()
-    
-@app.route('/images/download/<int:id>', methods=['GET'])
-def get_image_download(id):
+
+
+@app.get("/images/download/{image_id}")
+def get_image_download(image_id: int):
     try:
         con = get_db_connection()
-
         cursor = con.cursor()
-        cursor.execute("SELECT file FROM images WHERE id = %s", (id,))
+        cursor.execute("SELECT file FROM images WHERE id = %s", (image_id,))
         res = cursor.fetchone()
-        if res:
-            file_path = MEDIA_FOLDER + res[0]
-            if os.path.exists(file_path):
-                return send_file(file_path, as_attachment=True, download_name=res[0])
-            else:
-                return jsonify({'error': 'File not found'}), 404
-        else:
-            return jsonify({'error': 'Data not found'}), 404
-    except Exception as e:
-        print("Error in get_image_download", e)
-        return jsonify({'error': 'Data not found'}), 404
+        if not res:
+            raise HTTPException(status_code=404, detail="Data not found")
+        path = os.path.join(MEDIA_FOLDER, res[0])
+        if not os.path.exists(path):
+            raise HTTPException(status_code=404, detail="File not found")
+        return FileResponse(path, filename=res[0], media_type='application/octet-stream')
     finally:
         con.close()
 
 
-def sanitize_query(query):
-    # Keep numbers and letters, remove special characters except spaces
-    return re.sub(r'[^\w\s\d]', '', query)
+### AI Chat Endpoint ###
 
-# TODO: find a better alternative
-def find_match(con, query):
-    cursor = con.cursor()
-    search_query = """SELECT collections.*
-                        FROM collections_fts
-                        JOIN collections ON collections_fts.rowid = collections.rowid
-                        WHERE collections_fts MATCH %s"""
-    cursor.execute(search_query, (query,))
-    results = cursor.fetchall()
-    collections = [dict(row) for row in results]
-    return collections
-
-def find_fuzzy(con, query):
-    cursor = con.cursor(cursor_factory=RealDictCursor)
-    words = query.split()
-    like_clauses = " OR ".join([f"name ILIKE %s OR description ILIKE %s OR tags ILIKE %s" for _ in words])
-    search_query = f"SELECT * FROM collections WHERE {like_clauses}"
-
-    params = [f"%{word}%" for word in words for _ in range(3)]
-
-    cursor.execute(search_query, params)
-    results = cursor.fetchall()
-
-    collections = [dict(row) for row in results]
-    return collections
+class ChatRequest(BaseModel):
+    message: str
+    key: str
+    language: str = DEFAULT_LANGUAGE
+    history: list = []
 
 
-def search_collections(query):
-    # Connect to the SQLite database
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    # Prepare the search query
-    search_query = f"SELECT * FROM collections_fts WHERE collections_fts MATCH %s"
-
-    # Execute the search query
-    cursor.execute(search_query, (query,))
-    results = cursor.fetchall()
-
-    # Close the connection  
-    conn.close()
-
-    return results
-
-
-FAKE_API = False
-DEFAULT_LANGUAGE = "English"
-SECRET_KEY = "jclKjUk123dsahkjdhkjsa67FD213sadHAFDUd23213bvcBKJQhjgf12312"
-MODEL = "gemini"
-
-
-@app.route('/api/ai/chat', methods=['POST'])
-def chat():
+@app.post("/api/ai/chat")
+def chat(req: ChatRequest):
+    if req.key != SECRET_KEY:
+        return JSONResponse(status_code=200, content={"result": "error"})
     try:
-        print("chat")
-        data = request.get_json()
-        message = data.get("message")
-        key = data.get("key")
-        lang = data.get("language", DEFAULT_LANGUAGE)
-        if key != SECRET_KEY:
-            print("wrong key")
-            return jsonify({"result":"error"}), 200
-        history = data.get("history")
-        print("history", history)
-
-        # TODO: function calling
         if FAKE_API:
-            resp_json = {
-                "result":"ok",
-                "message": "Fake response from AI",
-            }
+            resp = {"result": "ok", "message": "Fake response from AI"}
         else:
-            if MODEL == "chatgpt":
-                pass
+            if MODEL.lower() == "chatgpt":
+                # integrate ChatGPT if needed
+                resp = {}
             else:
-                resp_json = gemini.chat(message, lang, history)
-            resp_json[ "result"] = "ok"
-    except Exception as e:
-        print("Error in chat", e)
-        return jsonify({"result":"error"}), 200
+                resp = gemini.chat(req.message, req.language, req.history)
+            resp["result"] = "ok"
+    except Exception:
+        return JSONResponse(status_code=200, content={"result": "error"})
+    return resp
 
 
-    return jsonify(resp_json)
-
-
-if __name__ == '__main__':
-    #app.run(debug=True, if __name__ == '__main__':
-    # run app in debug mode on port 5000
-    app.run(debug=True, port=5000, host='0.0.0.0')
+# Entry point
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000)

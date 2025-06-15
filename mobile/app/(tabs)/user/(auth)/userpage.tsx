@@ -6,6 +6,9 @@ import ScreenContainer from '@/src/components/common/ScreenContainer';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { i18n } from '@/src/lib/i18n';
 import PrimaryButton from '@/src/components/common/PrimaryButton';
+
+const apiBase = process.env.EXPO_PUBLIC_API_URL ?? '';
+
 const UserPage = () => {
   const { themeColors } = useThemeColors();
   const [user, setUser] = useState(getAuth().currentUser);
@@ -20,6 +23,24 @@ const UserPage = () => {
   const signOut = () => {
     getAuth().signOut();
     setUser(null);
+  };
+
+  const verifyToken = async () => {
+    try {
+      const token = await getAuth().currentUser?.getIdToken();
+      if (token) {
+        const response = await fetch(`${apiBase}/api/verify`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        console.log(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
   console.log('user', user);
   if (!user) return null;
@@ -49,6 +70,9 @@ const UserPage = () => {
       </View>
       <View>
         <PrimaryButton onClick={signOut} text={i18n.t('user.signOut')} />
+      </View>
+      <View>
+        <PrimaryButton onClick={verifyToken} text="Verify Token" />
       </View>
     </ScreenContainer>
   );
