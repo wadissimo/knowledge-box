@@ -235,21 +235,41 @@ export default function useMediaDataService() {
   const getImageSource = async (imageId: number): Promise<string | null> => {
     const imageData = await getImageById(imageId);
 
-    var fileName: string | null;
-    if (!imageData) {
+    var fileName: string | null = imageData ? imageData.file : null;
+    if (fileName !== null) {
+      const fileExists = await FileSystem.getInfoAsync(getMediaUriByName(fileName));
+      if (!fileExists.exists) {
+        console.error('MediaDataService.getImageSource: file does not exist', fileName);
+        fileName = null;
+      }
+    }
+    if (fileName === null) {
       if (imageId < 0) {
-        console.log('image missing, download');
-        fileName = `media/images/${imageId}`; // "-" for global files
-        fileName = await downloadImage(-imageId, fileName);
-        console.log('fileName downloaded', fileName);
-        if (fileName === null) return null;
-        await newImageWithId(imageId, fileName, null, null);
+        fileName = await downloadImage(-imageId, `media/images/${imageId}`);
+        console.log('MediaDataService.getImageSource: fileName downloaded', fileName);
+        if (fileName !== null) {
+          if (imageData) {
+            await newImageWithId(imageId, fileName, null, null);
+          } else {
+            await updateImage({
+              id: imageId,
+              file: fileName,
+              ref: null,
+              comment: null,
+            });
+          }
+        }
       } else {
-        console.error('cant find media image', imageId);
+        console.error('MediaDataService.getImageSource: wrong imageId', imageId);
         return null;
       }
-    } else {
-      fileName = imageData.file;
+    }
+    if (fileName === null) {
+      console.error(
+        'MediaDataService.getImageSource: cant find media image. filename is null',
+        imageId
+      );
+      return null;
     }
 
     return getMediaUriByName(fileName);
