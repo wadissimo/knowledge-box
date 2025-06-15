@@ -179,6 +179,7 @@ def get_collection_library():
 @app.get("/sounds/download/{sound_id}")
 def get_sound_download(sound_id: int):
     try:
+        print("/sounds/download/", sound_id)
         con = get_db_connection()
         cursor = con.cursor()
         cursor.execute("SELECT file FROM sounds WHERE id = %s", (sound_id,))
@@ -189,6 +190,9 @@ def get_sound_download(sound_id: int):
         if not os.path.exists(path):
             raise HTTPException(status_code=404, detail="File not found")
         return FileResponse(path, filename=res[0], media_type='application/octet-stream')
+    except Exception as e:
+        print("Error in get_sound_download", e)
+        raise HTTPException(status_code=500, detail="Error fetching sound")
     finally:
         con.close()
 

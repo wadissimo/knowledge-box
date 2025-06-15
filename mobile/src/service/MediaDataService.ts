@@ -92,8 +92,8 @@ export default function useMediaDataService() {
     setError(null);
     setLoading(true);
     try {
-      const URL = process.env.EXPO_PUBLIC_API_URL + 'sounds/download/' + globalSoundId;
-
+      const URL = process.env.EXPO_PUBLIC_API_URL + '/sounds/download/' + globalSoundId;
+      console.log('downloadSound URL', URL);
       const response = await fetch(URL);
       if (response.ok) {
         const fileBlob = await response.blob();
@@ -132,7 +132,7 @@ export default function useMediaDataService() {
     setError(null);
     setLoading(true);
     try {
-      const URL = process.env.EXPO_PUBLIC_API_URL + 'images/download/' + globalImageId;
+      const URL = process.env.EXPO_PUBLIC_API_URL + '/images/download/' + globalImageId;
 
       const response = await fetch(URL);
       if (response.ok) {
@@ -286,31 +286,82 @@ export default function useMediaDataService() {
     await sound.playAsync();
   };
 
+  const attemptDownloadSound = async (
+    soundId: number,
+    existingSound: SoundData | null
+  ): Promise<string | null> => {
+    try {
+      console.log('sound missing, download');
+      const fileName = `media/sounds/${soundId}.mp3`; // "-" for global files
+      await downloadSound(-soundId, fileName);
+      if (existingSound) {
+        await newSoundWithId(soundId, fileName, null, null);
+      } else {
+        await updateSound({
+          id: soundId,
+          file: fileName,
+          ref: null,
+          comment: null,
+        });
+      }
+      return fileName;
+    } catch (error) {
+      console.error('Error downloading sound', error);
+      return null;
+    }
+  };
   const playSound = async (soundId: number) => {
     try {
       const soundData = await getSoundById(soundId);
       console.log('playSound', soundId, soundData);
 
-      var fileName: string;
+      var fileName: string | null = null;
       if (!soundData) {
         if (soundId < 0) {
-          console.log('sound missing, download');
-          fileName = `media/sounds/${soundId}.mp3`; // "-" for global files
-          await downloadSound(-soundId, fileName);
-          await newSoundWithId(soundId, fileName, null, null);
+          console.log('MediaDataService.playSound: sound missing, download');
+          fileName = await attemptDownloadSound(soundId, null);
         } else {
-          console.error('cant find media sound', soundId);
+          console.error('MediaDataService.playSound: wrong soundId', soundId);
           return;
         }
       } else {
         fileName = soundData.file;
+      }
+      if (fileName === null) {
+        console.error('MediaDataService.playSound: cant find media sound. empty fileName', soundId);
+        return;
+      }
+
+      const fileExists = await FileSystem.getInfoAsync(getMediaUriByName(fileName));
+      if (!fileExists.exists) {
+        console.log(
+          'MediaDataService.playSound: cant find media sound. file does not exist',
+          soundId
+        );
+        fileName = await attemptDownloadSound(soundId, soundData);
+        if (fileName === null) {
+          console.error(
+            'MediaDataService.playSound: Download attempt 2: failed. filename is null',
+            soundId
+          );
+          return;
+        } else {
+          const fileExists = await FileSystem.getInfoAsync(getMediaUriByName(fileName));
+          if (!fileExists.exists) {
+            console.error(
+              'MediaDataService.playSound: Download attempt 2: failed.  file does not exist',
+              soundId
+            );
+            return;
+          }
+        }
       }
 
       const { sound } = await Audio.Sound.createAsync({
         uri: getMediaUriByName(fileName),
       });
       setSound(sound);
-      console.log('Playing Sound ', fileName);
+      // console.log('Playing Sound ', fileName);
       await sound.setVolumeAsync(1.0); // Set volume to max
       await sound.playAsync();
       //await sound.unloadAsync();
