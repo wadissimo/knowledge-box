@@ -17,7 +17,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import { getLocale, i18n, setLocale } from '@/src/lib/i18n';
 import { Setting, SettingCategory, useSettingsModel } from '@/src/data/SettingsModel';
-import { Href, router } from 'expo-router';
+import { Href, Link, router } from 'expo-router';
 import { resetAISetup } from '@/src/service/AIService';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { useSettings } from '@/src/context/SettingsContext';
@@ -328,6 +328,9 @@ const SettingsTab = () => {
           </Pressable>
         </Pressable>
       </Modal>
+      <Link href="/temp/pell">
+        <Text>Pell</Text>
+      </Link>
     </ScreenContainer>
   );
 };

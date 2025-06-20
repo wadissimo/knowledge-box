@@ -1,8 +1,16 @@
 import { useThemeColors } from '@/src/context/ThemeContext';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, StyleProp, ViewStyle } from 'react-native';
 
-const PrimaryButton = ({ text, onClick }: { text: string; onClick: () => void }) => {
+const PrimaryButton = ({
+  text,
+  onClick,
+  style,
+}: {
+  text: string;
+  onClick: () => void;
+  style?: StyleProp<ViewStyle>;
+}) => {
   const { themeColors } = useThemeColors();
   return (
     <TouchableOpacity onPress={onClick}>
@@ -10,6 +18,7 @@ const PrimaryButton = ({ text, onClick }: { text: string; onClick: () => void })
         style={[
           styles.btn,
           { backgroundColor: themeColors.primaryBtnBg, shadowColor: themeColors.primaryBtnShadow },
+          style,
         ]}
       >
         <Text style={[styles.btnText, { color: themeColors.primaryBtnText }]}>{text}</Text>

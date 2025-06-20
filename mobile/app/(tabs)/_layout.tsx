@@ -89,15 +89,7 @@ const _layout = () => {
           ),
         }}
       />
-      {/* <Tabs.Screen
-        name="boxTest"
-        options={{
-          title: "Test",
-          tabBarIcon: ({ color }: { color: string }) => (
-            <Icon size={28} name="cog" color={color} />
-          ),
-        }}
-      /> */}
+
       {/* <Tabs.Screen
         name="boxShadow"
         options={{

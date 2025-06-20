@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LaTeX to SVG Converter</title>
+</head>
+<body>
+    <h1>LaTeX to SVG Converter</h1>
+    <textarea id="latexInput" rows="5" cols="50">
+\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+    </textarea>
+    <br>
+    <button onclick="convertLatex()">Convert to SVG</button>
+    <hr>
+    <h2>Converted SVG:</h2>
+    <div id="svgOutput"></div>
+
+    <script>
+        async function convertLatex() {
+            const latex = document.getElementById('latexInput').value;
+            const svgOutputDiv = document.getElementById('svgOutput');
+            svgOutputDiv.innerHTML = ''; // Clear previous SVG
+
+            try {
+                const response = await fetch('http://localhost:3000/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ latex: latex })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to convert LaTeX');
+                }
+
+                const svgText = await response.text();
+                svgOutputDiv.innerHTML = svgText; // Directly inject the SVG string
+            } catch (error) {
+                console.error('Error:', error);
+                svgOutputDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
