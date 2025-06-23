@@ -15,7 +15,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   DEFAULT_TOOLBAR_ITEMS,
   editorHtml,
+  ImageBridge,
   RichText,
+  TenTapStartKit,
   Toolbar,
   useBridgeState,
   useEditorBridge,
@@ -37,6 +39,16 @@ const EditTextNote = () => {
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent: '',
+    bridgeExtensions: [
+      ...TenTapStartKit,
+      ImageBridge.configureExtension({
+        inline: false,
+        HTMLAttributes: {
+          width: '50px',
+          height: '50px',
+        },
+      }),
+    ],
   });
   const { newNote, updateNote, getNoteById, newBoxNote } = useNoteModel();
 
@@ -100,7 +112,11 @@ const EditTextNote = () => {
   };
   const handleSaveFormula = (uri: string) => {
     //editor.injectJS(`insertImage("${uri}")`);
-    editor.setImage(uri);
+    //editor.setImage(uri);
+    console.log('setImage');
+    editor.setImage(
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/100px-React-icon.svg.png'
+    );
     setFormulaModalVisible(false);
   };
 
@@ -223,7 +239,7 @@ function InsertFormulaDialog({
         {previewFormula ? (
           <View
             style={{
-              width: '90%',
+              width: 200,
               backgroundColor: '#fff',
               borderRadius: 18,
               padding: 16,
@@ -276,7 +292,7 @@ function InsertFormulaDialog({
 }
 const styles = StyleSheet.create({
   formulaContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#aaa',
     padding: 20,
 
     justifyContent: 'center',

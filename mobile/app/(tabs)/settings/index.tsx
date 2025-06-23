@@ -328,8 +328,8 @@ const SettingsTab = () => {
           </Pressable>
         </Pressable>
       </Modal>
-      <Link href="/temp/pell">
-        <Text>Pell</Text>
+      <Link href="/temp/editor">
+        <Text>Basic Editor</Text>
       </Link>
     </ScreenContainer>
   );
