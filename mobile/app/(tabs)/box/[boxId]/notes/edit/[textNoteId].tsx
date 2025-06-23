@@ -22,7 +22,7 @@ import {
   useBridgeState,
   useEditorBridge,
 } from '@10play/tentap-editor';
-import { useNoteModel } from '@/src/data/NoteModel';
+import { Note, useNoteModel } from '@/src/data/NoteModel';
 import { useLocalSearchParams } from 'expo-router';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg';
@@ -34,6 +34,8 @@ const EditTextNote = () => {
   const saveIcon = require('@/assets/icons/content-save-outline.png');
   const fxIcon = require('@/assets/icons/fx3.png');
   const { textNoteId, boxId } = useLocalSearchParams();
+  const [note, setNote] = useState<Note | null>(null);
+  const [title, setTitle] = useState('');
   const [formulaModalVisible, setFormulaModalVisible] = useState(false);
   const editor = useEditorBridge({
     autofocus: true,
@@ -52,8 +54,6 @@ const EditTextNote = () => {
   });
   const { newNote, updateNote, getNoteById, newBoxNote } = useNoteModel();
 
-  const [title, setTitle] = useState('');
-
   useEffect(() => {
     const run = async () => {
       try {
@@ -66,7 +66,7 @@ const EditTextNote = () => {
             throw Error("Can't find a note:" + textNoteId);
           }
           console.log('note found:', note);
-
+          setNote(note);
           editor.initialContent = note.content;
           editor.setContent(note.content);
           setTitle(note.title);
@@ -86,16 +86,13 @@ const EditTextNote = () => {
       console.log('save');
       const content = await editor.getHTML();
       console.log(content);
-      if (textNoteId === 'new') {
+      if (note === null) {
         const noteId = await newNote(title, content, '');
         await newBoxNote(Number(boxId), noteId);
         console.log('new note created:', noteId);
+        const note = await getNoteById(noteId);
+        setNote(note);
       } else {
-        const note = await getNoteById(Number(textNoteId));
-        if (note === null) {
-          console.error("Can't find a note:" + textNoteId);
-          throw Error("Can't find a note:" + textNoteId);
-        }
         note.content = content;
         note.title = title;
         await updateNote(note);
