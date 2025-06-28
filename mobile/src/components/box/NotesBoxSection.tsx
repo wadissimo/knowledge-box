@@ -22,6 +22,7 @@ import { Note, useNoteModel } from '@/src/data/NoteModel';
 import RenderHtml from 'react-native-render-html';
 import NoteRenderHtml from './notes/NoteRenderHtml';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+import MathComponent from './notes/MathComponent ';
 
 const BOX_SECTION_HEADER_SIZE = 40;
 const MAX_CARD_WINDOW_SIZE = 5;
@@ -277,7 +278,8 @@ const NotesBoxSection = ({
                           {/* <Text style={styles.colNameTxt} numberOfLines={4}>
                         {note.title}
                       </Text> */}
-                          <NoteRenderHtml note={note} width={contentWidth} />
+                          <MathComponent content={note.content} width={contentWidth} />
+                          {/* <NoteRenderHtml note={note} width={contentWidth} /> */}
                         </View>
                       </TouchableOpacity>
                     </DraggableBoxCard>

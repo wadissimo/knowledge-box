@@ -52,39 +52,20 @@ const EditTextNote = () => {
   const [note, setNote] = useState<Note | null>(null);
   const [title, setTitle] = useState('');
   const [formulaModalVisible, setFormulaModalVisible] = useState(false);
-  const EXTENSIONS = [
-    ...TenTapStartKit.filter(e => e.name !== 'image'), // optional: prevent duplicate
-    NativeCustomImageBridge,
-    MathematicsBridge,
-  ];
-  // console.log(
-  //   'EXTENSIONS',
-  //   EXTENSIONS.map(e => e.name)
-  // );
 
   const editor = useEditorBridge({
     customSource: editorHtml,
     autofocus: true,
     avoidIosKeyboard: true,
-    initialContent: 'This editor supports $\\LaTeX$ math expressions. $\\sin(x)$',
+    initialContent: '',
     bridgeExtensions: [
       ...TenTapStartKit,
       NativeCustomImageBridge.configureExtension({ inline: true }),
+      MathematicsBridge,
     ],
-    //initialContent: 'This editor supports $\\LaTeX$ math expressions. $\\sin(x)$',
-    // ...TenTapStartKit.filter(e => e.name !== 'ImageBridge'), // optional: prevent duplicate
-    // CustomImageBridge,
-
-    // ImageBridge.configureExtension({
-    //   inline: true,
-
-    //   HTMLAttributes: {
-    //     width: 'auto',
-    //     height: 'auto',
-    //     style: 'max-width: 100%; height: auto;',
-    //   },
-    // }),
   });
+  const bridgeState = useBridgeState(editor);
+  const editorContent = useEditorContent(editor);
 
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
 
@@ -108,8 +89,7 @@ const EditTextNote = () => {
           console.log('note found:', note);
           setNote(note);
           editor.initialContent = note.content;
-          //editor.setContent(note.content);
-          //editor.setContent('This editor supports $\\LaTeX$ math expressions. $\\sin(x)$');
+          editor.setContent(note.content);
           setTitle(note.title);
         }
 
@@ -122,7 +102,22 @@ const EditTextNote = () => {
     run();
   }, [textNoteId, boxId]);
 
-  const editorContent = useEditorContent(editor);
+  // console.log('render: bridgeState', bridgeState);
+
+  useEffect(() => {
+    if (
+      note !== null &&
+      note.content !== undefined &&
+      note.content !== '' &&
+      note.content !== '<p></p>' &&
+      (editorContent === undefined || editorContent === '' || editorContent === '<p></p>')
+    ) {
+      //workaround for initial content not being set
+      //test
+      editor.setContent(note.content);
+      // console.log('setting note content workaround');
+    }
+  }, [editorContent, note]);
 
   const handleResizeImage = () => {
     try {
@@ -191,7 +186,6 @@ const EditTextNote = () => {
         exclusivelyUseCustomOnMessage={false}
         onMessage={event => {
           try {
-            console.log('onMessage');
             const data = JSON.parse(event.nativeEvent.data);
             console.log('onMessage', data.type);
             if (data.type === 'image-tap') {

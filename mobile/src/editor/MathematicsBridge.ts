@@ -20,7 +20,7 @@ export const MathematicsBridge = new BridgeExtension<
   MathematicsEditorInstance,
   MathematicsMessage
 >({
-  forceName: 'mathematics',
+  forceName: 'Mathematics',
   tiptapExtension: Mathematics,
 
   extendEditorState: () => {

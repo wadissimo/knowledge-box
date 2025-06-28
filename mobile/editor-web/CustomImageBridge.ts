@@ -53,15 +53,9 @@ export const CustomImageBridge = new BridgeExtension<
               nodePos: number,
               event: MouseEvent
             ) {
-              console.log('click');
-              window.ReactNativeWebView?.postMessage(
-                JSON.stringify({
-                  type: 'click',
-                })
-              );
               if (node.type.name === 'image') {
                 const attrs = node.attrs;
-                console.log('addProseMirrorPlugins image-tap', attrs);
+
                 window.ReactNativeWebView?.postMessage(
                   JSON.stringify({
                     type: 'image-tap',
