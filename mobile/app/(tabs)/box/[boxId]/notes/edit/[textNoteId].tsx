@@ -1,5 +1,6 @@
 import {
   Button,
+  GestureResponderEvent,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -13,14 +14,17 @@ import {
 } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  CoreBridge,
   DEFAULT_TOOLBAR_ITEMS,
-  editorHtml,
+  EditorBridge,
   ImageBridge,
   RichText,
   TenTapStartKit,
   Toolbar,
+  UnderlineBridge,
   useBridgeState,
   useEditorBridge,
+  useEditorContent,
 } from '@10play/tentap-editor';
 import { Note, useNoteModel } from '@/src/data/NoteModel';
 import { useLocalSearchParams } from 'expo-router';
@@ -28,30 +32,66 @@ import ViewShot, { captureRef } from 'react-native-view-shot';
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg';
 import PrimaryButton from '@/src/components/common/PrimaryButton';
 import * as FileSystem from 'expo-file-system';
+import { NativeCustomImageBridge } from './NativeCustomImageBridge';
+
+import { editorHtml } from '@/editor-web/build/editorHtml';
+import { MathematicsBridge } from '@/src/editor/MathematicsBridge';
 
 const TEST = 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}';
+
+const Counter = ({ editor }: { editor: EditorBridge }) => {
+  const { wordCount } = useBridgeState(editor);
+  return <Text>{wordCount}</Text>;
+};
+
 const EditTextNote = () => {
   const saveIcon = require('@/assets/icons/content-save-outline.png');
   const fxIcon = require('@/assets/icons/fx3.png');
+
   const { textNoteId, boxId } = useLocalSearchParams();
   const [note, setNote] = useState<Note | null>(null);
   const [title, setTitle] = useState('');
   const [formulaModalVisible, setFormulaModalVisible] = useState(false);
+  const EXTENSIONS = [
+    ...TenTapStartKit.filter(e => e.name !== 'image'), // optional: prevent duplicate
+    NativeCustomImageBridge,
+    MathematicsBridge,
+  ];
+  // console.log(
+  //   'EXTENSIONS',
+  //   EXTENSIONS.map(e => e.name)
+  // );
+
   const editor = useEditorBridge({
+    customSource: editorHtml,
     autofocus: true,
     avoidIosKeyboard: true,
-    initialContent: '',
+    initialContent: 'This editor supports $\\LaTeX$ math expressions. $\\sin(x)$',
     bridgeExtensions: [
       ...TenTapStartKit,
-      ImageBridge.configureExtension({
-        inline: false,
-        HTMLAttributes: {
-          width: '50px',
-          height: '50px',
-        },
-      }),
+      NativeCustomImageBridge.configureExtension({ inline: true }),
     ],
+    //initialContent: 'This editor supports $\\LaTeX$ math expressions. $\\sin(x)$',
+    // ...TenTapStartKit.filter(e => e.name !== 'ImageBridge'), // optional: prevent duplicate
+    // CustomImageBridge,
+
+    // ImageBridge.configureExtension({
+    //   inline: true,
+
+    //   HTMLAttributes: {
+    //     width: 'auto',
+    //     height: 'auto',
+    //     style: 'max-width: 100%; height: auto;',
+    //   },
+    // }),
   });
+
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+
+  const [resizeModalVisible, setResizeModalVisible] = useState(false);
+  const [resizeWidth, setResizeWidth] = useState('');
+  const [resizeHeight, setResizeHeight] = useState('');
+
   const { newNote, updateNote, getNoteById, newBoxNote } = useNoteModel();
 
   useEffect(() => {
@@ -68,7 +108,8 @@ const EditTextNote = () => {
           console.log('note found:', note);
           setNote(note);
           editor.initialContent = note.content;
-          editor.setContent(note.content);
+          //editor.setContent(note.content);
+          //editor.setContent('This editor supports $\\LaTeX$ math expressions. $\\sin(x)$');
           setTitle(note.title);
         }
 
@@ -81,11 +122,25 @@ const EditTextNote = () => {
     run();
   }, [textNoteId, boxId]);
 
+  const editorContent = useEditorContent(editor);
+
+  const handleResizeImage = () => {
+    try {
+      console.log('handleResizeImage', selectedImageSrc, resizeWidth, resizeHeight);
+      // editor.resizeImage(selectedImageSrc, resizeWidth, resizeHeight);
+    } catch (e) {
+      console.error(e);
+    }
+
+    setResizeModalVisible(false);
+  };
+
   const handleSave = async () => {
     try {
       console.log('save');
+      console.log('editorContent', editorContent);
       const content = await editor.getHTML();
-      console.log(content);
+      console.log('content', content);
       if (note === null) {
         const noteId = await newNote(title, content, '');
         await newBoxNote(Number(boxId), noteId);
@@ -107,13 +162,14 @@ const EditTextNote = () => {
   const handleInsertFormula = async () => {
     setFormulaModalVisible(true);
   };
+
   const handleSaveFormula = (uri: string) => {
     //editor.injectJS(`insertImage("${uri}")`);
-    //editor.setImage(uri);
-    console.log('setImage');
-    editor.setImage(
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/100px-React-icon.svg.png'
-    );
+    editor.setImage(uri);
+    console.log('setImage', uri);
+    // editor.setImage(
+    //   'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/100px-React-icon.svg.png'
+    // );
     setFormulaModalVisible(false);
   };
 
@@ -132,6 +188,25 @@ const EditTextNote = () => {
         allowFileAccessFromFileURLs
         allowUniversalAccessFromFileURLs
         originWhitelist={['*']}
+        exclusivelyUseCustomOnMessage={false}
+        onMessage={event => {
+          try {
+            console.log('onMessage');
+            const data = JSON.parse(event.nativeEvent.data);
+            console.log('onMessage', data.type);
+            if (data.type === 'image-tap') {
+              console.log('image-tap', data);
+              setSelectedImageSrc(data.src);
+              setResizeWidth(data.width.toString());
+              setResizeHeight(data.height.toString());
+              setResizeModalVisible(true);
+            } else if (data.type === 'clear-selection') {
+              setSelectedImageSrc(null);
+            }
+          } catch (e) {
+            console.warn('Message parsing error:', e);
+          }
+        }}
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -165,6 +240,58 @@ const EditTextNote = () => {
           onClose={() => setFormulaModalVisible(false)}
           onSave={handleSaveFormula}
         />
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={resizeModalVisible}
+          onRequestClose={() => setResizeModalVisible(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: '#fff',
+                padding: 20,
+                borderRadius: 10,
+                width: '80%',
+              }}
+            >
+              <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+                Resize Image
+              </Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                placeholder="Width"
+                value={resizeWidth}
+                onChangeText={setResizeWidth}
+              />
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                placeholder="Height"
+                value={resizeHeight}
+                onChangeText={setResizeHeight}
+              />
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}
+              >
+                <PrimaryButton
+                  text="Cancel"
+                  onClick={() => setResizeModalVisible(false)}
+                  style={{ width: 100 }}
+                />
+                <PrimaryButton text="Resize" onClick={handleResizeImage} style={{ width: 100 }} />
+              </View>
+            </View>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -236,7 +363,6 @@ function InsertFormulaDialog({
         {previewFormula ? (
           <View
             style={{
-              width: 200,
               backgroundColor: '#fff',
               borderRadius: 18,
               padding: 16,
@@ -289,7 +415,7 @@ function InsertFormulaDialog({
 }
 const styles = StyleSheet.create({
   formulaContainer: {
-    backgroundColor: '#aaa',
+    backgroundColor: '#fff',
     padding: 20,
 
     justifyContent: 'center',

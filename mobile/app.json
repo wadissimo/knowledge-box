@@ -25,7 +25,9 @@
       },
       "package": "com.wadissimo.knowledgebox",
       "usesCleartextTraffic": true,
-      "permissions": ["android.permission.RECORD_AUDIO"],
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -61,7 +63,8 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
