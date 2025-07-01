@@ -61,7 +61,11 @@ const EditTextNote = () => {
     bridgeExtensions: [
       ...TenTapStartKit,
       NativeCustomImageBridge.configureExtension({ inline: true }),
-      MathematicsBridge,
+      MathematicsBridge.configureExtension({
+        katexOptions: {
+          displayMode: false,
+        },
+      }),
     ],
   });
   const bridgeState = useBridgeState(editor);

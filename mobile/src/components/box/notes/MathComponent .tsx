@@ -52,7 +52,7 @@ const MathRenderer: React.FC<MathRendererProps> = ({ tnode, inline }) => {
       fontCache={true}
       style={inline ? styles.inlineMath : styles.blockMath}
     >
-      {`$$${processedLatex}$$`}
+      {`$$\\textstyle ${processedLatex}$$`}
     </MathJaxSvg>
   );
 };
