@@ -10,19 +10,18 @@ import {
 } from 'react-native';
 import { i18n } from '@/src/lib/i18n';
 import { useRouter } from 'expo-router';
-import { Collection } from '@/src/data/CollectionModel';
-import { Card, useCardModel } from '@/src/data/CardModel';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useTheme } from '@react-navigation/native';
+
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import DraggableBoxCard from './DraggableBoxCard';
 import { useThemeColors } from '@/src/context/ThemeContext';
 import { Note, useNoteModel } from '@/src/data/NoteModel';
-import RenderHtml from 'react-native-render-html';
+
 import NoteRenderHtml from './notes/NoteRenderHtml';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
-import MathComponent from './notes/MathComponent ';
+
+import NoteRenderWithMath from './notes/NoteRenderWithMath';
 
 const BOX_SECTION_HEADER_SIZE = 40;
 const MAX_CARD_WINDOW_SIZE = 5;
@@ -278,7 +277,7 @@ const NotesBoxSection = ({
                           {/* <Text style={styles.colNameTxt} numberOfLines={4}>
                         {note.title}
                       </Text> */}
-                          <MathComponent content={note.content} width={contentWidth} />
+                          <NoteRenderWithMath content={note.content} width={contentWidth} />
                           {/* <NoteRenderHtml note={note} width={contentWidth} /> */}
                         </View>
                       </TouchableOpacity>
@@ -310,7 +309,7 @@ const NotesBoxSection = ({
                       {/* <Text style={styles.colNameTxt} numberOfLines={4}>
                         {note.title}
                       </Text> */}
-                      <NoteRenderHtml note={note} width={contentWidth} />
+                      <NoteRenderWithMath content={note.content} width={contentWidth} />
                     </View>
                   </TouchableOpacity>
                 </DraggableBoxCard>

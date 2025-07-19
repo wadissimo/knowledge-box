@@ -57,7 +57,7 @@ const MathRenderer: React.FC<MathRendererProps> = ({ tnode, inline }) => {
   );
 };
 
-export default function MathComponent({ content, width }: { content: string; width: number }) {
+export default function NoteRenderWithMath({ content, width }: { content: string; width: number }) {
   //   const htmlString =
   // 'This editor supports $\\LaTeX$ math expressions. $\\sin(x)$ And a block equation: $$\\int_0^1 x^2 dx = \\frac{1}{3}$$';
   const processedHtmlString = processHtmlForMath(content);
@@ -86,16 +86,6 @@ export default function MathComponent({ content, width }: { content: string; wid
     []
   );
 
-  const tagsStyles: Record<string, MixedStyleDeclaration> = {
-    p: {
-      fontSize: 16,
-      marginBottom: 10,
-    },
-    body: {
-      whiteSpace: 'normal',
-    },
-  };
-
   return (
     <ScrollView style={styles.container}>
       <RenderHtml
@@ -103,17 +93,56 @@ export default function MathComponent({ content, width }: { content: string; wid
         source={{ html: processedHtmlString }}
         customHTMLElementModels={customHTMLElementModels}
         renderers={renderers} // Now correctly typed as CustomTagRendererRecord
-        tagsStyles={tagsStyles}
+        tagsStyles={customTagsStyles}
       />
     </ScrollView>
   );
 }
 
+const customTagsStyles = {
+  h1: {
+    fontSize: 24,
+    fontWeight: 'bold' as 'bold',
+    marginBottom: 10,
+    color: '#333',
+  },
+  p: {
+    fontSize: 16,
+    lineHeight: 20,
+    marginBottom: 5,
+    color: '#555',
+  },
+  strong: {
+    fontWeight: 'bold' as 'bold',
+  },
+  em: {
+    fontStyle: 'italic' as 'italic',
+  },
+  a: {
+    color: 'blue',
+    textDecorationLine: 'underline' as 'underline',
+  },
+  b: {
+    fontWeight: 'bold' as 'bold',
+  },
+  i: {
+    fontStyle: 'italic' as 'italic',
+  },
+  u: {
+    textDecorationLine: 'underline' as 'underline',
+  },
+  s: {
+    textDecorationLine: 'line-through' as 'line-through',
+  },
+  strike: {
+    textDecorationLine: 'line-through' as 'line-through',
+  },
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    marginTop: 50,
   },
   inlineMath: {
     // Styles for inline math if needed
